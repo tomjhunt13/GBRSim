@@ -1,3 +1,5 @@
+import numpy as np
+
 """
 
 PowerIn - GPE_Power - KE_Power - Loss_Power = 0
@@ -111,16 +113,29 @@ class QuarterModel:
 
 
 if __name__ == '__main__':
-    v = MS()
-    v.Simulate()
+    # v = MS()
+    # v.Simulate()
+    #
+    # x_0 = [x[0] for x in v.state_history]
+    # x_1 = [x[1] for x in v.state_history]
+    # # x_2 = [x[2] for x in v.state_history]
+    # # x_3 = [x[3] for x in v.state_history]
+    #
+    # import matplotlib.pyplot as plt
+    # plt.plot(v.t, x_0)
+    # # plt.plot(v.t, x_2)
+    # plt.show()
+    # a = 0
 
-    x_0 = [x[0] for x in v.state_history]
-    x_1 = [x[1] for x in v.state_history]
-    # x_2 = [x[2] for x in v.state_history]
-    # x_3 = [x[3] for x in v.state_history]
 
-    import matplotlib.pyplot as plt
-    plt.plot(v.t, x_0)
-    # plt.plot(v.t, x_2)
-    plt.show()
-    a = 0
+    C = [0, 0, 0]
+    B = [1, 0, 0]
+    A = [0, 1, 0]
+
+    CB = np.subtract(B, C)
+    CA = np.subtract(A, C)
+
+    N = np.cross(CB, CA)
+
+    print('swdf')
+
