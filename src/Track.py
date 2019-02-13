@@ -101,6 +101,9 @@ class Track:
 
         return [0, 0, 0]
 
+    def position(self, segment, lambda_param):
+        pass
+
 
 
 def line(line_dictionary):
@@ -161,9 +164,34 @@ def triNormal(A, B, C):
 
     AB = np.subtract(B, A)
     AC = np.subtract(C, A)
-
     ABxAC = np.cross(AB, AC)
-    return list(np.multiply((1 / np.linalg(ABxAC)), ABxAC))
+
+    return list(np.multiply((1 / np.linalg.norm(ABxAC)), ABxAC))
+
+
+def pointOnArc(A, B, C, alpha):
+    """
+    Calculate point P on arc given start point, end point, centre and angle
+    :param A: Start point of arc
+    :param B: End point of arc
+    :param C: Centre of arc
+    :param alpha: angle made by vector CP to CA (radians)
+    :return: P
+    """
+
+    CA = np.subtract(A, C)
+    R = np.linalg.norm(CA)
+    CA_unit = np.multiply((1 / R), CA)
+    N = triNormal(A, B, C)
+
+    NxCA = np.cross(N, CA_unit)
+
+    i_component = np.multiply(R * np.cos(alpha), CA_unit)
+    j_component = np.multiply(R * np.sin(alpha), NxCA)
+
+    P = list(np.add(i_component, j_component))
+
+    return P
 
 
 
