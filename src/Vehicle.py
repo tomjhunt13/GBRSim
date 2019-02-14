@@ -48,22 +48,53 @@ class Vehicle:
         :return:
         """
 
+        # Current track segment
+        segment = self.track.track[self.segment]
+        segment_length = segment['length']
+
+        # Check if vehicle currently within bounds of current segment (Done before calculation based on previuos step to avoid runge kutta error)
+        if y[0] > 1:
+            self.segment = increment(self.segment, len(self.track.track) - 1)
+
+            # Update velocity to new track segment
+            current_velocity = y[1] * segment_length
+            segment_length = segment['length']
+            new_param_velocity = current_velocity / segment_length
+
+            y = [
+                0,
+                new_param_velocity
+            ]
+
+        elif y[0] < 0:
+            self.segment = increment(self.segment, len(self.track.track) - 1, increment=-1)
+
+            # Update velocity to new track segment
+            current_velocity = y[1] * segment_length
+            segment_length = segment['length']
+            new_param_velocity = current_velocity / segment_length
+
+            y = [
+                0,
+                new_param_velocity
+            ]
+
+        segment = self.track.track[self.segment]
+
         g = 9.81
         rho = 1.225
 
-        theta = self.track.gradient(self.segment, y[0])         # Road angle (rad)
-        # cornering = False   # Bool - is current track segment a corner?
-
-        segment_length = self.track.track[self.segment]['length']        # Length of current track segment (m)
+        theta = self.track.gradient(self.segment, y[0])     # Road angle (rad)
+        segment_length = segment['length']        # Length of current track segment (m)
         V = y[1] * segment_length   # Vehicle speed
 
         # Propulsive force
-        throttle_demand = 1
+        throttle_demand = 100
         P, fuel_power = self.power(V, throttle_demand)
 
         # Cornering drag
-        if self.track.track[self.segment]['type'] == 'arc':
-            R = 10000
+        if segment['type'] == 'arc':
+            R = segment['radius']
             Fz = g * (self.m / 2)  # Assume even weight distribution
             alpha = (self.m * y[1] * y[1]) / (R * Fz * self.Cs)       # Slip angle (rad)
             Fy = Fz * self.Cs * alpha
@@ -95,27 +126,12 @@ class Vehicle:
             (1 / (segment_length * self.m)) * (P - Frr - Fw - Fa - Fd)
         ]
 
-        # Check if vehicle reached next segment
-        if f[0] > 1:
-            self.segment = increment(self.segment, len(self.track.track))
-
-            # Update velocity to new track
-            current_velocity = f[1] * segment_length
-            new_segment_length = self.track.track[self.segment]['length']
-            new_param_velocity = current_velocity / new_segment_length
-
-            f = [
-                0,
-                new_param_velocity
-            ]
-
-
 
 
         return f
 
 
-def increment(current_index, max_index):
+def increment(current_index, max_index, increment=1):
     """
 
     :param current_index:
@@ -123,10 +139,13 @@ def increment(current_index, max_index):
     :return:
     """
 
-    next_index = current_index + 1
+    next_index = current_index + increment
 
     if next_index > max_index:
         return 0
+
+    if next_index < 0:
+        return max_index
 
     return next_index
 
@@ -165,18 +184,28 @@ if __name__ == '__main__':
 
     ]
 
-    track = Track(track)
+    track_1 = [
+        {'type': 'line', 'start': [0, 0, 0], 'end': [100, 0, 0]},
+        {'type': 'arc', 'start': [100, 0, 0], 'end': [150, 50, 0], 'centre': [100, 50, 0]},
+        {'type': 'arc', 'start': [150, 50, 0], 'end': [100, 100, 0], 'centre': [100, 50, 0]},
+        {'type': 'line', 'start': [100, 100, 0], 'end': [0, 100, 0]},
+        {'type': 'arc', 'start': [0, 100, 0], 'end': [-50, 50, 0], 'centre': [0, 50, 0]},
+        {'type': 'arc', 'start': [-50, 50, 0], 'end': [0, 0, 0], 'centre': [0, 50, 0]}
+    ]
+
+
+    track = Track(track_1)
 
     powertrain = Powertrain()
 
     v = Vehicle(1, powertrain, track)
     s = RK4()
 
-    t, y = s.solve(v.equation_of_motion, [0, 0], time_step=0.05, time_range=[0, 100])
+    t, y = s.solve(v.equation_of_motion, [0.5, 0], time_step=0.05, time_range=[0, 100])
 
 
     print(3)
-    x_0 = [x[0] * 100 for x in y]
+    x_0 = [x[0] for x in y]
     # x_1 = [x[1] for x in v.state_history]
     #
     import matplotlib.pyplot as plt
@@ -186,3 +215,5 @@ if __name__ == '__main__':
     #
     plt.show()
     a = 0
+
+    # Axes3D.scatter(xs, ys, zs=0, zdir='z', s=20, c=None, depthshade=True, *args, **kwargs)¶

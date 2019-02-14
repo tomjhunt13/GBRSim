@@ -90,7 +90,7 @@ class Track:
         direction_xy_unit = np.multiply((1 / np.linalg.norm(direction_xy)), direction_xy)
 
         # Dot two vectors
-        dot = np.dot(direction_xy_unit, direction)
+        dot = np.dot(direction_xy_unit, direction) / (np.linalg.norm(direction_xy_unit) * np.linalg.norm(direction))
 
         return np.arccos(dot)
 
