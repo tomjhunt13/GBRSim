@@ -2,9 +2,10 @@ import math
 
 from src.RK4 import *
 from src.Powertrain import *
+from src.Track import *
 
 class Vehicle:
-    def __init__(self, vehicle_parameters, powertrain):
+    def __init__(self, vehicle_parameters, powertrain, track):
 
         # Vehicle attributes
         self.m = 150         # Total vehicle mass (kg)
@@ -15,6 +16,11 @@ class Vehicle:
         self.PoweredWheelRadius = 0.2       # Radius of tyre for powered wheel
 
         self.powertrain = powertrain
+
+
+        # Initialise vehicle on track
+        self.track = track
+        self.segment = 0
 
     def power(self, velocity, demand):
         """
@@ -45,19 +51,18 @@ class Vehicle:
         g = 9.81
         rho = 1.225
 
-        # Propulsive force
-        throttle_demand = 0
+        theta = self.track.gradient(self.segment, y[0])         # Road angle (rad)
+        # cornering = False   # Bool - is current track segment a corner?
 
-        P, fuel_power = self.power(y[1], throttle_demand)
-
-        theta = -0.02         # Road angle (rad)
-        cornering = False   # Bool - is current track segment a corner?
-
-        segment_length = 100        # Length of current track segment (m)
+        segment_length = self.track.track[self.segment]['length']        # Length of current track segment (m)
         V = y[1] * segment_length   # Vehicle speed
 
+        # Propulsive force
+        throttle_demand = 1
+        P, fuel_power = self.power(V, throttle_demand)
+
         # Cornering drag
-        if cornering:
+        if self.track.track[self.segment]['type'] == 'arc':
             R = 10000
             Fz = g * (self.m / 2)  # Assume even weight distribution
             alpha = (self.m * y[1] * y[1]) / (R * Fz * self.Cs)       # Slip angle (rad)
@@ -90,13 +95,81 @@ class Vehicle:
             (1 / (segment_length * self.m)) * (P - Frr - Fw - Fa - Fd)
         ]
 
+        # Check if vehicle reached next segment
+        if f[0] > 1:
+            self.segment = increment(self.segment, len(self.track.track))
+
+            # Update velocity to new track
+            current_velocity = f[1] * segment_length
+            new_segment_length = self.track.track[self.segment]['length']
+            new_param_velocity = current_velocity / new_segment_length
+
+            f = [
+                0,
+                new_param_velocity
+            ]
+
+
+
+
         return f
+
+
+def increment(current_index, max_index):
+    """
+
+    :param current_index:
+    :param max_index:
+    :return:
+    """
+
+    next_index = current_index + 1
+
+    if next_index > max_index:
+        return 0
+
+    return next_index
+
 
 if __name__ == '__main__':
 
+    # Track
+    r = 200
+    theta = np.pi / 32
+
+    track = [
+        {'type': 'arc', 'start': [0, 0, 0],
+         'end': [r * np.sin(theta), 0, r - r * np.cos(theta)],
+         'centre': [0, 0, r]},
+
+        {'type': 'arc', 'start': [r * np.sin(theta), 0, r - r * np.cos(theta)],
+         'end': [2 * r * np.sin(theta), 0, 2 * (r - r * np.cos(theta))],
+         'centre': [2 * r * np.sin(theta), 0, 2 * (r - r * np.cos(theta)) - r]},
+
+        {'type': 'line', 'start': [2 * r * np.sin(theta), 0, 2 * (r - r * np.cos(theta))],
+         'end': [100, 0, 2 * (r - r * np.cos(theta))]},
+
+        {'type': 'arc', 'start': [100, 0, 2 * (r - r * np.cos(theta))],
+         'end': [150, 50, 2 * (r - r * np.cos(theta))],
+         'centre': [100, 50, 2 * (r - r * np.cos(theta))]},
+
+        {'type': 'arc', 'start': [150, 50, 2 * (r - r * np.cos(theta))],
+         'end': [100, 100, 2 * (r - r * np.cos(theta))],
+         'centre': [100, 50, 2 * (r - r * np.cos(theta))]},
+
+        {'type': 'line', 'start': [100, 100, 2 * (r - r * np.cos(theta))],
+         'end': [0, 100, 0]},
+
+        {'type': 'arc', 'start': [0, 100, 0], 'end': [-50, 50, 0], 'centre': [0, 50, 0]},
+        {'type': 'arc', 'start': [-50, 50, 0], 'end': [0, 0, 0], 'centre': [0, 50, 0]}
+
+    ]
+
+    track = Track(track)
+
     powertrain = Powertrain()
 
-    v = Vehicle(1, powertrain)
+    v = Vehicle(1, powertrain, track)
     s = RK4()
 
     t, y = s.solve(v.equation_of_motion, [0, 0], time_step=0.05, time_range=[0, 100])
