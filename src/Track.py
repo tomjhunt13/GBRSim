@@ -1,7 +1,4 @@
-import matplotlib.pyplot as plt
 import numpy as np
-
-from mpl_toolkits.mplot3d import Axes3D
 
 class Track:
     def __init__(self, track):
@@ -43,33 +40,29 @@ class Track:
                     raise Exception('Arc not valid')
 
 
-    def draw_coordinates(self):
-        """"
-        :return:
+    def draw_coordinates(self, num_arc_points=20):
+        """
+        Calculate 3D coordinates to draw track
+        :param num_arc_points: Number of points used to discretise curve
+        :return: tuple: x_coordinates, y_coordinates, z_coordinates
         """
 
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        ax.set_aspect('equal')
+        x = []
+        y = []
+        z = []
+
 
         # Loop over each track segment and draw on 3D plot
         for index, segment in enumerate(self.track):
             if segment['type'] == 'line':
 
-                x = [segment['start'][0], segment['end'][0]]
-                y = [segment['start'][1], segment['end'][1]]
-                z = [segment['start'][2], segment['end'][2]]
-
-                ax.plot(x, y, z)
-                print('line')
+                x += [segment['start'][0], segment['end'][0]]
+                y += [segment['start'][1], segment['end'][1]]
+                z += [segment['start'][2], segment['end'][2]]
 
             elif segment['type'] == 'arc':
 
-                x = []
-                y = []
-                z = []
-
-                num_points = 20
+                num_points = num_arc_points
                 for i in range(num_points):
                     lambda_param = i / (num_points - 1)
 
@@ -79,13 +72,7 @@ class Track:
                     y.append(P[1])
                     z.append(P[2])
 
-                ax.plot(x, y, z)
-
-
-
-        fig.show()
-
-        return fig
+        return x, y, z
 
     def gradient(self, segment, lambda_param):
         """
@@ -208,11 +195,11 @@ def arc(arc_dictionary):
     CB = np.subtract(B, C)
     radius = np.linalg.norm(CA)
 
-    if np.linalg.norm(CB) != radius:
+    if not np.isclose(np.linalg.norm(CB), radius):
         return False
 
     # Arc angle and length
-    arc_angle = np.arccos(np.dot(CA, CB))
+    arc_angle = np.arccos(np.dot(CA, CB) / (np.linalg.norm(CA) * np.linalg.norm(CB)))
     arc_length = arc_angle * radius
 
     # Update arc dictionary - dictionary is mutable so can operate on it here without returning new dictionary
@@ -271,8 +258,6 @@ def pointOnArc(A, B, C, alpha):
 if __name__ == '__main__':
 
 
-
-
     track_1 = [
         {'type': 'line', 'start': [0, 0, 0], 'end': [100, 0, 0]},
         {'type': 'arc', 'start': [100, 0, 0], 'end': [150, 50, 0], 'centre': [100, 50, 0]},
@@ -282,8 +267,57 @@ if __name__ == '__main__':
         {'type': 'arc', 'start': [-50, 50, 0], 'end': [0, 0, 0], 'centre': [0, 50, 0]}
     ]
 
-    track = Track(track_1)
-    track.draw()
+    r = 200
+    theta = np.pi / 32
+
+    track_2 = [
+        {'type': 'arc', 'start': [0, 0, 0],
+                        'end': [r * np.sin(theta), 0, r - r * np.cos(theta)],
+                        'centre': [0, 0, r]},
+
+        {'type': 'arc', 'start': [r * np.sin(theta), 0, r - r * np.cos(theta)],
+                        'end': [2 * r * np.sin(theta), 0, 2 * (r - r * np.cos(theta))],
+                        'centre': [2 * r * np.sin(theta), 0, 2 * (r - r * np.cos(theta)) - r]},
+
+        {'type': 'line', 'start': [2 * r * np.sin(theta), 0, 2 * (r - r * np.cos(theta))], 'end': [100, 0, 2 * (r - r * np.cos(theta))]},
+
+        {'type': 'arc', 'start': [100, 0, 2 * (r - r * np.cos(theta))],
+                        'end': [150, 50, 2 * (r - r * np.cos(theta))],
+                        'centre': [100, 50, 2 * (r - r * np.cos(theta))]},
+
+        {'type': 'arc', 'start': [150, 50, 2 * (r - r * np.cos(theta))],
+                        'end': [100, 100, 2 * (r - r * np.cos(theta))],
+                        'centre': [100, 50, 2 * (r - r * np.cos(theta))]},
+
+        {'type': 'line', 'start': [100, 100, 2 * (r - r * np.cos(theta))],
+                        'end': [0, 100, 0]},
+
+        {'type': 'arc', 'start': [0, 100, 0], 'end': [-50, 50, 0], 'centre': [0, 50, 0]},
+        {'type': 'arc', 'start': [-50, 50, 0], 'end': [0, 0, 0], 'centre': [0, 50, 0]}
+
+
+    ]
+
+    track = Track(track_2)
+
+    x, y, z = track.draw_coordinates()
+
+    import matplotlib.pyplot as plt
+
+    from mpl_toolkits.mplot3d import Axes3D
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    ax.plot(x, y, z)
+
+    ax.set_aspect('equal')
+
+    plt.show()
+
+
+
+
 
 
 
