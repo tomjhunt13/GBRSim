@@ -69,6 +69,36 @@ class TestTrack(unittest.TestCase):
         for i in range(3):
             self.assertAlmostEqual(P_calculated[i], P_expected[i])
 
+        # Offset, 90 deg, flat
+        A = [1, 0, 0]
+        B = [2, 1, 0]
+        C = [1, 1, 0]
+
+        alpha = pi / 2
+
+        P_calculated = pointOnArc(A, B, C, alpha)
+        P_expected = [2, 1, 0]
+
+        for i in range(3):
+            self.assertAlmostEqual(P_calculated[i], P_expected[i])
+
+
+    def test_arc(self):
+
+        # Valid flat arc
+        arc_test = {'start': [0, 0, 0], 'end': [50, 50, 0], 'centre': [0, 50, 0]}
+        valid = arc(arc_test)
+
+        self.assertEqual(valid, True)
+        self.assertAlmostEqual(arc_test['radius'], 50)
+        self.assertAlmostEqual(arc_test['angle'], pi / 2)
+        self.assertAlmostEqual(arc_test['length'], 50 * (pi / 2))
+
+        # Invalid flat arc
+        arc_test = {'start': [0, 0, 0], 'end': [60, 50, 0], 'centre': [0, 50, 0]}
+        valid = arc(arc_test)
+
+        self.assertEqual(valid, False)
 
 
 if __name__ == '__main__':

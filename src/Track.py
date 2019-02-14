@@ -34,19 +34,26 @@ class Track:
         self.track = track
 
         # Check segments are valid
+        for segment in self.track:
+            if segment['type'] == 'line':
+                line(segment)
+
+            elif segment['type'] == 'arc':
+                if not arc(segment):
+                    raise Exception('Arc not valid')
 
 
-    def draw(self):
-        """
-
+    def draw_coordinates(self):
+        """"
         :return:
         """
 
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
+        ax.set_aspect('equal')
 
         # Loop over each track segment and draw on 3D plot
-        for segment in self.track:
+        for index, segment in enumerate(self.track):
             if segment['type'] == 'line':
 
                 x = [segment['start'][0], segment['end'][0]]
@@ -55,6 +62,26 @@ class Track:
 
                 ax.plot(x, y, z)
                 print('line')
+
+            elif segment['type'] == 'arc':
+
+                x = []
+                y = []
+                z = []
+
+                num_points = 20
+                for i in range(num_points):
+                    lambda_param = i / (num_points - 1)
+
+                    P = self.position(index, lambda_param)
+
+                    x.append(P[0])
+                    y.append(P[1])
+                    z.append(P[2])
+
+                ax.plot(x, y, z)
+
+
 
         fig.show()
 
@@ -97,12 +124,55 @@ class Track:
 
         # Arc
         if track_segment['type'] == 'arc':
-            return [1, 0, 0]
+
+            A = track_segment['start']
+            B = track_segment['end']
+            C = track_segment['centre']
+
+            P = self.position(segment, lambda_param)
+            PC = np.subtract(C, P)
+            PC_unit = np.multiply((1 / np.linalg.norm(PC)), PC)
+
+            N = triNormal(A, B, C)
+
+            return list(np.cross(PC_unit, N))
 
         return [0, 0, 0]
 
     def position(self, segment, lambda_param):
-        pass
+        """
+        For a given point on the track, get the position of the vehicle in 3D space
+        :param segment: integer - Index of segment of track to use
+        :param lambda_param: float between 0 and 1 - value of parameter lambda to get position of
+        :return: 3 element list - Position vector of vehicle
+        """
+
+        # Get segment
+        track_segment = self.track[segment]
+
+        # Line segment
+        if track_segment['type'] == 'line':
+
+            A = track_segment['start']
+            B = track_segment['end']
+
+            AB = np.subtract(B, A)
+            return list(np.add(A, np.multiply(lambda_param, AB)))
+
+        # Arc
+        if track_segment['type'] == 'arc':
+
+            # Get alpha
+            alpha = lambda_param * track_segment['angle']
+
+            A = track_segment['start']
+            B = track_segment['end']
+            C = track_segment['centre']
+
+            return pointOnArc(A, B, C, alpha)
+
+        return [0, 0, 0]
+
 
 
 
@@ -179,6 +249,9 @@ def pointOnArc(A, B, C, alpha):
     :return: P
     """
 
+    # Create new coordinates in plane of ABC with coordinate vectors: CA, N cross CA
+    # Get P in these new coordinates and transform back
+
     CA = np.subtract(A, C)
     R = np.linalg.norm(CA)
     CA_unit = np.multiply((1 / R), CA)
@@ -189,10 +262,9 @@ def pointOnArc(A, B, C, alpha):
     i_component = np.multiply(R * np.cos(alpha), CA_unit)
     j_component = np.multiply(R * np.sin(alpha), NxCA)
 
-    P = list(np.add(i_component, j_component))
+    P = list(np.add(C, np.add(i_component, j_component)))
 
     return P
-
 
 
 
@@ -201,12 +273,16 @@ if __name__ == '__main__':
 
 
 
-    track = [
+    track_1 = [
         {'type': 'line', 'start': [0, 0, 0], 'end': [100, 0, 0]},
-        {'type': 'arc', 'start': [100, 0, 0], 'end': [100, 100, 0], 'centre': [100, 50, 0]}
+        {'type': 'arc', 'start': [100, 0, 0], 'end': [150, 50, 0], 'centre': [100, 50, 0]},
+        {'type': 'arc', 'start': [150, 50, 0], 'end': [100, 100, 0], 'centre': [100, 50, 0]},
+        {'type': 'line', 'start': [100, 100, 0], 'end': [0, 100, 0]},
+        {'type': 'arc', 'start': [0, 100, 0], 'end': [-50, 50, 0], 'centre': [0, 50, 0]},
+        {'type': 'arc', 'start': [-50, 50, 0], 'end': [0, 0, 0], 'centre': [0, 50, 0]}
     ]
 
-    track = Track(track)
+    track = Track(track_1)
     track.draw()
 
 
