@@ -85,14 +85,15 @@ class Track:
         # Get directional vector
         direction = self.direction(segment, lambda_param)
 
-        # Get unit vec of xy plane components
-        direction_xy = [direction[0], direction[1], 0]
-        direction_xy_unit = np.multiply((1 / np.linalg.norm(direction_xy)), direction_xy)
+        # If flat
+        if np.isclose(direction[2], 0):
+            return 0
 
-        # Dot two vectors
-        dot = np.dot(direction_xy_unit, direction) / (np.linalg.norm(direction_xy_unit) * np.linalg.norm(direction))
+        # Get angle
+        dot = np.dot(direction, [0, 0, 1])
+        angle_to_vertical = np.arccos(dot)
 
-        return np.arccos(dot)
+        return (np.pi / 2) - angle_to_vertical
 
     def direction(self, segment, lambda_param):
         """
