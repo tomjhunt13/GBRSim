@@ -44,7 +44,7 @@ def Animate(track, vehicle_results):
     vehicle_results = vehicle_results
 
     # Break out simulation results
-    t, y, s = vehicle_results
+    t, y, s, fuel_power = vehicle_results
 
     # Velocity - Time plot
     linear_velocity = [None] * len(t)
@@ -67,22 +67,27 @@ def Animate(track, vehicle_results):
         z_pos[index] = coordinates[2]
 
 
+    # Initialise figure
+    fig2D = plt.figure()
+    vel_ax = fig2D.add_subplot(311)
+    lambda_ax = fig2D.add_subplot(312)
+    fuel_ax = fig2D.add_subplot(313)
+
+    lambda_ax.plot(t, [x[0] for x in y])
+    lambda_ax.plot(t, s)
+    vel_ax.plot(t, linear_velocity)
+    fuel_ax.plot(t, fuel_power)
+
+    plt.show()
 
 
-    plt.plot(t, [x[0] for x in y])
+    # 3D
+    fig3D = plt.figure()
+    track_ax = fig3D.add_subplot(111, projection='3d')
 
-    plt.plot(t, linear_velocity)
-
-
-
-    #     # Initialise figure
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    ax.set_aspect('equal')
-    #
-    # # Draw track
+    # Draw track
     track_x, track_y, track_z = track.draw_coordinates()
-    track_plot = ax.plot(track_x, track_y, track_z)
+    track_plot = track_ax.plot(track_x, track_y, track_z)
     #
     #     # Get 3D coordinates
     #     coordinates = track.position(s[index], y[index][0])
@@ -94,9 +99,9 @@ def Animate(track, vehicle_results):
 
     # # Initialise marker
     # coordinates = track.position(s[0], y[0][0])
-    vehicle_rep = ax.scatter(x_pos, y_pos, z_pos, zdir='z', s=0.1, c=[[1, 0, 0]], depthshade=True)
-    #
-    # plt.ion()
+    vehicle_rep = track_ax.scatter(x_pos, y_pos, z_pos, zdir='z', s=0.1, c=[[1, 0, 0]], depthshade=True)
+    # #
+    # # plt.ion()
     plt.show()
     #
     # # Iterate over timesteps
@@ -111,23 +116,3 @@ def Animate(track, vehicle_results):
     #     # plt.draw()
     #     plt.pause(0.01)
 
-
-
-    #
-
-    #
-    # x_0 = [x[0] for x in y]
-    # # x_1 = [x[1] for x in v.state_history]
-    # #
-    # import matplotlib.pyplot as plt
-    #
-    # plt.plot(t, x_0)
-    # plt.plot(t, s, alpha=0.3)
-    #
-    # # plt.plot(v.t, x_1)
-    # #
-    # plt.show()
-    # a = 0
-    #
-    #
-    #

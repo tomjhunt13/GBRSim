@@ -8,12 +8,12 @@ class Vehicle:
     def __init__(self, vehicle_parameters, powertrain):
 
         # Vehicle attributes
-        self.m = 150         # Total vehicle mass (kg)
-        self.Crr = 0.005    # Coefficient of rolling resistance
-        self.Cd = 0.27       # Coefficient of drag
-        self.A = 1.3          # Frontal area (m^2)
-        self.Cs = 0.3       # Cornering stiffness
-        self.PoweredWheelRadius = 0.2       # Radius of tyre for powered wheel
+        self.m = vehicle_parameters['Mass']     # Total vehicle mass (kg)
+        self.Crr = vehicle_parameters['Crr']    # Coefficient of rolling resistance
+        self.Cd = vehicle_parameters['Cd']      # Coefficient of drag
+        self.A = vehicle_parameters['A']        # Frontal area (m^2)
+        self.Cs = vehicle_parameters['Cs']      # Cornering stiffness
+        self.PoweredWheelRadius = vehicle_parameters['PoweredWheelRadius']       # Radius of tyre for powered wheel
 
         self.powertrain = powertrain
 
@@ -34,7 +34,7 @@ class Vehicle:
         while self.t[-1] <= time_range[1]:
             self._step()
 
-        return self.t, self.y, self.segment
+        return self.t, self.y, self.segment, self.fuel_power
 
     def _step(self):
         """
@@ -46,21 +46,12 @@ class Vehicle:
         y_n = self.y[-1]
         t_n = self.t[-1]
 
-
-        k_1 = np.multiply(h, self.f(t_n, y_n))
-        k_2 = np.multiply(h, self.f(t_n + (h / 2.0), np.add(y_n, np.multiply((0.5), k_1))))
-        k_3 = np.multiply(h, self.f(t_n + (h / 2.0), np.add(y_n, np.multiply((0.5), k_2))))
-        k_4 = np.multiply(h, self.f(t_n + h, np.add(y_n, k_3)))
-
-        # Apply weighting
-        k_1_w = np.multiply(k_1, 1 / 6)
-        k_2_w = np.multiply(k_2, 1 / 3)
-        k_3_w = np.multiply(k_3, 1 / 3)
-        k_4_w = np.multiply(k_4, 1 / 6)
-
-        y_np1 = np.add(y_n, np.add(k_1_w, np.add(k_2_w, np.add(k_3_w, k_4_w))))
-        # y_np1 = np.add(y_n, k_1)
+        # Euler step
+        f, fuel_power = self.f(t_n, y_n)
+        k_1 = np.multiply(h, f)
+        y_np1 = np.add(y_n, k_1)
         t_np1 = t_n + h
+
 
         # Current track segment
         segment_index = self.segment[-1]
@@ -70,6 +61,7 @@ class Vehicle:
         # Check if vehicle currently within bounds of current segment
         if y_np1[0] > 1:
             segment_index = increment(segment_index, len(self.track.track) - 1)
+            segment = self.track.track[segment_index]
 
             # Update velocity to new track segment
             current_velocity = y_np1[1] * segment_length
@@ -83,6 +75,7 @@ class Vehicle:
 
         elif y_np1[0] < 0:
             segment_index = increment(segment_index, len(self.track.track) - 1, increment=-1)
+            segment = self.track.track[segment_index]
 
             # Update velocity to new track segment
             current_velocity = y_np1[1] * segment_length
@@ -97,6 +90,7 @@ class Vehicle:
         self.y.append(y_np1)
         self.t.append(t_np1)
         self.segment.append(segment_index)
+        self.fuel_power.append(fuel_power)
 
 
     def power(self, velocity, demand):
@@ -136,11 +130,11 @@ class Vehicle:
         V = y[1] * segment_length   # Vehicle speed
 
         # Propulsive force
-        if V > 10:
+        if V > 10 or theta < 0:
             throttle_demand = 0
 
         else:
-            throttle_demand = 0
+            throttle_demand = 1
 
         P, fuel_power = self.power(V, throttle_demand)
 
@@ -180,7 +174,7 @@ class Vehicle:
 
 
 
-        return f
+        return f, fuel_power
 
 
 def increment(current_index, max_index, increment=1):
