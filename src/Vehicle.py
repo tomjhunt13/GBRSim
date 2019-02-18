@@ -5,7 +5,7 @@ from src.Powertrain import *
 from src.Track import *
 
 class Vehicle:
-    def __init__(self, vehicle_parameters, powertrain, track):
+    def __init__(self, vehicle_parameters, powertrain):
 
         # Vehicle attributes
         self.m = 150         # Total vehicle mass (kg)
@@ -17,10 +17,87 @@ class Vehicle:
 
         self.powertrain = powertrain
 
+    def simulate(self, track, starting_segment, initial_conditions, time_step=0.01, time_range=[0, 100]):
+
 
         # Initialise vehicle on track
         self.track = track
-        self.segment = 0
+        self.segment = [starting_segment]
+
+        # Initialise state space
+        self.f = self.equation_of_motion
+        self.y = [np.array(initial_conditions)]
+        self.t = [time_range[0]]
+        self.fuel_power = [0]
+        self.time_step = time_step
+
+        while self.t[-1] <= time_range[1]:
+            self._step()
+
+        return self.t, self.y, self.segment
+
+    def _step(self):
+        """
+
+        :return:
+        """
+
+        h = self.time_step
+        y_n = self.y[-1]
+        t_n = self.t[-1]
+
+
+        k_1 = np.multiply(h, self.f(t_n, y_n))
+        k_2 = np.multiply(h, self.f(t_n + (h / 2.0), np.add(y_n, np.multiply((0.5), k_1))))
+        k_3 = np.multiply(h, self.f(t_n + (h / 2.0), np.add(y_n, np.multiply((0.5), k_2))))
+        k_4 = np.multiply(h, self.f(t_n + h, np.add(y_n, k_3)))
+
+        # Apply weighting
+        k_1_w = np.multiply(k_1, 1 / 6)
+        k_2_w = np.multiply(k_2, 1 / 3)
+        k_3_w = np.multiply(k_3, 1 / 3)
+        k_4_w = np.multiply(k_4, 1 / 6)
+
+        y_np1 = np.add(y_n, np.add(k_1_w, np.add(k_2_w, np.add(k_3_w, k_4_w))))
+        # y_np1 = np.add(y_n, k_1)
+        t_np1 = t_n + h
+
+        # Current track segment
+        segment_index = self.segment[-1]
+        segment = self.track.track[segment_index]
+        segment_length = segment['length']
+
+        # Check if vehicle currently within bounds of current segment
+        if y_np1[0] > 1:
+            segment_index = increment(segment_index, len(self.track.track) - 1)
+
+            # Update velocity to new track segment
+            current_velocity = y_np1[1] * segment_length
+            segment_length = segment['length']
+            new_param_velocity = current_velocity / segment_length
+
+            y_np1 = np.array([
+                0,
+                new_param_velocity
+            ])
+
+        elif y_np1[0] < 0:
+            segment_index = increment(segment_index, len(self.track.track) - 1, increment=-1)
+
+            # Update velocity to new track segment
+            current_velocity = y_np1[1] * segment_length
+            segment_length = segment['length']
+            new_param_velocity = current_velocity / segment_length
+
+            y_np1 = np.array([
+                0,
+                new_param_velocity
+            ])
+
+        self.y.append(y_np1)
+        self.t.append(t_np1)
+        self.segment.append(segment_index)
+
 
     def power(self, velocity, demand):
         """
@@ -49,47 +126,22 @@ class Vehicle:
         """
 
         # Current track segment
-        segment = self.track.track[self.segment]
-        segment_length = segment['length']
-
-        # Check if vehicle currently within bounds of current segment (Done before calculation based on previuos step to avoid runge kutta error)
-        if y[0] > 1:
-            self.segment = increment(self.segment, len(self.track.track) - 1)
-
-            # Update velocity to new track segment
-            current_velocity = y[1] * segment_length
-            segment_length = segment['length']
-            new_param_velocity = current_velocity / segment_length
-
-            y = [
-                0,
-                new_param_velocity
-            ]
-
-        elif y[0] < 0:
-            self.segment = increment(self.segment, len(self.track.track) - 1, increment=-1)
-
-            # Update velocity to new track segment
-            current_velocity = y[1] * segment_length
-            segment_length = segment['length']
-            new_param_velocity = current_velocity / segment_length
-
-            y = [
-                0,
-                new_param_velocity
-            ]
-
-        segment = self.track.track[self.segment]
+        segment = self.track.track[self.segment[-1]]
 
         g = 9.81
         rho = 1.225
 
-        theta = self.track.gradient(self.segment, y[0])     # Road angle (rad)
+        theta = self.track.gradient(self.segment[-1], y[0])     # Road angle (rad)
         segment_length = segment['length']        # Length of current track segment (m)
         V = y[1] * segment_length   # Vehicle speed
 
         # Propulsive force
-        throttle_demand = 100
+        if V > 10:
+            throttle_demand = 0
+
+        else:
+            throttle_demand = 0
+
         P, fuel_power = self.power(V, throttle_demand)
 
         # Cornering drag

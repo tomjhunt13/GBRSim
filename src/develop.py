@@ -33,30 +33,14 @@ track_list = [
 
 track = Track(track_list)
 
+powertrain = Powertrain()
 
-results = Results(track)
+v = Vehicle(1, powertrain)
+vehicle_results = v.simulate(track, 3, [0.01, 0], time_step=0.01, time_range=[0, 100])
 
-results.Animate()
-# track_x, track_y, track_z = track.draw_coordinates()
-#
-#
-# fig = plt.figure()
-# ax = fig.add_subplot(111, projection='3d')
-#
-# ax.plot(track_x, track_y, track_z)
-#
-# ax.set_aspect('equal')
-#
-#
-#
-# ax.scatter(0, 0, 0, zdir='z', s=20, c=[[1,0,0]], depthshade=True)
-#
-# plt.show()
-#
-# powertrain = Powertrain()
-#
-# v = Vehicle(1, powertrain, track)
-# s = RK4()
+
+Animate(track, vehicle_results)
+
 #
 # t, y = s.solve(v.equation_of_motion, [0.5, 0], time_step=0.05, time_range=[0, 100])
 #
@@ -67,6 +51,9 @@ results.Animate()
 # import matplotlib.pyplot as plt
 #
 # plt.plot(t, x_0)
+# plt.plot(t, s, alpha=0.3)
+#
+#
 # # plt.plot(v.t, x_1)
 # #
 # plt.show()
