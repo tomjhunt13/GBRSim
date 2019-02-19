@@ -35,20 +35,24 @@ class Powertrain:
         return engine_torque, fuel_power
 
 class BrushedMotor:
-    def __init__(self, stall_torque, no_load_speed, transmission_ratio=1, transmission_efficiency=0.9, motor_efficiency=0.9):
+    def __init__(self, torque_constant, transmission_ratio=125, transmission_efficiency=0.9, motor_efficiency=0.85):
         """
 
-        :param stall_torque: Torque of motor at 0 rpm (Nm)
-        :param no_load_speed: Angular speed at no load (rpm)
+        :param torque_constant: Torque constant of motor (Nm/A)
         """
 
-        self.stall_torque = stall_torque
-        self.no_load_speed = no_load_speed * pi * 2 / 60
+        self.torque_constant = torque_constant
         self.motor_efficiency = motor_efficiency
 
         # Transmission
         self.transmission_ratio = transmission_ratio
         self.transmission_efficiency = transmission_efficiency
+
+
+        # Battery properties
+        self.max_discharge_power = 1000
+        self.discharge_voltage = 24
+        self.battery_efficiency = 0.9
 
     def power(self, wheel_speed, demand):
         """
@@ -58,26 +62,16 @@ class BrushedMotor:
         :return:
         """
 
-        # Check for negative velocity
-        if wheel_speed < 0:
-            return self.stall_torque, 0
+        # Current
+        current = demand * ((self.max_discharge_power * self.battery_efficiency) / self.discharge_voltage)
 
-        # Convert wheel speed to engine speed
-        motor_speed = wheel_speed * self.transmission_ratio
+        # Torque
+        output_torque = self.transmission_efficiency * self.motor_efficiency * current * self.torque_constant * self.transmission_ratio
 
-        # Check for too fast
-        if motor_speed > self.no_load_speed:
-            return 0, 0
+        #  Power consumed
+        power = demand * self.max_discharge_power
 
-        # Get the torque produced by motor
-        max_torque = self.stall_torque - motor_speed * (self.stall_torque / self.no_load_speed)
-        torque = demand * max_torque
-
-        # Energy use
-        engine_power = torque * motor_speed
-        real_power = engine_power / (self.motor_efficiency * self.transmission_efficiency)
-
-        return torque, real_power
+        return output_torque, power
 
 
 

@@ -33,9 +33,8 @@ track_list = [
 track = Track(track_list)
 
 # Motor
-stall_torque = 200
-no_load_speed = 5000
-powertrain = BrushedMotor(stall_torque, no_load_speed, transmission_ratio=20)
+torque_constant = 0.054
+powertrain = BrushedMotor(torque_constant)
 
 # Vehicle attributes
 mass = 150      # Total vehicle mass (kg)
@@ -48,7 +47,7 @@ PoweredWheelRadius = 0.2       # Radius of tyre for powered wheel
 vehicle_parameters = {'Mass': mass, 'Crr': Crr, 'Cd': Cd, 'A': A, 'Cs': Cs, 'PoweredWheelRadius': PoweredWheelRadius}
 
 v = Vehicle(vehicle_parameters, powertrain)
-vehicle_results = v.simulate(track, 0, [0, 0], time_step=0.01, time_range=[0, 100])
+vehicle_results = v.simulate(track, 0, [0.5, 0], time_step=0.01, time_range=[0, 1000])
 
 
 Animate(track, vehicle_results)
