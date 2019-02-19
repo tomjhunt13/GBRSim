@@ -17,7 +17,7 @@ class Vehicle:
 
         self.powertrain = powertrain
 
-    def simulate(self, track, starting_segment, initial_conditions, time_step=0.01, time_limit=[0, 100]):
+    def simulate(self, track, starting_segment, initial_conditions, time_step=0.01, lap_limit=1, time_limit=100):
 
 
         # Initialise vehicle on track
@@ -27,14 +27,25 @@ class Vehicle:
         # Initialise state space
         self.f = self.equation_of_motion
         self.y = [np.array(initial_conditions)]
-        self.t = [time_range[0]]
-        self.fuel_power = [0]
+        self.t = [0]
         self.time_step = time_step
 
-        while self.t[-1] <= time_range[1]:
+        # Values
+        self.fuel_power = [0]
+        self.P = [0]
+        self.Frr = [0]
+        self.Fw = [0]
+        self.Fa = [0]
+        self.Fd = [0]
+
+
+        self.segments_visited = [starting_segment]
+        self.laps = 0
+
+        while self.t[-1] <= time_limit and self.laps != lap_limit:
             self._step()
 
-        return self.t, self.y, self.segment, self.fuel_power
+        return self.t, self.y, self.segment, self.fuel_power, self.P, self.Frr, self.Fw, self.Fa, self.Fd
 
     def _step(self):
         """
@@ -47,7 +58,7 @@ class Vehicle:
         t_n = self.t[-1]
 
         # Euler step
-        f, fuel_power = self.f(t_n, y_n)
+        f, fuel_power, P, Frr, Fw, Fa, Fd = self.f(t_n, y_n)
         k_1 = np.multiply(h, f)
         y_np1 = np.add(y_n, k_1)
         t_np1 = t_n + h
@@ -63,6 +74,14 @@ class Vehicle:
             segment_index = increment(segment_index, len(self.track.track) - 1)
             segment = self.track.track[segment_index]
 
+            if segment_index != self.segments_visited[-1]:
+                self.segments_visited.append(segment_index)
+                if len(self.segments_visited) == len(self.track.track) + 1:
+                    self.laps += 1
+
+            elif len(self.track.track) == 1:
+                self.laps += 1
+
             # Update velocity to new track segment
             current_velocity = y_np1[1] * segment_length
             segment_length = segment['length']
@@ -77,13 +96,15 @@ class Vehicle:
             segment_index = increment(segment_index, len(self.track.track) - 1, increment=-1)
             segment = self.track.track[segment_index]
 
+            self.segments_visited = [segment_index]
+
             # Update velocity to new track segment
             current_velocity = y_np1[1] * segment_length
             segment_length = segment['length']
             new_param_velocity = current_velocity / segment_length
 
             y_np1 = np.array([
-                0,
+                1,
                 new_param_velocity
             ])
 
@@ -91,7 +112,11 @@ class Vehicle:
         self.t.append(t_np1)
         self.segment.append(segment_index)
         self.fuel_power.append(fuel_power)
-
+        self.P.append(P)
+        self.Frr.append(Frr)
+        self.Fw.append(Fw)
+        self.Fa.append(Fa)
+        self.Fd.append(Fd)
 
     def power(self, velocity, demand):
         """
@@ -174,7 +199,7 @@ class Vehicle:
 
 
 
-        return f, fuel_power
+        return f, fuel_power, P, Frr, Fw, Fa, Fd
 
 
 def increment(current_index, max_index, increment=1):

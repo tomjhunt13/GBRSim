@@ -10,7 +10,7 @@ def Animate(track, vehicle_results):
     vehicle_results = vehicle_results
 
     # Break out simulation results
-    t, y, s, fuel_power = vehicle_results
+    t, y, s, fuel_power, P, Frr, Fw, Fa, Fd = vehicle_results
 
     print(np.trapz(fuel_power, t))
 
@@ -37,14 +37,41 @@ def Animate(track, vehicle_results):
 
     # Initialise figure
     fig2D = plt.figure()
-    vel_ax = fig2D.add_subplot(311)
-    lambda_ax = fig2D.add_subplot(312)
-    fuel_ax = fig2D.add_subplot(313)
+
+    vel_ax = fig2D.add_subplot(421)
+    vel_ax.set_title('Velocity')
+
+    lambda_ax = fig2D.add_subplot(422)
+    lambda_ax.set_title('Lambda / Segment')
+
+    fuel_ax = fig2D.add_subplot(423)
+    fuel_ax.set_title('Power Consumption')
+
+    P_ax = fig2D.add_subplot(424)
+    P_ax.set_title('P')
+
+    Frr_ax = fig2D.add_subplot(425)
+    Frr_ax.set_title('Frr')
+
+    Fw_ax = fig2D.add_subplot(426)
+    Fw_ax.set_title('Fw')
+
+    Fa_ax = fig2D.add_subplot(427)
+    Fa_ax.set_title('Fa')
+
+    Fd_ax = fig2D.add_subplot(428)
+    Fd_ax.set_title('Fd')
 
     lambda_ax.plot(t, [x[0] for x in y])
     lambda_ax.plot(t, s)
     vel_ax.plot(t, linear_velocity)
     fuel_ax.plot(t, fuel_power)
+    P_ax.plot(t, P)
+    Frr_ax.plot(t, Frr)
+    Fw_ax.plot(t, Fw)
+    Fa_ax.plot(t, Fa)
+    Fd_ax.plot(t, Fd)
+
 
     plt.show()
 
@@ -56,6 +83,7 @@ def Animate(track, vehicle_results):
     # Draw track
     track_x, track_y, track_z = track.draw_coordinates()
     track_plot = track_ax.plot(track_x, track_y, track_z)
+    vehicle_rep = track_ax.scatter(x_pos, y_pos, z_pos, zdir='z', s=0.1, c=[[1, 0, 0]], depthshade=True)
 
     plt.show()
 
@@ -70,7 +98,7 @@ def Animate(track, vehicle_results):
     #
     # # # Initialise marker
     # # coordinates = track.position(s[0], y[0][0])
-    # vehicle_rep = track_ax.scatter(x_pos, y_pos, z_pos, zdir='z', s=0.1, c=[[1, 0, 0]], depthshade=True)
+
     # # #
     # # # plt.ion()
 

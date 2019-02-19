@@ -7,7 +7,7 @@ from src.Vehicle import *
 from src.Results import *
 
 # Make Track
-h = 20
+h = 5
 
 track_list = [
     {'type': 'line', 'start': [0, 0, 0],
@@ -37,10 +37,10 @@ track = Track(bathwick)
 
 # Motor
 motor_properties = {'torque_constant': 0.054, 'motor_efficiency': 0.9}
-battery_properties = {'max_discharge_power': 1000, 'discharge_voltage': 24, 'battery_efficiency': 0.9}
+battery_properties = {'max_discharge_power': 1500, 'discharge_voltage': 24, 'battery_efficiency': 0.9}
 transmission_properties = {'transmission_ratio': 125, 'transmission_efficiency': 0.95}
 
-powertrain = BrushedMotor(motor_properties, battery_properties, transmission_properties, number_of_motors=25)
+powertrain = BrushedMotor(motor_properties, battery_properties, transmission_properties, number_of_motors=2)
 
 # Vehicle attributes
 mass = 150      # Total vehicle mass (kg)
@@ -53,7 +53,7 @@ PoweredWheelRadius = 0.2       # Radius of tyre for powered wheel
 vehicle_parameters = {'Mass': mass, 'Crr': Crr, 'Cd': Cd, 'A': A, 'Cs': Cs, 'PoweredWheelRadius': PoweredWheelRadius}
 
 v = Vehicle(vehicle_parameters, powertrain)
-vehicle_results = v.simulate(track, 0, [0, 0], time_step=0.01, time_range=[0, 500])
+vehicle_results = v.simulate(track, 0, [0, 0], time_step=0.01, time_limit=500)
 
 
 Animate(track, vehicle_results)
