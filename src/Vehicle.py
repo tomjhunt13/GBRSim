@@ -17,7 +17,7 @@ class Vehicle:
 
         self.powertrain = powertrain
 
-    def simulate(self, track, starting_segment, initial_conditions, time_step=0.01, time_range=[0, 100]):
+    def simulate(self, track, starting_segment, initial_conditions, time_step=0.01, time_limit=[0, 100]):
 
 
         # Initialise vehicle on track

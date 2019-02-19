@@ -35,24 +35,41 @@ class Powertrain:
         return engine_torque, fuel_power
 
 class BrushedMotor:
-    def __init__(self, torque_constant, transmission_ratio=125, transmission_efficiency=0.9, motor_efficiency=0.85):
+    def __init__(self, motor_properties, battery_properties, transmission_properties, number_of_motors=1):
+        """
+        Approximate brushed motor model without resistance
+        :param motor_properties:
+
+                Dictionary of form - {'torque_constant': __ (Nm/A), 'motor_efficiency': __ }
+
+        :param battery_properties:
+
+                Dictionary of form - {'max_discharge_power': __ (W), 'discharge_voltage': __ (V), 'battery_efficiency': __}
+
+        :param transmission_properties:
+
+                Dictionary of form - {'transmission_ratio': __, 'transmission_efficiency': __}
+
+        :param number_of_motors: Number of motors used
         """
 
-        :param torque_constant: Torque constant of motor (Nm/A)
-        """
 
-        self.torque_constant = torque_constant
-        self.motor_efficiency = motor_efficiency
-
-        # Transmission
-        self.transmission_ratio = transmission_ratio
-        self.transmission_efficiency = transmission_efficiency
-
+        # Motor properties
+        self.torque_constant = motor_properties['torque_constant']
+        self.motor_efficiency = motor_properties['motor_efficiency']
+        self.number_of_motors = number_of_motors
 
         # Battery properties
-        self.max_discharge_power = 1000
-        self.discharge_voltage = 24
-        self.battery_efficiency = 0.9
+        self.max_discharge_power = battery_properties['max_discharge_power']
+        self.discharge_voltage = battery_properties['discharge_voltage']
+        self.battery_efficiency = battery_properties['battery_efficiency']
+
+        # Transmission
+        self.transmission_ratio = transmission_properties['transmission_ratio']
+        self.transmission_efficiency = transmission_properties['transmission_efficiency']
+
+
+
 
     def power(self, wheel_speed, demand):
         """
@@ -71,7 +88,7 @@ class BrushedMotor:
         #  Power consumed
         power = demand * self.max_discharge_power
 
-        return output_torque, power
+        return self.number_of_motors * output_torque, self.number_of_motors * power
 
 
 
