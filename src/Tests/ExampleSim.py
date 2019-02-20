@@ -33,11 +33,11 @@ bathwick = [
 track = Track(bathwick)
 
 # Motor
-motor_properties = {'torque_constant': 0.054, 'motor_efficiency': 0.9}
-battery_properties = {'max_discharge_power': 1500, 'discharge_voltage': 24, 'battery_efficiency': 0.9}
-transmission_properties = {'transmission_ratio': 125, 'transmission_efficiency': 0.95}
+motor_properties = {'torque_constant': 0.054, 'motor_efficiency': 0.9, 'motor_speed_constant': 178, 'motor_coil_resistance': 2.4}
+battery_properties = {'max_discharge_power': 300, 'discharge_voltage': 24, 'battery_efficiency': 0.9}
+transmission_properties = {'transmission_ratio': 5000, 'transmission_efficiency': 0.95}
 
-powertrain = BrushedMotor(motor_properties, battery_properties, transmission_properties, number_of_motors=2)
+powertrain = BrushedMotor(motor_properties, battery_properties, transmission_properties, number_of_motors=1)
 
 # Vehicle attributes
 mass = 150      # Total vehicle mass (kg)
