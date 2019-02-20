@@ -59,7 +59,7 @@ class BrushedMotor:
         self.torque_constant = motor_properties['torque_constant']
         self.motor_efficiency = motor_properties['motor_efficiency']
         self.motor_speed_constant = 1 / (motor_properties['motor_speed_constant'] * 2 * pi / 60)
-        self.motor_coil_resistance = motor_properties['motor_coil_resistance']
+        self.no_load_speed = motor_properties['no_load_speed'] * 2 * pi / 60
         self.number_of_motors = number_of_motors
 
         # Battery properties
@@ -70,8 +70,6 @@ class BrushedMotor:
         # Transmission
         self.transmission_ratio = transmission_properties['transmission_ratio']
         self.transmission_efficiency = transmission_properties['transmission_efficiency']
-
-
 
 
     def power(self, wheel_speed, demand):
@@ -103,13 +101,15 @@ class BrushedMotor:
         - https://www.maxonmotor.com/medias/sys_master/root/8815460712478/DC-EC-Key-Information-14-EN-42-50.pdf
         """
 
-        # Find induced back voltage
+        # # Find induced back voltage
         motor_speed = wheel_speed * self.transmission_ratio
-        T_opposing = (self.torque_constant / self.motor_coil_resistance) * self.motor_speed_constant * motor_speed
+        # T_opposing = (self.torque_constant / self.motor_coil_resistance) * self.motor_speed_constant * motor_speed
 
         # Find propulsive torque on motor shaft
         current = demand * ((self.max_discharge_power * self.battery_efficiency) / self.discharge_voltage)
         T_propulsive = self.transmission_efficiency * self.motor_efficiency * current * self.torque_constant * self.transmission_ratio
+
+        T_opposing = current * self.torque_constant * (motor_speed / self.no_load_speed)
 
         #  Power consumed
         power = demand * self.max_discharge_power
