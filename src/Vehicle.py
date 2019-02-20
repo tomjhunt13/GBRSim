@@ -17,7 +17,7 @@ class Vehicle:
 
         self.powertrain = powertrain
 
-    def simulate(self, track, starting_segment, initial_conditions, time_step=0.01, lap_limit=1, time_limit=100):
+    def simulate(self, track, starting_segment, initial_conditions, time_step=0.01, lap_limit=1, time_limit=100, power_cutoff_speed=10):
 
 
         # Initialise vehicle on track
@@ -38,6 +38,8 @@ class Vehicle:
         self.Fa = [0]
         self.Fd = [0]
 
+
+        self.power_cutoff_speed = power_cutoff_speed
 
         self.segments_visited = [starting_segment]
         self.laps = 0
@@ -155,7 +157,7 @@ class Vehicle:
         V = y[1] * segment_length   # Vehicle speed
 
         # Propulsive force
-        if V > 10 or theta < 0:
+        if V > self.power_cutoff_speed or theta < 0:
             throttle_demand = 0
 
         else:
@@ -219,72 +221,3 @@ def increment(current_index, max_index, increment=1):
         return max_index
 
     return next_index
-
-
-if __name__ == '__main__':
-
-    # Track
-    r = 200
-    theta = np.pi / 32
-
-    track = [
-        {'type': 'arc', 'start': [0, 0, 0],
-         'end': [r * np.sin(theta), 0, r - r * np.cos(theta)],
-         'centre': [0, 0, r]},
-
-        {'type': 'arc', 'start': [r * np.sin(theta), 0, r - r * np.cos(theta)],
-         'end': [2 * r * np.sin(theta), 0, 2 * (r - r * np.cos(theta))],
-         'centre': [2 * r * np.sin(theta), 0, 2 * (r - r * np.cos(theta)) - r]},
-
-        {'type': 'line', 'start': [2 * r * np.sin(theta), 0, 2 * (r - r * np.cos(theta))],
-         'end': [100, 0, 2 * (r - r * np.cos(theta))]},
-
-        {'type': 'arc', 'start': [100, 0, 2 * (r - r * np.cos(theta))],
-         'end': [150, 50, 2 * (r - r * np.cos(theta))],
-         'centre': [100, 50, 2 * (r - r * np.cos(theta))]},
-
-        {'type': 'arc', 'start': [150, 50, 2 * (r - r * np.cos(theta))],
-         'end': [100, 100, 2 * (r - r * np.cos(theta))],
-         'centre': [100, 50, 2 * (r - r * np.cos(theta))]},
-
-        {'type': 'line', 'start': [100, 100, 2 * (r - r * np.cos(theta))],
-         'end': [0, 100, 0]},
-
-        {'type': 'arc', 'start': [0, 100, 0], 'end': [-50, 50, 0], 'centre': [0, 50, 0]},
-        {'type': 'arc', 'start': [-50, 50, 0], 'end': [0, 0, 0], 'centre': [0, 50, 0]}
-
-    ]
-
-    track_1 = [
-        {'type': 'line', 'start': [0, 0, 0], 'end': [100, 0, 0]},
-        {'type': 'arc', 'start': [100, 0, 0], 'end': [150, 50, 0], 'centre': [100, 50, 0]},
-        {'type': 'arc', 'start': [150, 50, 0], 'end': [100, 100, 0], 'centre': [100, 50, 0]},
-        {'type': 'line', 'start': [100, 100, 0], 'end': [0, 100, 0]},
-        {'type': 'arc', 'start': [0, 100, 0], 'end': [-50, 50, 0], 'centre': [0, 50, 0]},
-        {'type': 'arc', 'start': [-50, 50, 0], 'end': [0, 0, 0], 'centre': [0, 50, 0]}
-    ]
-
-
-    track = Track(track_1)
-
-    powertrain = Powertrain()
-
-    v = Vehicle(1, powertrain, track)
-    s = RK4()
-
-    t, y = s.solve(v.equation_of_motion, [0.5, 0], time_step=0.05, time_range=[0, 100])
-
-
-    print(3)
-    x_0 = [x[0] for x in y]
-    # x_1 = [x[1] for x in v.state_history]
-    #
-    import matplotlib.pyplot as plt
-
-    plt.plot(t, x_0)
-    # plt.plot(v.t, x_1)
-    #
-    plt.show()
-    a = 0
-
-    # Axes3D.scatter(xs, ys, zs=0, zdir='z', s=20, c=None, depthshade=True, *args, **kwargs)¶
