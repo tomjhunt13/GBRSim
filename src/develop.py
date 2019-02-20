@@ -2,6 +2,7 @@ from src.Track import *
 from src.Powertrain import *
 from src.Vehicle import *
 from src.Results import *
+from src.Control import *
 
 # Make Track
 h = 5
@@ -39,6 +40,8 @@ transmission_properties = {'transmission_ratio': 5000, 'transmission_efficiency'
 
 powertrain = BrushedMotor(motor_properties, battery_properties, transmission_properties, number_of_motors=1)
 
+control = BurnAndCoast_Velocity()
+
 # Vehicle attributes
 mass = 150      # Total vehicle mass (kg)
 Crr = 0.005     # Coefficient of rolling resistance
@@ -50,7 +53,7 @@ PoweredWheelRadius = 0.2       # Radius of tyre for powered wheel
 vehicle_parameters = {'Mass': mass, 'Crr': Crr, 'Cd': Cd, 'A': A, 'Cs': Cs, 'PoweredWheelRadius': PoweredWheelRadius}
 
 v = Vehicle(vehicle_parameters, powertrain)
-vehicle_results = v.simulate(track, 0, [0, 0], time_step=0.01, time_limit=1500)
+vehicle_results = v.simulate(track, 0, [0, 0], control_function=control.demand, time_step=0.01, time_limit=1500)
 
 
 Animate(track, vehicle_results)

@@ -1,8 +1,5 @@
 import math
-
-from src.RK4 import *
-from src.Powertrain import *
-from src.Track import *
+import numpy as np
 
 class Vehicle:
     def __init__(self, vehicle_parameters, powertrain):
@@ -17,7 +14,7 @@ class Vehicle:
 
         self.powertrain = powertrain
 
-    def simulate(self, track, starting_segment, initial_conditions, time_step=0.01, lap_limit=1, time_limit=100, power_cutoff_speed=10):
+    def simulate(self, track, starting_segment, initial_conditions, control_function, time_step=0.01, lap_limit=1, time_limit=100):
 
 
         # Initialise vehicle on track
@@ -39,7 +36,7 @@ class Vehicle:
         self.Fd = [0]
 
 
-        self.power_cutoff_speed = power_cutoff_speed
+        self.control_function = control_function
 
         self.segments_visited = [starting_segment]
         self.laps = 0
@@ -157,11 +154,12 @@ class Vehicle:
         V = y[1] * segment_length   # Vehicle speed
 
         # Propulsive force
-        if V > self.power_cutoff_speed or theta < 0:
-            throttle_demand = 0
-
-        else:
-            throttle_demand = 1
+        throttle_demand = self.control_function(V, theta)
+        # if V > self.power_cutoff_speed or theta < 0:
+        #     throttle_demand = 0
+        #
+        # else:
+        #     throttle_demand = 1
 
         P, fuel_power = self.power(V, throttle_demand)
 
