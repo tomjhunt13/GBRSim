@@ -81,7 +81,17 @@ def Spacing(range, n):
     return (range[1] - range[0]) / n
 
 
-def Cd_m_data(m_range, Cd_range, A, Crr, t, v):
+def Cd_m_data(m_range, Cd_range, A, Crr, t, v, desired_range=300, battery_density=5):
+    """
+
+    :param m_range:
+    :param Cd_range:
+    :param A:
+    :param Crr:
+    :param t:
+    :param v:
+    :return:
+    """
 
     n = 10
     dm = Spacing(m_range, n)
@@ -102,7 +112,12 @@ def Cd_m_data(m_range, Cd_range, A, Crr, t, v):
             Cd = Cd_list[j]
             print(Cd)
 
-            data[i][j] = WLTC(t, v, m, Cd,  A, Crr)
+            x0 = [1]
+            res = minimize(BattSize, x0, args=(t, v, desired_range, m, Cd, A, Crr, battery_density))
+            batt_energy = res['x'][0]
+            batt_mass = battery_density * batt_energy
+
+            data[i][j] = WLTC(t, v, m + batt_mass, Cd,  A, Crr)
 
     return m_list, Cd_list, data
 
