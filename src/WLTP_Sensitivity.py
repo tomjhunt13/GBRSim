@@ -2,6 +2,7 @@ import csv
 import numpy as np
 import matplotlib.pyplot as plt
 
+from scipy.optimize import minimize
 from scipy.optimize import approx_fprime
 
 cycle_file = "/Users/tom/Documents/University/Y3_S2/SG3/WLTP_Class1.csv"
@@ -18,7 +19,7 @@ with open(cycle_file, newline='') as csvfile:
             v.append(float(row[1]) * (1/3.6))
 
 
-def WLTP(t, v, m, Cd, A, Crr):
+def WLTC(t, v, m, Cd, A, Crr):
     """
 
     :param t:
@@ -63,7 +64,7 @@ def WLTP(t, v, m, Cd, A, Crr):
 
 
 
-def WLTPSensitivity(input_vec, *args):
+def WLTCSensitivity(input_vec, *args):
 
     m = input_vec[0]
     Cd = input_vec[1]
@@ -73,7 +74,7 @@ def WLTPSensitivity(input_vec, *args):
     t = args[0]
     v = args[1]
 
-    return WLTP(t, v, m, Cd, A, Crr)
+    return WLTC(t, v, m, Cd, A, Crr)
 
 
 def Spacing(range, n):
@@ -101,7 +102,7 @@ def Cd_m_data(m_range, Cd_range, A, Crr, t, v):
             Cd = Cd_list[j]
             print(Cd)
 
-            data[i][j] = WLTP(t, v, m, Cd,  A, Crr)
+            data[i][j] = WLTC(t, v, m, Cd,  A, Crr)
 
     return m_list, Cd_list, data
 
@@ -126,7 +127,7 @@ def Cd_A_data(Cd_range, A_range, m, Crr, t, v):
             Cd = Cd_list[j]
             print(Cd)
 
-            data[i][j] = WLTP(t, v, m, Cd, A, Crr)
+            data[i][j] = WLTC(t, v, m, Cd, A, Crr)
 
     return A_list, Cd_list, data
 
@@ -152,6 +153,60 @@ def FourAxPlot():
 
     plt.show()
 
+def BattSize(battery_energy, *args):
+
+    t = args[0]
+    v = args[1]
+    desired_range = args[2]
+
+    base_mass_inc_person = args[3]
+    Cd = args[4]
+    A = args[5]
+    Crr = args[6]
+    battery_density = args[7]
+
+    battery_mass = battery_density * battery_energy[0]
+
+    m = battery_mass + base_mass_inc_person
+
+    efficiency = WLTC(t, v, m, Cd, A, Crr)
+    range_result = efficiency * battery_energy[0]
+
+    print('Energy: ' + str(battery_energy[0]) + ', Mass: ' + str(battery_mass) + ', Range: ' + str(range_result))
+
+    return np.abs(range_result - desired_range)
+
+
+def CarSize(t, v, desired_range, base_mass=90, person_mass=75, battery_density=5, Cd=0.2, A=1.26, Crr=0.02):
+    """
+
+    :param t:
+    :param v:
+    :return:
+    """
+
+    x0 = [1]
+
+    res = minimize(BattSize, x0, args=(t, v, desired_range, base_mass + person_mass, Cd, A, Crr, battery_density))
+
+    batt_energy = res['x'][0]
+    batt_mass = battery_density * batt_energy
+
+    return batt_energy, batt_mass
+
+
+
+range_list = np.linspace(10, 1000, 10)
+batt_mass_list = [CarSize(t, v, r)[1] for r in range_list]
+
+fig, ax_1 = plt.subplots()
+ax_1.plot(range_list,batt_mass_list)
+ax_1.scatter(300, 33.159, color=[1,0,0])
+ax_1.set_title('Mass Of Battery For Given Range')
+ax_1.set_xlabel('Range (km)')
+ax_1.set_ylabel('Mass of Battery (kg)')
+ax_1.grid()
+
 
 fig, ax = plt.subplots()
 m_range = [80, 200]
@@ -167,6 +222,7 @@ ax.set_ylabel('Coefficient Of Drag')
 
 
 ax.scatter(150, 0.2, color=[1,0,0])
+# ax.scatter(175, 0.2, color=[0,0,1])
 ax.plot([80, 150], [0.2, 0.2], color=[0.1, 0.1, 0.1], linestyle='--', alpha=0.25)
 ax.plot([150, 150], [0.05, 0.2], color=[0.1, 0.1, 0.1], linestyle='--', alpha=0.25)
 
@@ -177,7 +233,7 @@ Cd = 0.2
 A = 1.26
 Crr = 0.02
 
-gradient = approx_fprime([m, Cd, A, Crr], WLTPSensitivity, 0.001, t, v)
+gradient = approx_fprime([m, Cd, A, Crr], WLTCSensitivity, 0.001, t, v)
 
 dn_dm = gradient[0]
 dn_dCd = gradient[1]
