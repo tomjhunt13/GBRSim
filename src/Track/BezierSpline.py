@@ -1,54 +1,27 @@
 import numpy as np
+from src.Track.Segment import *
 
-class CubicBezier:
+class CubicBezier(Segment):
     def __init__(self, knots, control_points):
 
         self.knots = knots
         self.control_points = control_points
+        
+        super(CubicBezier, self).__init__()
 
-    def draw_coordinates(self, num_segments=20):
-        """
-        Calculate 3D coordinates to draw segment
-        :param num_segments: Number of points used to discretise curve
-        :return: tuple: x_coordinates, y_coordinates, z_coordinates
-        """
 
-        x = [None] * (num_segments + 1)
-        y = [None] * (num_segments + 1)
-        z = [None] * (num_segments + 1)
-
-        for i in range(num_segments + 1):
-
-            t = float(i) / num_segments
-            P = self.position(t)
-
-            x[i] = P[0]
-            y[i] = P[1]
-            z[i] = P[2]
-
-        return x, y, z
-
-    def gradient(self, segment, lambda_param):
-        """
-        For a given point on the track, get the gradient in radians
-        :param segment: integer - Index of segment of track to use
-        :param lambda_param: float between 0 and 1 - value of parameter lambda to get gradient of
-        :return: float - Gradient of track in radians
-        """
-
-        pass
-
-    def direction(self, lambda_param):
+    def direction(self, t):
         """
         For a given point on the track, get the direction of travel a unit vector
-        :param segment: integer - Index of segment of track to use
         :param lambda_param: float between 0 and 1 - value of parameter lambda to get direction of
         :return: 3 element list - Direction vector of track
         """
 
+        # Get first derivative
+        d = self._first_derivative(t)
 
+        return np.multiply((1 / np.linalg.norm(d)), d)
 
-        pass
 
     def position(self, t):
         """
@@ -80,7 +53,7 @@ class CubicBezier:
 
         return list(np.add(np.add(P0_contribution, P1_contribution), np.add(P2_contribution, P3_contribution)))
 
-    def derivative(self, t):
+    def _first_derivative(self, t):
         """
         For a value of parameter t, compute the derivative wrt t
         :param t: float between 0 and 1 - value of t to get derivative at
