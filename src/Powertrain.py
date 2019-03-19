@@ -1,39 +1,5 @@
 from math import pi
 
-class Powertrain:
-    def __init__(self):
-
-        # Torque velocity curve
-        self.torque = [[50, 70, 80, 85, 80, 70], [0, 100, 200, 300, 400, 500]]
-        self.engine_efficiency = 0.3
-
-        # Transmission
-        self.transmission_ratio = 2
-        self.transmission_efficiency = 0.9
-
-    def power(self, wheel_speed, demand):
-        """
-
-        :param wheel_speed: Rotational speed of wheel (radians / second)
-        :param demand: Throttle demand between 0 and 1
-        :return:
-        """
-
-        # Convert wheel speed to engine speed
-        engine_speed = wheel_speed * self.transmission_ratio
-
-        # Get the torque produced by engine - Temporary!
-        engine_torque_max = InterpolateList(engine_speed, self.torque[1], self.torque[0])
-
-
-        engine_torque = demand * engine_torque_max
-
-        # Fuel use
-        engine_power = engine_torque * engine_speed
-        fuel_power = engine_power / (self.engine_efficiency * self.transmission_efficiency)
-
-        return engine_torque, fuel_power
-
 class BrushedMotor:
     def __init__(self, motor_properties, battery_properties, transmission_properties, number_of_motors=1):
         """
@@ -57,9 +23,9 @@ class BrushedMotor:
 
         # Motor properties
         self.torque_constant = motor_properties['torque_constant']
-        self.motor_efficiency = motor_properties['motor_efficiency']
+        # self.motor_efficiency = motor_properties['motor_efficiency']
         self.motor_speed_constant = 1 / (motor_properties['motor_speed_constant'] * 2 * pi / 60)
-        self.no_load_speed = motor_properties['no_load_speed'] * 2 * pi / 60
+        # self.no_load_speed = motor_properties['no_load_speed'] * 2 * pi / 60
         self.number_of_motors = number_of_motors
 
         # Battery properties
@@ -71,8 +37,16 @@ class BrushedMotor:
         self.transmission_ratio = transmission_properties['transmission_ratio']
         self.transmission_efficiency = transmission_properties['transmission_efficiency']
 
+        # State
+        self.t_n = 0
+        self.i_n = 75
 
-    def power(self, wheel_speed, demand):
+        # Electrical Properties
+        self.R = 480 * 0.001
+        self.L = 14 * 0.001 * 0.001
+
+
+    def power(self, wheel_speed, demand, t):
         """
 
         :param wheel_speed: Rotational speed of wheel (radians / second)
@@ -101,38 +75,47 @@ class BrushedMotor:
         - https://www.maxonmotor.com/medias/sys_master/root/8815460712478/DC-EC-Key-Information-14-EN-42-50.pdf
         """
 
-        # # Find induced back voltage
+        # Motor speed
         motor_speed = wheel_speed * self.transmission_ratio
-        # T_opposing = (self.torque_constant / self.motor_coil_resistance) * self.motor_speed_constant * motor_speed
 
-        # Find propulsive torque on motor shaft
-        current = demand * ((self.max_discharge_power * self.battery_efficiency) / self.discharge_voltage)
-        T_propulsive = self.transmission_efficiency * self.motor_efficiency * current * self.torque_constant * self.transmission_ratio
+        # Voltage
+        V = demand * self.discharge_voltage
 
-        T_opposing = current * self.torque_constant * (motor_speed / self.no_load_speed)
+        # Update i
+        dt = t - self.t_n
 
-        #  Power consumed
-        power = demand * self.max_discharge_power
+        # i_np1 = (V - self.motor_speed_constant * motor_speed) / self.R
 
-        # Net torque
-        output_torque = T_propulsive - T_opposing
+        di_dt = self.update_equation(self.i_n, motor_speed, V)
+        i_np1 = self.i_n + dt * di_dt
 
-        return self.number_of_motors * output_torque, self.number_of_motors * power
+        # Torque
+        T_m = self.torque_constant * i_np1
+        T_w = T_m * self.transmission_ratio * self.transmission_efficiency
+
+        # Power
+        power = (V * i_np1) / self.battery_efficiency
+
+        # Update state
+        self.i_n = i_np1
+        self.t_n = self.t_n + dt
+
+        return self.number_of_motors * T_w, self.number_of_motors * power
 
 
 
-def InterpolateList(x, list_x, list_y):
+    def update_equation(self, i, omega, V):
+        """
+        Returns di / dt
+        :param i:
+        :param omega:
+        :param V:
+        :return:
+        """
 
-    if x < list_x[0]:
-        return list_y[0]
+        a =  (V - i * self.R - self.motor_speed_constant * omega)
 
-    index = 0
-    while list_x[index] < x:
-        index += 1
+        return a
 
-        if index > len(list_x) - 1:
-            return list_y[-1]
+        return (1 / self.L) * (V - i * self.R - self.motor_speed_constant * omega)
 
-    # Interpolate
-
-    return list_y[index]

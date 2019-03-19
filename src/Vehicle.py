@@ -117,7 +117,7 @@ class Vehicle:
         self.Fa.append(Fa)
         self.Fd.append(Fd)
 
-    def power(self, velocity, demand):
+    def power(self, velocity, demand, t):
         """
 
         :param velocity: Linear vehicle velocity
@@ -129,7 +129,7 @@ class Vehicle:
         omega = (1 / self.PoweredWheelRadius) * velocity
 
 
-        torque, fuel_power = self.powertrain.power(omega, demand)
+        torque, fuel_power = self.powertrain.power(omega, demand, t)
         linear_force = torque * self.PoweredWheelRadius
 
 
@@ -155,13 +155,8 @@ class Vehicle:
 
         # Propulsive force
         throttle_demand = self.control_function(V, theta)
-        # if V > self.power_cutoff_speed or theta < 0:
-        #     throttle_demand = 0
-        #
-        # else:
-        #     throttle_demand = 1
 
-        P, fuel_power = self.power(V, throttle_demand)
+        P, fuel_power = self.power(V, throttle_demand, t)
 
         # Cornering drag
         if segment['type'] == 'arc':
@@ -179,7 +174,7 @@ class Vehicle:
 
         if y[1] != 0:
             # Rolling resistance
-            Frr = self.m * g * self.Crr * np.sign(V)
+            Frr = self.m * g * math.cos(theta) * self.Crr * np.sign(V)
 
             # Aerodynamic drag
             Fa = 0.5 * rho * self.Cd * self.A * V * V * np.sign(V)

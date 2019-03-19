@@ -186,6 +186,12 @@ def arc(arc_dictionary):
     :return: Bool - is arc valid
     """
 
+    # Allow 'start', 'end', 'radius' assuming flat
+    if 'radius' in arc_dictionary.keys():
+        arc_from_radius(arc_dictionary)
+        return True
+
+
     # Unpack dictionary
     A = arc_dictionary['start']
     B = arc_dictionary['end']
@@ -209,6 +215,37 @@ def arc(arc_dictionary):
     arc_dictionary['length'] = arc_length
 
     return True
+
+def arc_from_radius(arc_dictionary):
+
+
+    A = arc_dictionary['start']
+    B = arc_dictionary['end']
+    r = arc_dictionary['radius']
+
+    arc_dictionary['centre'] = centre_from_two_points(A, B, r)
+
+def centre_from_two_points(A, B, r):
+    """
+
+    :param A:
+    :param B:
+    :param r:
+    :return:
+    """
+
+    AB = np.subtract(B, A)
+    AB_mid = A + np.multiply(0.5, AB)
+
+
+    n_vec = np.cross(AB, [0, 0, 1])
+    n_vec_unit = (1 / np.linalg.norm(n_vec)) * n_vec
+
+    C = AB_mid + np.multiply(r, n_vec_unit)
+
+    return list(C)
+
+
 
 
 def triNormal(A, B, C):

@@ -33,7 +33,7 @@ bathwick = [
 track = Track(bathwick)
 
 # Motor
-motor_properties = {'torque_constant': 0.054, 'motor_efficiency': 0.9, 'motor_speed_constant': 178, 'motor_coil_resistance': 2.4}
+motor_properties = {'torque_constant': 0.054, 'motor_efficiency': 0.8, 'motor_speed_constant': 178, 'no_load_speed': 4090}
 battery_properties = {'max_discharge_power': 300, 'discharge_voltage': 24, 'battery_efficiency': 0.9}
 transmission_properties = {'transmission_ratio': 5000, 'transmission_efficiency': 0.95}
 
