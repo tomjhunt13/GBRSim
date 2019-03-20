@@ -52,22 +52,6 @@ class CubicBezier(Segment):
         return list(np.add(np.add(P0_contribution, P1_contribution), np.add(P2_contribution, P3_contribution)))
 
     def radius_of_curvature(self, t):
-
-        curvature = np.linalg.norm(self._curvature_vec(t))
-        if np.isclose(curvature, 0):
-            return 99999999
-
-        return 1 / curvature
-
-    def horizontal_radius_of_curvature(self, t):
-
-        curvature = np.linalg.norm(self._curvature_vec(t)[:2] + [0])
-        if np.isclose(curvature, 0):
-            return 99999999
-
-        return 1 / curvature
-
-    def _curvature_vec(self, t):
         """
 
         :param t:
@@ -76,18 +60,31 @@ class CubicBezier(Segment):
         https://www.khanacademy.org/math/multivariable-calculus/multivariable-derivatives/curvature/v/curvature-formula-part-5
         """
 
-        dS_dt = self._first_derivative(t)
-        dS_dt_mag = np.linalg.norm(dS_dt)
-        dS_dt_unit = np.divide(dS_dt, dS_dt_mag)
+        curvature = self._curvature(t)
+        if np.isclose(curvature, 0, atol=1e-8):
+            return 1e8
 
+        return 1 / curvature
+
+    def _curvature(self, t):
+        """
+
+        :param t:
+        :return:
+
+        https://www.khanacademy.org/math/multivariable-calculus/multivariable-derivatives/curvature/v/curvature-formula-part-5
+        """
+
+        # Derivatives
+        dS_dt = self._first_derivative(t)
         d2S_dt2 = self._second_derivative(t)
+        dS_dt_mag = np.linalg.norm(dS_dt)
 
 
         dS_dt_cross_dS2_dt2 = np.cross(dS_dt, d2S_dt2)
         dS_dt_cross_dS2_dt2_normalised = np.divide(dS_dt_cross_dS2_dt2, dS_dt_mag * dS_dt_mag * dS_dt_mag)
-        dT_ds = np.cross(dS_dt_cross_dS2_dt2_normalised, dS_dt_unit)
 
-        return dT_ds
+        return np.linalg.norm(dS_dt_cross_dS2_dt2_normalised)
 
     def _first_derivative(self, t):
         """

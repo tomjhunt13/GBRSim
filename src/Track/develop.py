@@ -28,7 +28,7 @@ knots = circle[0]
 control_points = circle[1]
 
 knots = [[0, 0, 0], [3, 0, 0]]
-control_points = [[1, 0, 3], [2, 0, -2]]
+control_points = [[1, 0, 0], [2, 0, 0]]
 
 
 
@@ -37,8 +37,9 @@ b = CubicBezier(knots, control_points)
 x, y, z = b.draw_coordinates()
 
 
+print(b.radius_of_curvature(0))
 print(b.radius_of_curvature(0.5))
-print(b.horizontal_radius_of_curvature(0.5))
+print(b.radius_of_curvature(1))
 
 
 
