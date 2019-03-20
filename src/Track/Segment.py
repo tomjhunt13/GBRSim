@@ -44,12 +44,8 @@ class Segment:
 
         return (np.pi / 2) - angle_to_vertical
 
-    def direction(self, lambda_param):
-        """
-        For a given point on the track, get the direction of travel a unit vector
-        :param segment: integer - Index of segment of track to use
-        :param lambda_param: float between 0 and 1 - value of parameter lambda to get direction of
-        :return: 3 element list - Direction vector of track
-        """
-
+    def direction(self, t):
         pass
+
+    def radius_of_curvature(self, t):
+        return 0
