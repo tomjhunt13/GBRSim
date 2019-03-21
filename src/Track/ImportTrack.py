@@ -1,54 +1,62 @@
 import csv
-import matplotlib.pyplot as plt
 
 from src.Track.BezierSpline import *
-
-from mpl_toolkits.mplot3d import Axes3D
-
-from src.Track_original import *
-
-track_coordinates_2018 = '/Users/tom/Documents/University/Y3_S2/Shell_Eco-marathon_Europe_-_London_2018_track_(xyz)_SZEnergy_Team_HUN.csv'
-track_coordinates_2019 = '/Users/tom/Documents/University/Y3_S2/Track2019.csv'
-
-with open(track_coordinates_2018, newline='') as csvfile:
-    spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
-
-    x = []
-    y = []
-    z = []
-
-    for row in spamreader:
-
-        x.append(row[0])
-        y.append(row[1])
-        z.append(row[2])
-
-x = [float(l) for l in x[10:30]]
-y = [float(l) for l in y[10:30]]
-z = [float(l) for l in z[10:30]]
-
-points = [[x[i], y[i], z[i]] for i in range(len(x))]
-
-splines = fit_bezier(points)
+from src.Track.Track import *
 
 
-fig3D = plt.figure()
-track_ax = fig3D.add_subplot(111, projection='3d')
-# track_plot = track_ax.plot(x, y, z)
+def read_coordinate_file(file_path, start_row=1, end_row=None):
+    """
+    Read a three columned CSV file and return a list of coordinates
+    :param file_path: 
+    :param start_row:
+    :param end_row:
+    :return:
+    """
 
-for spline in splines:
+    # Read file
+    with open(file_path, newline='') as csvfile:
+        spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
 
-    # colours = [[1, 0, 0], [0, 0, 1]]
-    # points = [spline.knots, spline.control_points]
-    # for i in range(2):
-    #     for j in range(2):
-    #         track_ax.scatter(points[i][j][0], points[i][j][1], points[i][j][2], zdir='z', s=5, c=[colours[i]],
-    #                          depthshade=True)
+        x = []
+        y = []
+        z = []
 
-    x, y, z = spline.draw_coordinates(num_segments=5)
+        for row in spamreader:
+            x.append(row[0])
+            y.append(row[1])
+            z.append(row[2])
 
-    track_ax.plot(x, y, z)
-    # track_ax.plot(x, y, [0 for i in z])
+    if end_row is None:
+        end_row = len(x) - 1
 
-plt.show()
+    x = [float(l) for l in x[start_row:end_row]]
+    y = [float(l) for l in y[start_row:end_row]]
+    z = [float(l) for l in z[start_row:end_row]]
+
+    return [[x[i], y[i], z[i]] for i in range(len(x))]
+
+
+def import_track(file_path, start_row=1, end_row=None):
+    """
+
+    :return:
+    """
+    return Track(fit_cubic_bezier(read_coordinate_file(file_path, start_row=start_row, end_row=end_row)))
+
+
+if __name__ == "__main__":
+    track_coordinates_2018 = '/Users/tom/Documents/University/Y3_S2/Shell_Eco-marathon_Europe_-_London_2018_track_(xyz)_SZEnergy_Team_HUN.csv'
+    track_coordinates_2019 = '/Users/tom/Documents/University/Y3_S2/Track2019.csv'
+    t = import_track(track_coordinates_2018, start_row=40, end_row=1000)
+
+    x, y, z = t.draw_coordinates(num_segments=5)
+
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D
+
+    fig3D = plt.figure()
+    track_ax = fig3D.add_subplot(111, projection='3d')
+    track_plot = track_ax.plot(x, y, z)
+
+    plt.show()
 

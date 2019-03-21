@@ -14,7 +14,7 @@ class Track:
         self.segments = segment_list
 
 
-    def draw_coordinates(self, num_arc_points=5):
+    def draw_coordinates(self, num_segments=5):
         """
         Calculate 3D coordinates to draw track
         :param num_arc_points: Number of points used to discretise curve
@@ -27,11 +27,11 @@ class Track:
 
         for index, segment in enumerate(self.segments):
 
-            x_i, y_i, z_i = segment.draw_coordinates(num_arc_points=num_arc_points)
+            x_i, y_i, z_i = segment.draw_coordinates(num_segments=num_segments)
 
-            x.append(x_i)
-            y.append(y_i)
-            z.append(z_i)
+            x += x_i
+            y += y_i
+            z += z_i
 
         return x, y, z
 

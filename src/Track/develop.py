@@ -15,7 +15,7 @@ points = [[0, 0, 0], [1, 2, 0], [2, 4, -4], [3, 6, 0]]
 
 # knots = [[0, 0, 0], [3, 0, 0]]
 
-splines = fit_bezier(points)
+splines = fit_cubic_bezier(points)
 
 fig3D = plt.figure()
 track_ax = fig3D.add_subplot(111, projection='3d')

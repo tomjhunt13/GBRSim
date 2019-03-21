@@ -47,5 +47,8 @@ class Segment:
     def direction(self, t):
         pass
 
+    def position(self, t):
+        pass
+
     def radius_of_curvature(self, t):
         return 0

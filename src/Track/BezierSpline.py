@@ -139,7 +139,7 @@ class CubicBezier(Segment):
 
 
 
-def fit_bezier(points):
+def fit_cubic_bezier(points):
     """
 
     :param points:
@@ -165,8 +165,6 @@ def fit_bezier(points):
         d[0] = points[0][i] + 2 * points[1][i]
         d[-1] = 8 * points[-2][i] + points[-1][i]
 
-        # d[-1] = 3 * points[-1][i]
-
         M[0] = [0] * num_splines
         M[0][0] = 2
         M[0][1] = 1
@@ -174,7 +172,6 @@ def fit_bezier(points):
         M[-1] = [0] * num_splines
         M[-1][-2] = 2
         M[-1][-1] = 7
-
 
         # Construct rest of system
         j = 1
@@ -191,7 +188,6 @@ def fit_bezier(points):
 
     # Unpack P1
     P1_control_points = [[P1[i][p] for i in range(3)] for p in range(num_splines)]
-
 
     # Calculate P2
     P2 = [None] * 3
