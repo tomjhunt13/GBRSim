@@ -150,17 +150,7 @@ def fit_bezier(points):
     if len(points) < 3:
         raise Exception('Not enough points')
 
-
-    """
-    
-    At left boundary:
-    
-        dS(0)/dt_i =  dS(1)/dt_i-1
-    
-    """
-
-    n = len(points)
-    num_splines = n - 1
+    num_splines = len(points) - 1
 
 
     # Solve for P1
