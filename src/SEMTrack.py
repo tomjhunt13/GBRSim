@@ -2,7 +2,7 @@ import csv
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-from src.Track import *
+from src.Track_original import *
 
 track_coordinates_2018 = '/Users/tom/Documents/University/Y3_S2/Shell_Eco-marathon_Europe_-_London_2018_track_(xyz)_SZEnergy_Team_HUN.csv'
 track_coordinates_2019 = '/Users/tom/Documents/University/Y3_S2/Track2019.csv'

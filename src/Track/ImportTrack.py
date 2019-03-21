@@ -1,5 +1,6 @@
 import csv
 
+from src import src_location
 from src.Track.BezierSpline import *
 from src.Track.Track import *
 
@@ -7,7 +8,7 @@ from src.Track.Track import *
 def read_coordinate_file(file_path, start_row=1, end_row=None):
     """
     Read a three columned CSV file and return a list of coordinates
-    :param file_path: 
+    :param file_path:
     :param start_row:
     :param end_row:
     :return:
@@ -44,10 +45,22 @@ def import_track(file_path, start_row=1, end_row=None):
     return Track(fit_cubic_bezier(read_coordinate_file(file_path, start_row=start_row, end_row=end_row)))
 
 
+def import_year(year):
+    """
+
+    :param year:
+    :return:
+    """
+
+    if year == '2018':
+        return import_track(src_location + '/Track/CoordinateCSVs/Track_2018.csv')
+
+    raise Exception('Could not find track for year ' + str(year))
+
+
 if __name__ == "__main__":
-    track_coordinates_2018 = '/Users/tom/Documents/University/Y3_S2/Shell_Eco-marathon_Europe_-_London_2018_track_(xyz)_SZEnergy_Team_HUN.csv'
-    track_coordinates_2019 = '/Users/tom/Documents/University/Y3_S2/Track2019.csv'
-    t = import_track(track_coordinates_2018, start_row=40, end_row=1000)
+
+    t = import_year('2018')
 
     x, y, z = t.draw_coordinates(num_segments=5)
 
