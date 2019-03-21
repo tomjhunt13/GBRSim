@@ -159,7 +159,8 @@ def fit_bezier(points):
     
     """
 
-    num_splines = len(points) - 1
+    n = len(points)
+    num_splines = n - 1
 
 
     # Solve for P1
@@ -174,13 +175,15 @@ def fit_bezier(points):
         d[0] = points[0][i] + 2 * points[1][i]
         d[-1] = 8 * points[-2][i] + points[-1][i]
 
+        # d[-1] = 3 * points[-1][i]
+
         M[0] = [0] * num_splines
         M[0][0] = 2
         M[0][1] = 1
 
         M[-1] = [0] * num_splines
-        M[-1][0] = 2
-        M[-1][1] = 7
+        M[-1][-2] = 2
+        M[-1][-1] = 7
 
 
         # Construct rest of system
@@ -196,26 +199,24 @@ def fit_bezier(points):
 
         P1[i] = np.linalg.solve(M, d)
 
-    # Unpack P1 and calculate P2
+    # Unpack P1
     P1_control_points = [[P1[i][p] for i in range(3)] for p in range(num_splines)]
 
-    P2_control_points = [[None, None, None]] * num_splines
-    # P1_control_points[i] =
 
-
+    # Calculate P2
+    P2 = [None] * 3
     for i in range(3):
-
+        P2_i = [None] * num_splines
         for p in range(num_splines - 1):
-            P2_control_points[p][i] = 2 * points[p + 1][i] - P1_control_points[p + 1][i]
+            P2_i[p] = 2 * points[p + 1][i] - P1_control_points[p + 1][i]
 
-        P2_control_points[num_splines - 1][i] = 0.5 * (P1_control_points[num_splines - 1][i] + points[-1][i])
+        P2_i[-1] = 0.5 * (P1_control_points[-1][i] + points[-1][i])
 
+        P2[i] = P2_i
 
+    # Unpack P2
+    P2_control_points = [[P2[i][p] for i in range(3)] for p in range(num_splines)]
 
-
-    # P2_control_points = [[2 * points[p][i] - P1_control_points[p][i] for i in range(3)] for p in range(num_splines)]
-
-    # P2_control_points[-1] = [0.5 * points[-2][i] + P1_control_points[-2][i] for i in range(3)]
 
     # Construct splines
     splines = [None] * num_splines
@@ -228,17 +229,3 @@ def fit_bezier(points):
         splines[spline_index] = CubicBezier(knots, [P1_j, P2_j])
 
     return splines
-
-    # P2 = [[2 * points[j][i] - P1[i][j] for j in range(num_splines)] for i in range(3)]
-
-    # # Construct splines
-    # splines = [None] * num_splines
-    #
-    # for spline_index in range(num_splines):
-    #     knots = [points[spline_index], points[spline_index + 1]]
-    #     P1_j = [P1[spline_index][i] for i in range(3)]
-    #     P2_j = [P2[spline_index][i] for i in range(3)]
-    #
-    #     splines[spline_index] = CubicBezier(knots, [P1_j, P2_j])
-    #
-    # return splines
