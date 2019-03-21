@@ -55,4 +55,7 @@ def import_year(year):
     if year == '2018':
         return import_track(src_location + '/Track/CoordinateCSVs/Track_2018.csv')
 
+    elif year == '2019':
+        return import_track(src_location + '/Track/CoordinateCSVs/Track_2019.csv')
+
     raise Exception('Could not find track for year ' + str(year))

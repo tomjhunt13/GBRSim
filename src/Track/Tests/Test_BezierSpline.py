@@ -1,6 +1,5 @@
 import unittest
 
-# from math import sqrt, pi, sin, cos
 from src.Track.BezierSpline import *
 
 class TestBezierSpline(unittest.TestCase):
@@ -91,7 +90,6 @@ class TestBezierSpline(unittest.TestCase):
         expected_gradient = np.pi/4
 
         self.assertAlmostEqual(calculated_gradient, expected_gradient)
-
 
 
 if __name__ == '__main__':

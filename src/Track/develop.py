@@ -3,8 +3,11 @@ from mpl_toolkits.mplot3d import Axes3D
 
 from src.Track.ImportTrack import *
 
+
 t = import_year('2018')
 x, y, z = t.draw_coordinates(num_segments=5)
+
+ljhg = t.total_length()
 
 fig3D = plt.figure()
 track_ax = fig3D.add_subplot(111, projection='3d')

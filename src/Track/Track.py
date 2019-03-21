@@ -64,3 +64,11 @@ class Track:
         """
 
         return self.segments[segment_index].position(t)
+
+    def total_length(self):
+
+        length = 0
+        for segment in self.segments:
+            length += segment.length
+
+        return length

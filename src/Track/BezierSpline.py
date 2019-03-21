@@ -9,6 +9,8 @@ class CubicBezier(Segment):
         
         super(CubicBezier, self).__init__()
 
+        self.length = self._length()
+
     def direction(self, t):
         """
         For a given point on the track, get the direction of travel a unit vector
