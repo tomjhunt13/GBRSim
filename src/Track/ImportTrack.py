@@ -7,11 +7,11 @@ from src.Track.Track import *
 
 def read_coordinate_file(file_path, start_row=1, end_row=None):
     """
-    Read a three columned CSV file and return a list of coordinates
-    :param file_path:
-    :param start_row:
-    :param end_row:
-    :return:
+    Read a three columned CSV file and construct coordinate list
+    :param file_path: Path of csv file
+    :param start_row: Row to start reading from
+    :param end_row: Row to stop reading at
+    :return: Coordinate list
     """
 
     # Read file
@@ -39,37 +39,20 @@ def read_coordinate_file(file_path, start_row=1, end_row=None):
 
 def import_track(file_path, start_row=1, end_row=None):
     """
-
-    :return:
+    Create a Track instance from a coordinate CSV file
+    :return: Track instance
     """
     return Track(fit_cubic_bezier(read_coordinate_file(file_path, start_row=start_row, end_row=end_row)))
 
 
 def import_year(year):
     """
-
-    :param year:
-    :return:
+    Create a Track instance from a certain year coordinate CSV file
+    :param year: String - year of track
+    :return: Track instance
     """
 
     if year == '2018':
         return import_track(src_location + '/Track/CoordinateCSVs/Track_2018.csv')
 
     raise Exception('Could not find track for year ' + str(year))
-
-
-if __name__ == "__main__":
-
-    t = import_year('2018')
-
-    x, y, z = t.draw_coordinates(num_segments=5)
-
-    import matplotlib.pyplot as plt
-    from mpl_toolkits.mplot3d import Axes3D
-
-    fig3D = plt.figure()
-    track_ax = fig3D.add_subplot(111, projection='3d')
-    track_plot = track_ax.plot(x, y, z)
-
-    plt.show()
-

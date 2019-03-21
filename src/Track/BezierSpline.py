@@ -12,7 +12,7 @@ class CubicBezier(Segment):
     def direction(self, t):
         """
         For a given point on the track, get the direction of travel a unit vector
-        :param lambda_param: float between 0 and 1 - value of parameter lambda to get direction of
+        :param t: float between 0 and 1 - value of t to get direction of
         :return: 3 element list - Direction vector of track
         """
 
@@ -53,11 +53,9 @@ class CubicBezier(Segment):
 
     def radius_of_curvature(self, t):
         """
-
-        :param t:
-        :return:
-
-        https://www.khanacademy.org/math/multivariable-calculus/multivariable-derivatives/curvature/v/curvature-formula-part-5
+        Compute the radius of curvature at t
+        :param t: Scaled distance along curve
+        :return: Radius of curvature
         """
 
         curvature = self._curvature(t)
@@ -68,9 +66,9 @@ class CubicBezier(Segment):
 
     def _curvature(self, t):
         """
-
-        :param t:
-        :return:
+        Compute the magnitude of curvature
+        :param t: Scaled distance along curve
+        :return: Curvature
 
         https://www.khanacademy.org/math/multivariable-calculus/multivariable-derivatives/curvature/v/curvature-formula-part-5
         """
@@ -80,7 +78,7 @@ class CubicBezier(Segment):
         d2S_dt2 = self._second_derivative(t)
         dS_dt_mag = np.linalg.norm(dS_dt)
 
-
+        # Curvature calculation
         dS_dt_cross_dS2_dt2 = np.cross(dS_dt, d2S_dt2)
         dS_dt_cross_dS2_dt2_normalised = np.divide(dS_dt_cross_dS2_dt2, dS_dt_mag * dS_dt_mag * dS_dt_mag)
 
@@ -135,15 +133,11 @@ class CubicBezier(Segment):
         return list(np.add(np.add(P0_contribution, P1_contribution), np.add(P2_contribution, P3_contribution)))
 
 
-
-
-
-
 def fit_cubic_bezier(points):
     """
-
-    :param points:
-    :return:
+    Fit n - 1 cubic bezier curves through n coordinates with C0, C1 and C2 continuity. (No explicit continuity at ends)
+    :param points: List of coordinates to fit curve through
+    :return: List of CubicBezier objects
     """
 
     # Check number of points
