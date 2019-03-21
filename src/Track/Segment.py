@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class Segment:
 
     def __init__(self):
@@ -30,7 +31,7 @@ class Segment:
     def gradient(self, t):
         """
         For a given point on the segment, get the gradient in radians
-        :param lambda_param: float between 0 and 1 - value of parameter t to get gradient of
+        :param t: float between 0 and 1 - value of parameter t to get gradient of
         :return: float - Gradient of track in radians
         """
 
@@ -113,9 +114,6 @@ def length_of_parametric_curve(position_function, tolerance=1e-5):
         # Update old
         old_points = all_points
         old_length = new_length
-
-        print(level)
-
 
     return new_length
 
