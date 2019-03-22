@@ -1,4 +1,3 @@
-from src.Track_original import *
 from src.Powertrain import *
 from src.Vehicle import *
 from src.Results import *

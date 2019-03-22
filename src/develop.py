@@ -1,4 +1,3 @@
-from src.Track_original import *
 from src.Powertrain import *
 from src.Vehicle import *
 from src.Results import *
@@ -15,7 +14,7 @@ motor_properties = {'torque_constant': 0.0631, 'motor_efficiency': 0.8, 'motor_s
 battery_properties = {'max_discharge_power': 3000, 'discharge_voltage': 48, 'battery_efficiency': 0.9}
 transmission_properties = {'transmission_ratio': 50, 'transmission_efficiency': 0.95}
 
-powertrain = BrushedMotor(motor_properties, battery_properties, transmission_properties, number_of_motors=10)
+powertrain = BrushedMotor(motor_properties, battery_properties, transmission_properties, number_of_motors=1)
 
 control = CutoffSpeed(7.5)
 # control = BurnAndCoast_Velocity(min_vel=2, max_vel=8)

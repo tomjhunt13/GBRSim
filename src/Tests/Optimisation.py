@@ -1,7 +1,6 @@
 from scipy.optimize import minimize
 
 from src.Control import *
-from src.Track_original import *
 from src.Powertrain import *
 from src.Vehicle import *
 from src.Results import *
