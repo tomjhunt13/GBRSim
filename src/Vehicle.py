@@ -65,17 +65,17 @@ class Vehicle:
 
         # Current track segment
         segment_index = self.segment[-1]
-        segment = self.track.track[segment_index]
-        segment_length = segment['length']
+        segment = self.track.segments[segment_index]
+        segment_length = segment.length
 
         # Check if vehicle currently within bounds of current segment
         if y_np1[0] > 1:
-            segment_index = increment(segment_index, len(self.track.track) - 1)
-            segment = self.track.track[segment_index]
+            segment_index = increment(segment_index, len(self.track.segments) - 1)
+            segment = self.track.segments[segment_index]
 
             if segment_index != self.segments_visited[-1]:
                 self.segments_visited.append(segment_index)
-                if len(self.segments_visited) == len(self.track.track) + 1:
+                if len(self.segments_visited) == len(self.track.segments) + 1:
                     self.laps += 1
 
             elif len(self.track.track) == 1:
@@ -83,7 +83,7 @@ class Vehicle:
 
             # Update velocity to new track segment
             current_velocity = y_np1[1] * segment_length
-            segment_length = segment['length']
+            segment_length = segment.length
             new_param_velocity = current_velocity / segment_length
 
             y_np1 = np.array([
@@ -92,14 +92,14 @@ class Vehicle:
             ])
 
         elif y_np1[0] < 0:
-            segment_index = increment(segment_index, len(self.track.track) - 1, increment=-1)
-            segment = self.track.track[segment_index]
+            segment_index = increment(segment_index, len(self.track.segments) - 1, increment=-1)
+            segment = self.track.segments[segment_index]
 
             self.segments_visited = [segment_index]
 
             # Update velocity to new track segment
             current_velocity = y_np1[1] * segment_length
-            segment_length = segment['length']
+            segment_length = segment.length
             new_param_velocity = current_velocity / segment_length
 
             y_np1 = np.array([
@@ -144,14 +144,14 @@ class Vehicle:
         """
 
         # Current track segment
-        segment = self.track.track[self.segment[-1]]
+        segment = self.track.segments[self.segment[-1]]
 
         g = 9.81
         rho = 1.225
 
-        theta = self.track.gradient(self.segment[-1], y[0])     # Road angle (rad)
-        segment_length = segment['length']        # Length of current track segment (m)
-        V = y[1] * segment_length   # Vehicle speed
+        theta = segment.gradient(y[0])      # Road angle (rad)
+        segment_length = segment.length     # Length of current track segment (m)
+        V = y[1] * segment_length           # Vehicle speed
 
         # Propulsive force
         throttle_demand = self.control_function(V, theta)
@@ -159,14 +159,11 @@ class Vehicle:
         P, fuel_power = self.power(V, throttle_demand, t)
 
         # Cornering drag
-        if segment['type'] == 'arc':
-            R = segment['radius']
-            Fz = g * (self.m / 2)  # Assume even weight distribution
-            alpha = (self.m * y[1] * y[1]) / (R * Fz * self.Cs)       # Slip angle (rad)
-            Fy = Fz * self.Cs * alpha
-            Fd = Fy * math.sin(alpha)
-        else:
-            Fd = 0
+        R = segment.horizontal_radius_of_curvature(y[0])
+        Fz = g * (self.m / 2)  # Assume even weight distribution
+        alpha = (self.m * y[1] * y[1]) / (R * Fz * self.Cs)       # Slip angle (rad)
+        Fy = Fz * self.Cs * alpha
+        Fd = Fy * math.sin(alpha)
 
         # Weight
         Fw = self.m * g * math.sin(theta)

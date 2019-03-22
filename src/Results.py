@@ -25,7 +25,7 @@ def Animate(track, vehicle_results):
     # Iterate over timesteps
     for index in range(len(t)):
         # Get segment length
-        seg_length = track.track[s[index]]['length']
+        seg_length = track.segments[s[index]].length
 
         linear_velocity[index] = y[index][1] * seg_length
 
