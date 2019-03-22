@@ -53,6 +53,19 @@ class CubicBezier(Segment):
 
         return list(np.add(np.add(P0_contribution, P1_contribution), np.add(P2_contribution, P3_contribution)))
 
+    def horizontal_radius_of_curvature(self, t):
+        """
+
+        :param t:
+        :return:
+        """
+
+        curvature = self._curvature(t, horizontal=True)
+        if np.isclose(curvature, 0, atol=1e-8):
+            return 1e8
+
+        return 1 / curvature
+
     def radius_of_curvature(self, t):
         """
         Compute the radius of curvature at t
@@ -66,7 +79,7 @@ class CubicBezier(Segment):
 
         return 1 / curvature
 
-    def _curvature(self, t):
+    def _curvature(self, t, horizontal=False):
         """
         Compute the magnitude of curvature
         :param t: Scaled distance along curve
@@ -84,7 +97,18 @@ class CubicBezier(Segment):
         dS_dt_cross_dS2_dt2 = np.cross(dS_dt, d2S_dt2)
         dS_dt_cross_dS2_dt2_normalised = np.divide(dS_dt_cross_dS2_dt2, dS_dt_mag * dS_dt_mag * dS_dt_mag)
 
-        return np.linalg.norm(dS_dt_cross_dS2_dt2_normalised)
+        curvature = np.linalg.norm(dS_dt_cross_dS2_dt2_normalised)
+
+        if horizontal:
+            # Get horizontal curvature
+            dT_dt_unit = np.divide(d2S_dt2, np.linalg.norm(d2S_dt2))
+            dT_dt_horiz = [dT_dt_unit[0], dT_dt_unit[1], 0]
+            dT_dt_horiz_mag = np.linalg.norm(dT_dt_horiz)
+
+            curvature *= dT_dt_horiz_mag
+
+        return curvature
+
 
     def _first_derivative(self, t):
         """
@@ -103,7 +127,6 @@ class CubicBezier(Segment):
         t_squared = t * t
         one_minus_t = (1 - t)
         one_minus_t_squared = one_minus_t * one_minus_t
-
 
         # Get contributions
         P0_contribution = np.multiply(-3 * one_minus_t_squared, P0)

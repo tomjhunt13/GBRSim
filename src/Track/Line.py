@@ -37,7 +37,7 @@ class Line(Segment):
 
 
     def radius_of_curvature(self, t):
-        return 1 / 1e8
+        return 1e8
 
     def _length(self):
         return np.linalg.norm(self._AB())
