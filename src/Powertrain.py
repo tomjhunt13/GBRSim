@@ -1,3 +1,5 @@
+import numpy as np
+from scipy.integrate import odeint
 from math import pi
 
 class Transmission:
@@ -15,22 +17,7 @@ class BrushedMotor:
     def __init__(self, motor_properties, battery_properties):
         """
         Approximate brushed motor model without resistance
-        :param motor_properties:
-
-                Dictionary of form - {'torque_constant': __ (Nm/A), 'motor_efficiency': __,
-                                      'motor_speed_constant': __ (rpm / V), 'motor_coil_resistance': __ (Ohms)}
-
-        :param battery_properties:
-
-                Dictionary of form - {'max_discharge_power': __ (W), 'discharge_voltage': __ (V), 'battery_efficiency': __}
-
-        :param transmission_properties:
-
-                Dictionary of form - {'transmission_ratio': __, 'transmission_efficiency': __}
-
-        :param number_of_motors: Number of motors used
         """
-
 
         # Motor properties
         self.torque_constant = motor_properties['torque_constant']
@@ -54,54 +41,14 @@ class BrushedMotor:
         :return:
         """
 
-        """
-        Equations:
-        P = I V = I^2 R
-        T = (k_t / R) * (V - E) = (k_t / R) * (V − k_e * ω)
-        
-        P = electrical power supplied
-        I = current supplied
-        V = voltage supplied
-        R = electrical resistance of motor
-        E = induced back voltage due to the rotor spinning
-        T = torque exerted on motor shaft
-        k_t = motor torque constant
-        k_e = motor speed constant
-        omega = motor shaft angular speed
-        
-        
-        Sources: 
-        - http://www.inf.fu-berlin.de/lehre/WS04/Robotik/motors.pdf
-        - https://www.maxonmotor.com/medias/sys_master/root/8815460712478/DC-EC-Key-Information-14-EN-42-50.pdf
-        """
-
-        # Motor speed
-
-        #
-        # # Power
-        # P = self.max_discharge_power * demand
-        #
-        # # Voltage
-        # V = self.discharge_voltage
-        #
-        # # Current
-        # i = P / V
-        #
-        #
-        # Tm = self.torque_constant * i * (1 - (motor_speed / (V * self.motor_speed_constant)))
-        #
-        # Tw = Tm * self.transmission_ratio * self.transmission_efficiency
-        #
-        # return self.number_of_motors * Tw, self.number_of_motors * P * (1 / self.battery_efficiency)
-
-
         # Update i
-        dt = t - self.t_n
+        dt = (t - self.t_n)
+        t_motor = np.linspace(0, dt, 51)
         V = demand * self.V_max
 
+        sol = odeint(self.state_equation, [self.i_n], t_motor, args=(V, omega))
 
-        di_dt = self.update_equation(self.i_n, omega, V)
-        i_np1 = self.i_n + dt * di_dt
+        i_np1 = sol[-1][0]
 
         # Torque
         T_m = self.torque_constant * i_np1
@@ -116,8 +63,7 @@ class BrushedMotor:
         return T_m, power
 
 
-
-    def update_equation(self, i, omega, V):
+    def state_equation(self, x, t, V, omega):
         """
         Returns di / dt
         :param i:
@@ -126,11 +72,7 @@ class BrushedMotor:
         :return:
         """
 
-        a =  (V - i * self.R - self.motor_speed_constant * omega)
-
-        return a
-
-        return (1 / self.L) * (V - i * self.R - self.motor_speed_constant * omega)
+        return (1 / self.L) * (V - x[0] * self.R - self.motor_speed_constant * omega)
 
 
 def MaxonRE65():

@@ -13,6 +13,7 @@ def Animate(track, vehicle_results):
     t, y, s, fuel_power, P, Frr, Fw, Fa, Fd = vehicle_results
 
     print(np.trapz(fuel_power, t))
+    print(t[-1])
 
     # Velocity - Time plot
     linear_velocity = [None] * len(t)

@@ -14,7 +14,7 @@ track = ImportTrack.import_year('2019')
 Kt = 192 * 0.001
 Kw = 49.8 * (2 * np.pi / 60)
 
-transmission = Transmission(10, 0.9)
+transmission = Transmission(5, 0.9)
 powertrain = MaxonRE65()
 
 # control = CutoffSpeed(7.5)
@@ -25,7 +25,7 @@ v = Vehicle(powertrain, transmission)
 # OptimiseTransmissionRatio(50, 600, 1, powertrain, track, v, control.demand)
 
 
-vehicle_results = v.simulate(track, 0, [0, 0], control_function=control.demand, time_step=0.01, time_limit=45 * 60)
+vehicle_results = v.simulate(track, 0, [0, 0], control_function=control.demand, time_step=0.01, time_limit=600)
 
 
 Animate(track, vehicle_results)
