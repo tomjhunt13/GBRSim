@@ -3,7 +3,7 @@ from src.Track.ImportTrack import *
 from src.Powertrain import *
 from src.Control import *
 
-track = import_year('2019')
+track = import_year('2018')
 
 
 
@@ -19,7 +19,7 @@ control = ConstantPower()
 
 # Vehicle attributes
 mass = 150      # Total vehicle mass (kg)
-Crr = 0.005     # Coefficient of rolling resistance
+Crr = 1.5 * 0.001     # Coefficient of rolling resistance http://www.eshopsem.com/boutique/product.php?id_product=75
 Cd = 0.27       # Coefficient of drag
 A = 1.3         # Frontal area (m^2)
 Cs = 0.3        # Cornering stiffness
@@ -39,7 +39,6 @@ for segment_index, segment in enumerate(track.segments):
     lambda_param = 0.5
     theta = segment.gradient(lambda_param)
 
-
-    print(vehicle.resistive_forces(theta, V, segment_index, lambda_param))
+    weight, aerodynamic_drag, cornering_drag, rolling_resitance = vehicle.resistive_forces(theta, V, segment_index, lambda_param)
 
 # vehicle_results = v.simulate(track, 0, [0.5, 0], control_function=control.demand, time_step=0.01, time_limit=210)

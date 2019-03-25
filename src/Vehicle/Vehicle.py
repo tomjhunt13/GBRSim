@@ -3,14 +3,28 @@ import numpy as np
 class Vehicle:
     def __init__(self, vehicle_parameters, powertrain):
 
-        # Vehicle attributes
+        # Default attributes
+        default_vehicle_attributes = {
+            'Mass': 170,
+            'Crr': 1.5 * 0.001,     # http://www.eshopsem.com/boutique/product.php?id_product=75
+            'Cd': 0.3,
+            'A': 1.3,
+            'PoweredWheelRadius': 0.2,
+            'LongitudinalCoG': 0.5,     # Assume even weight distribution
+        }
+
+        for attribute in default_vehicle_attributes.keys():
+            if attribute not in vehicle_parameters:
+                vehicle_parameters[attribute] = default_vehicle_attributes[attribute]
+
+        # Unpack vehicle attributes
         self.m = vehicle_parameters['Mass']     # Total vehicle mass (kg)
         self.Crr = vehicle_parameters['Crr']    # Coefficient of rolling resistance
         self.Cd = vehicle_parameters['Cd']      # Coefficient of drag
         self.A = vehicle_parameters['A']        # Frontal area (m^2)
-        self.Cs = vehicle_parameters['Cs']      # Cornering stiffness
+        # self.Cs = vehicle_parameters['Cs']      # Cornering stiffness
         self.PoweredWheelRadius = vehicle_parameters['PoweredWheelRadius']       # Radius of tyre for powered wheel
-        self.longitudinal_CoG = 0.5             # Assume even weight distribution
+        self.longitudinal_CoG = vehicle_parameters['LongitudinalCoG']             # Assume even weight distribution
 
         self.powertrain = powertrain
 
@@ -245,7 +259,7 @@ class Vehicle:
 
         return direction_modifier(V) * Frr
 
-    def _cornering_drag(self, V, segment_index, lambda_param):
+    def _cornering_drag(self, V, segment_index, lambda_param, alpha_deg=3):
         """
 
         :return:
@@ -255,36 +269,15 @@ class Vehicle:
         segment = self.track.segments[segment_index]
         R = segment.horizontal_radius_of_curvature(lambda_param)
 
-        print("Radius: " +  str(R))
+        print("Radius: " + str(R))
 
         # Centripetal force
         Fy = (self.m * V * V) / R
 
-        # Assume max alpha = 1 deg
-        alpha = 1 * (np.pi / 180)
+        # Assume max alpha = 3 deg
+        alpha = alpha_deg * (np.pi / 180)
 
         return direction_modifier(V) * Fy * np.sin(alpha)
-
-        # # Min radius = 6m
-        # r_min = 6
-        #
-        # # Assume max alpha = 1 deg
-        # alpha = 1 * (np.pi / 180) * (r_min / R)
-        #
-        # print('Alpha 1 deg max: ' + str(alpha))
-        #
-        #
-        # # Vertical load on front tyres
-        # Fz = self.track.g * self.m  * (1 - self.longitudinal_CoG)
-        #
-        # # alpha = (self.m * V * V) / (R * Fz * self.Cs)  # Slip angle (rad)
-        # Fy = Fz * self.Cs * alpha
-        # Fd = Fy * np.sin(alpha)
-        #
-        # print('Alpha calc: ' + str((self.m * V * V) / (R * Fz * self.Cs)))
-        #
-        # return direction_modifier(V) * Fd
-
 
 
 def direction_modifier(V):
