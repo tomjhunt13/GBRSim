@@ -10,6 +10,7 @@ class Vehicle:
         self.A = vehicle_parameters['A']        # Frontal area (m^2)
         self.Cs = vehicle_parameters['Cs']      # Cornering stiffness
         self.PoweredWheelRadius = vehicle_parameters['PoweredWheelRadius']       # Radius of tyre for powered wheel
+        self.longitudinal_CoG = 0.5             # Assume even weight distribution
 
         self.powertrain = powertrain
 
@@ -250,17 +251,39 @@ class Vehicle:
         :return:
         """
 
+        # Track radius of curvature
         segment = self.track.segments[segment_index]
         R = segment.horizontal_radius_of_curvature(lambda_param)
 
+        print("Radius: " +  str(R))
 
-        Fz = self.track.g * (self.m / 2)  # Assume even weight distribution
+        # Centripetal force
+        Fy = (self.m * V * V) / R
 
-        alpha = (self.m * V * V) / (R * Fz * self.Cs)  # Slip angle (rad)
-        Fy = Fz * self.Cs * alpha
-        Fd = Fy * np.sin(alpha)
+        # Assume max alpha = 1 deg
+        alpha = 1 * (np.pi / 180)
 
-        return direction_modifier(V) * Fd
+        return direction_modifier(V) * Fy * np.sin(alpha)
+
+        # # Min radius = 6m
+        # r_min = 6
+        #
+        # # Assume max alpha = 1 deg
+        # alpha = 1 * (np.pi / 180) * (r_min / R)
+        #
+        # print('Alpha 1 deg max: ' + str(alpha))
+        #
+        #
+        # # Vertical load on front tyres
+        # Fz = self.track.g * self.m  * (1 - self.longitudinal_CoG)
+        #
+        # # alpha = (self.m * V * V) / (R * Fz * self.Cs)  # Slip angle (rad)
+        # Fy = Fz * self.Cs * alpha
+        # Fd = Fy * np.sin(alpha)
+        #
+        # print('Alpha calc: ' + str((self.m * V * V) / (R * Fz * self.Cs)))
+        #
+        # return direction_modifier(V) * Fd
 
 
 
