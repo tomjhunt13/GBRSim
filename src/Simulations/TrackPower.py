@@ -3,7 +3,7 @@ from src.Track.ImportTrack import *
 from src.Powertrain import *
 from src.Control import *
 
-track = import_year('2018')
+track = import_year('2019')
 
 
 
@@ -21,13 +21,14 @@ vehicle = Vehicle(powertrain)
 vehicle.track = track
 
 
-V = 8
+V = 5
 
 Fw = []
 Fa = []
 Fc = []
 Frr = []
-Power = []
+F = []
+
 
 for segment_index, segment in enumerate(track.segments):
     print('Segment: ' + str(segment_index))
@@ -48,11 +49,13 @@ for segment_index, segment in enumerate(track.segments):
         total = weight + aerodynamic_drag + cornering_drag + rolling_resistance
         print('Total: ' + str(total))
 
-        power = total * V
-        Power.append(total)
+        F.append(total)
+
+max_force = max(F)
+print(max_force)
 
 
-max_power = max(Power)
+max_power = max_force * V
 print(max_power)
 
 # vehicle_results = v.simulate(track, 0, [0.5, 0], control_function=control.demand, time_step=0.01, time_limit=210)

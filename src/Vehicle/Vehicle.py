@@ -1,7 +1,7 @@
 import numpy as np
 
 class Vehicle:
-    def __init__(self, powertrain, vehicle_parameters={}):
+    def __init__(self, powertrain, transmission, vehicle_parameters={}):
 
         # Default attributes
         default_vehicle_attributes = {
@@ -26,6 +26,7 @@ class Vehicle:
         self.longitudinal_CoG = vehicle_parameters['LongitudinalCoG']             # Assume even weight distribution
 
         self.powertrain = powertrain
+        self.transmission = transmission
 
     def simulate(self, track, starting_segment, initial_conditions, control_function, time_step=0.01, lap_limit=1, time_limit=100):
 
@@ -139,11 +140,19 @@ class Vehicle:
         """
 
         # Convert linear velocity to wheel rotational speed
-        omega = (1 / self.PoweredWheelRadius) * velocity
+        omega_wheel = (1 / self.PoweredWheelRadius) * velocity
 
+        # Convert wheel rotational speed to motor rotational speed
+        omega_motor = omega_wheel * self.transmission.ratio
 
-        torque, fuel_power = self.powertrain.power(omega, demand, t)
-        linear_force = torque * self.PoweredWheelRadius
+        # Torque and power at motor
+        torque_motor, fuel_power = self.powertrain.power(omega_motor, demand, t)
+
+        # Torque and power at wheel
+        torque_wheel = self.transmission.ratio * self.transmission.efficiency * torque_motor
+
+        # Linear force
+        linear_force = torque_wheel * self.PoweredWheelRadius
 
 
         return linear_force, fuel_power
@@ -157,56 +166,32 @@ class Vehicle:
         """
 
         # Current track segment
-        segment = self.track.segments[self.segment[-1]]
+        segment_index = self.segment[-1]
+        segment = self.track.segments[segment_index]
 
-        g = 9.81
-        Cs = 0.3
-        rho = 1.225
+        # Unpack y
+        theta = segment.gradient(y[0])  # Road angle (rad)
+        segment_length = segment.length  # Length of current track segment (m)
+        V = y[1] * segment_length  # Vehicle speed
 
-        theta = segment.gradient(y[0])      # Road angle (rad)
-        segment_length = segment.length     # Length of current track segment (m)
-        V = y[1] * segment_length           # Vehicle speed
+        # Resistive forces
+        Fw, Fa, Fc, Frr = self.resistive_forces(theta, V, segment_index, y[0])
 
         # Propulsive force
         throttle_demand = self.control_function(V, theta)
 
         P, fuel_power = self.power(V, throttle_demand, t)
-        P = 400
-
-        # Cornering drag
-        R = segment.horizontal_radius_of_curvature(y[0])
-        Fz = g * (self.m / 2)  # Assume even weight distribution
-        alpha = (self.m * y[1] * y[1]) / (R * Fz * self.Cs)       # Slip angle (rad)
-        Fy = Fz * Cs * alpha
-        Fd = Fy * np.sin(alpha)
-
-        # Weight
-        Fw = self.m * g * np.sin(theta)
-
-
-        if y[1] != 0:
-            # Rolling resistance
-            Frr = self.m * g * np.cos(theta) * self.Crr * np.sign(V)
-
-            # Aerodynamic drag
-            Fa = 0.5 * rho * self.Cd * self.A * V * V * np.sign(V)
-
-        else:
-            Frr = 0
-            Fa = 0
-
-
+        # P = 400
 
         # Equation of motion
         f = [
             y[1],
 
-            (1 / (segment_length * self.m)) * (P - Frr - Fw - Fa - Fd)
+            (1 / (segment_length * self.m)) * (P - Frr - Fw - Fa - Fc)
         ]
 
 
-
-        return f, fuel_power, P, Frr, Fw, Fa, Fd
+        return f, fuel_power, P, Frr, Fw, Fa, Fc
 
     def resistive_forces(self, theta, V, segment_index, lambda_param):
         """
@@ -268,8 +253,6 @@ class Vehicle:
         # Track radius of curvature
         segment = self.track.segments[segment_index]
         R = segment.horizontal_radius_of_curvature(lambda_param)
-
-        print("Radius: " + str(R))
 
         # Centripetal force
         Fy = (self.m * V * V) / R

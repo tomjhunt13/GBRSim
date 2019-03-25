@@ -66,6 +66,12 @@ class RK4:
         self.y.append(y_np1)
         self.t.append(t_np1)
 
+
+def RK4_step(x, f, dt, *args):
+    pass
+
+
+
 def MassSpringDamper(t, y):
 
     C = 0.4
