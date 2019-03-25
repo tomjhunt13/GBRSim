@@ -1,7 +1,7 @@
 import numpy as np
 
 class Vehicle:
-    def __init__(self, vehicle_parameters, powertrain):
+    def __init__(self, powertrain, vehicle_parameters={}):
 
         # Default attributes
         default_vehicle_attributes = {
@@ -22,7 +22,6 @@ class Vehicle:
         self.Crr = vehicle_parameters['Crr']    # Coefficient of rolling resistance
         self.Cd = vehicle_parameters['Cd']      # Coefficient of drag
         self.A = vehicle_parameters['A']        # Frontal area (m^2)
-        # self.Cs = vehicle_parameters['Cs']      # Cornering stiffness
         self.PoweredWheelRadius = vehicle_parameters['PoweredWheelRadius']       # Radius of tyre for powered wheel
         self.longitudinal_CoG = vehicle_parameters['LongitudinalCoG']             # Assume even weight distribution
 
@@ -161,6 +160,7 @@ class Vehicle:
         segment = self.track.segments[self.segment[-1]]
 
         g = 9.81
+        Cs = 0.3
         rho = 1.225
 
         theta = segment.gradient(y[0])      # Road angle (rad)
@@ -177,7 +177,7 @@ class Vehicle:
         R = segment.horizontal_radius_of_curvature(y[0])
         Fz = g * (self.m / 2)  # Assume even weight distribution
         alpha = (self.m * y[1] * y[1]) / (R * Fz * self.Cs)       # Slip angle (rad)
-        Fy = Fz * self.Cs * alpha
+        Fy = Fz * Cs * alpha
         Fd = Fy * np.sin(alpha)
 
         # Weight
