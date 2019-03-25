@@ -6,12 +6,12 @@ from src.Track import ImportTrack
 
 
 
-track = ImportTrack.import_year('2018')
+track = ImportTrack.import_year('2019')
 
 
 # Motor
 motor_properties = {'torque_constant': 0.0631, 'motor_efficiency': 0.8, 'motor_speed_constant': 138, 'no_load_speed': 2690}
-battery_properties = {'max_discharge_power': 3000, 'discharge_voltage': 48, 'battery_efficiency': 0.9}
+battery_properties = {'max_discharge_power': 300, 'discharge_voltage': 48, 'battery_efficiency': 0.9}
 transmission_properties = {'transmission_ratio': 50, 'transmission_efficiency': 0.95}
 
 powertrain = BrushedMotor(motor_properties, battery_properties, transmission_properties, number_of_motors=1)

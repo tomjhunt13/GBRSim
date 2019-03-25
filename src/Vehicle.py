@@ -157,6 +157,7 @@ class Vehicle:
         throttle_demand = self.control_function(V, theta)
 
         P, fuel_power = self.power(V, throttle_demand, t)
+        P = 400
 
         # Cornering drag
         R = segment.horizontal_radius_of_curvature(y[0])
