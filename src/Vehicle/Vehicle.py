@@ -1,4 +1,3 @@
-import math
 import numpy as np
 
 class Vehicle:
@@ -164,15 +163,15 @@ class Vehicle:
         Fz = g * (self.m / 2)  # Assume even weight distribution
         alpha = (self.m * y[1] * y[1]) / (R * Fz * self.Cs)       # Slip angle (rad)
         Fy = Fz * self.Cs * alpha
-        Fd = Fy * math.sin(alpha)
+        Fd = Fy * np.sin(alpha)
 
         # Weight
-        Fw = self.m * g * math.sin(theta)
+        Fw = self.m * g * np.sin(theta)
 
 
         if y[1] != 0:
             # Rolling resistance
-            Frr = self.m * g * math.cos(theta) * self.Crr * np.sign(V)
+            Frr = self.m * g * np.cos(theta) * self.Crr * np.sign(V)
 
             # Aerodynamic drag
             Fa = 0.5 * rho * self.Cd * self.A * V * V * np.sign(V)
@@ -193,6 +192,93 @@ class Vehicle:
 
 
         return f, fuel_power, P, Frr, Fw, Fa, Fd
+
+    def resistive_forces(self, theta, V, segment_index, lambda_param):
+        """
+
+        :param theta:
+        :param V:
+        :param segment_index:
+        :param lambda_param:
+        :return:
+        """
+
+        return self._weight(theta), self._aerodynamic_drag(V), self._cornering_drag(V, segment_index, lambda_param), self._rolling_resitance(V, theta)
+
+
+    def _weight(self, theta):
+        """
+
+        :param theta:
+        :return:
+        """
+
+        return self.m * self.track.g * np.sin(theta)
+
+    def _aerodynamic_drag(self, V):
+        """
+
+        :param segment_index:
+        :param lambda_param:
+        :param V:
+        :return:
+        """
+
+        rho = self.track.rho
+
+        # Aerodynamic drag
+        Fa = 0.5 * rho * self.Cd * self.A * V * V
+
+        return direction_modifier(V) * Fa
+
+    def _rolling_resitance(self, V, theta):
+        """
+
+        :param V:
+        :param theta:
+        :return:
+        """
+
+        # Rolling resistance
+        Frr = self.m * self.track.g * np.cos(theta) * self.Crr * np.sign(V)
+
+        return direction_modifier(V) * Frr
+
+    def _cornering_drag(self, V, segment_index, lambda_param):
+        """
+
+        :return:
+        """
+
+        segment = self.track.segments[segment_index]
+        R = segment.horizontal_radius_of_curvature(lambda_param)
+
+
+        Fz = self.track.g * (self.m / 2)  # Assume even weight distribution
+
+        alpha = (self.m * V * V) / (R * Fz * self.Cs)  # Slip angle (rad)
+        Fy = Fz * self.Cs * alpha
+        Fd = Fy * np.sin(alpha)
+
+        return direction_modifier(V) * Fd
+
+
+
+def direction_modifier(V):
+    """
+
+    :param V:
+    :return:
+    """
+    if V > 0:
+        return 1
+
+    elif V < 0:
+        return -1
+
+    else:
+        return 0
+
 
 
 def increment(current_index, max_index, increment=1):

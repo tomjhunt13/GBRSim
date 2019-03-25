@@ -1,5 +1,5 @@
 from src.Powertrain import *
-from src.Vehicle import *
+from src.Vehicle.Vehicle import *
 from src.Results import *
 from src.Control import *
 from src.Track import ImportTrack
