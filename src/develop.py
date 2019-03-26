@@ -27,8 +27,8 @@ total_time = 45 * 60
 laps = 10
 desired_time = total_time / laps
 print(desired_time)
-
-# optimisation_result = OptimiseTransmissionRatio_SpecificTime(6, desired_time, v, track, control.demand)
+#
+# optimisation_result = OptimiseTransmissionRatio_SpecificTime(10, desired_time, v, track, control.demand)
 # ratio = optimisation_result['x'][0]
 #
 # transmission.ratio = ratio
@@ -38,6 +38,13 @@ print(desired_time)
 # optimisation_result = minimize(TransmissionRatio_MinMax_TimeCost, [27.851898193359375, 2, 8], args=(v, track, control, 600, desired_time), method='Nelder-Mead')
 
 vehicle_results = v.simulate(track, 0, [0, 0], control_function=control.demand, time_step=0.1, time_limit=600)
+# print(vehicle_results[0][-1])
+# vehicle_results = v.simulate(track, 0, [0, 0], control_function=control.demand, time_step=0.05, time_limit=600)
+# print(vehicle_results[0][-1])
+# vehicle_results = v.simulate(track, 0, [0, 0], control_function=control.demand, time_step=0.025, time_limit=600)
+# print(vehicle_results[0][-1])
+# vehicle_results = v.simulate(track, 0, [0, 0], control_function=control.demand, time_step=0.01, time_limit=600)
+# print(vehicle_results[0][-1])
 
 
 Animate(track, vehicle_results)

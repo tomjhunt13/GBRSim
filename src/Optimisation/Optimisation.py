@@ -9,9 +9,9 @@ from src.Results import *
 
 def Simulation(vehicle, track, control_function, time_limit):
 
-    vehicle_results = vehicle.simulate(track, 0, [0, 0], control_function=control_function, time_limit=time_limit)
+    vehicle_results = vehicle.simulate(track, 0, [0, 0], control_function=control_function, time_step=0.2, time_limit=time_limit)
 
-    t, y, s, fuel_power, P, Frr, Fw, Fa, Fd = vehicle_results
+    t, y, s, fuel_power, P, Frr, Fw, Fa, Fd, lambda_param, V = vehicle_results
 
     energy = np.trapz(fuel_power, t)
     time = t[-1]

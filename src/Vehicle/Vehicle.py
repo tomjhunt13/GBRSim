@@ -39,19 +39,28 @@ class Vehicle:
         self.current_segment = starting_segment
 
         # Initialise state space
-        self.f = self.equation_of_motion
+        self.f = self._state_equation
         self.y = [initial_conditions]
         self.t = [0]
         self.time_step = time_step
 
         # Values
-        self.fuel_power = [0]
-        self.P = [0]
-        self.Frr = [0]
-        self.Fw = [0]
-        self.Fa = [0]
-        self.Fc = [0]
-        self.V = [initial_conditions[0] * self.track.segments[starting_segment].length]
+        self.info = [{
+            'fuel_power': 0,
+            'P': 0,
+            'Frr': 0,
+            'Fw': 0,
+            'Fa': 0,
+            'Fc': 0,
+            'V': initial_conditions[0] * self.track.segments[starting_segment].length
+        }]
+        # self.fuel_power = [0]
+        # self.P = [0]
+        # self.Frr = [0]
+        # self.Fw = [0]
+        # self.Fa = [0]
+        # self.Fc = [0]
+        # self.V = [initial_conditions[0] * self.track.segments[starting_segment].length]
         self.lambda_param = [initial_conditions[0]]
 
 
@@ -65,16 +74,16 @@ class Vehicle:
 
 
 
-        self.fuel_power = make_average(self.fuel_power)
-        self.P = make_average(self.P)
-        self.Frr = make_average(self.Frr)
-        self.Fw = make_average(self.Fw)
-        self.Fc = make_average(self.Fc)
-        self.Fa = make_average(self.Fa)
-        self.V = make_average(self.V)
+        # self.fuel_power = make_average(self.fuel_power)
+        # self.P = make_average(self.P)
+        # self.Frr = make_average(self.Frr)
+        # self.Fw = make_average(self.Fw)
+        # self.Fc = make_average(self.Fc)
+        # self.Fa = make_average(self.Fa)
+        # self.V = make_average(self.V)
 
-
-        return self.t[:-1], self.y[:-1], self.segment[:-1], self.fuel_power, self.P, self.Frr, self.Fw, self.Fa, self.Fc, self.lambda_param[:-1], self.V
+        return self.t, self.y, self.segment, self.lambda_param, self.info
+        # return self.t[:-1], self.y[:-1], self.segment[:-1], self.fuel_power, self.P, self.Frr, self.Fw, self.Fa, self.Fc, self.lambda_param[:-1], self.V
         # return self.t, self.y, self.segment, self.lambda_param
 
     def _step(self):
@@ -87,12 +96,27 @@ class Vehicle:
         self.y_n = self.y[-1]
         t_n = self.t[-1]
 
+        info_total = {
+            'fuel_power': 0,
+            'P': 0,
+            'Frr': 0,
+            'Fw': 0,
+            'Fa': 0,
+            'Fc': 0,
+            'V': 0
+        }
+
+        info_1 = {}
+        info_2 = {}
+        info_3 = {}
+        info_4 = {}
+
         # Runge Kutta Step
-        print('pre: ' + str(self.y_n))
-        k_1 = np.multiply(h, self.f(t_n, self.y_n))
-        k_2 = np.multiply(h, self.f(t_n + (h / 2.0), np.add(self.y_n, np.multiply((0.5), k_1))))
-        k_3 = np.multiply(h, self.f(t_n + (h / 2.0), np.add(self.y_n, np.multiply((0.5), k_2))))
-        k_4 = np.multiply(h, self.f(t_n + h, np.add(self.y_n, k_3)))
+        # print('pre: ' + str(self.y_n))
+        k_1 = np.multiply(h, self.f(t_n, self.y_n, info_1))
+        k_2 = np.multiply(h, self.f(t_n + (h / 2.0), np.add(self.y_n, np.multiply((0.5), k_1)), info_2))
+        k_3 = np.multiply(h, self.f(t_n + (h / 2.0), np.add(self.y_n, np.multiply((0.5), k_2)), info_3))
+        k_4 = np.multiply(h, self.f(t_n + h, np.add(self.y_n, k_3), info_4))
 
         # Apply weighting
         k_1_w = np.multiply(k_1, 1 / 6)
@@ -103,9 +127,13 @@ class Vehicle:
         y_np1 = np.add(self.y_n, np.add(k_1_w, np.add(k_2_w, np.add(k_3_w, k_4_w))))
         t_np1 = t_n + h
 
+        for info in info_total.keys():
+            info_total[info] = RK_weighting(info_1[info], info_2[info], info_3[info], info_4[info])
+
         segment_index = int(np.floor(y_np1[0]))
         lambda_param = y_np1[0] - segment_index
 
+        self.info.append(info_total)
 
         self.y.append(y_np1)
         self.t.append(t_np1)
@@ -138,7 +166,7 @@ class Vehicle:
 
         return linear_force, fuel_power
 
-    def equation_of_motion(self, t, y):
+    def _state_equation(self, t, y, information_dictionary):
         """
 
         :param t:
@@ -146,12 +174,12 @@ class Vehicle:
         :return:
         """
 
-        print(y)
+        # print(y)
 
         # Unpack y
         segment_index = int(np.floor(y[0]))
 
-        print(segment_index)
+        # print(segment_index)
 
         lambda_param = y[0] - segment_index
 
@@ -161,8 +189,6 @@ class Vehicle:
             # Get velocity for previous segment
             old_seg_length = self.track.segments[self.current_segment].length
             old_seg_velocity = y[1] * old_seg_length
-
-            
 
             # Continuity
             if segment_index > len(self.track.segments) - 1:
@@ -184,7 +210,6 @@ class Vehicle:
             elif len(self.track.segments) == 1:
                 self.laps += 1
 
-            print('Now')
 
 
 
@@ -196,23 +221,23 @@ class Vehicle:
         # Unpack y
         theta = segment.gradient(lambda_param)  # Road angle (rad)
         segment_length = segment.length  # Length of current track segment (m)
-        print(segment_length)
+        # print(segment_length)
 
         V = y[1] * segment_length  # Vehicle speed
 
-        print(V)
+        # print(V)
 
 
 
         # Resistive forces
         Fw, Fa, Fc, Frr = self.resistive_forces(theta, V, segment_index, lambda_param)
-        print(Fw, Fa, Fc, Frr)
+        # print(Fw, Fa, Fc, Frr)
 
         # Propulsive force
         throttle_demand = self.control_function(V, theta)
 
         P, fuel_power = self.power(V, throttle_demand, t)
-        print(P)
+        # print(P)
 
         # P = 400
 
@@ -223,19 +248,16 @@ class Vehicle:
             (1 / (segment_length * self.m)) * (P - Frr - Fw - Fa - Fc)
         ]
 
-        self.fuel_power.append(fuel_power)
-        self.P.append(P)
-        self.Frr.append(Frr)
-        self.Fw.append(Fw)
-        self.Fa.append(Fa)
-        self.Fc.append(Fc)
-        self.V.append(V)
 
-
-        print(f)
+        information_dictionary['fuel_power'] = fuel_power
+        information_dictionary['P'] = P
+        information_dictionary['Frr'] = Frr
+        information_dictionary['Fw'] = Fw
+        information_dictionary['Fa'] = Fa
+        information_dictionary['Fc'] = Fc
+        information_dictionary['V'] = V
 
         return f
-        # return f, fuel_power, P, Frr, Fw, Fa, Fc, lambda_param
 
     def resistive_forces(self, theta, V, segment_index, lambda_param):
         """
@@ -322,13 +344,17 @@ def direction_modifier(V):
     else:
         return 0
 
+def RK_weighting(k_1, k_2, k_3, k_4):
+
+    return (1 / 6) * (k_1 + k_4 + 2 * (k_2 + k_3))
+
 def make_average(original):
 
     length = int((len(original) - 1) / 4)
 
     empty = []
     for i in range(length):
-        print(i)
+        # print(i)
 
         k1 = original[4 * i]
         k2 = original[4 * i + 1]

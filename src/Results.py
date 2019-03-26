@@ -8,8 +8,16 @@ from mpl_toolkits.mplot3d import Axes3D
 def Animate(track, vehicle_results):
 
     # Break out simulation results
-    t, y, s, fuel_power, P, Frr, Fw, Fa, Fd, lambda_param, V = vehicle_results
-    # t, y, s, lambda_param = vehicle_results
+    t, y, s, lambda_param, info_dict = vehicle_results
+
+    fuel_power = [d['fuel_power'] for d in info_dict]
+    V = [d['V'] for d in info_dict]
+    P = [d['P'] for d in info_dict]
+    Frr = [d['Frr'] for d in info_dict]
+    Fw = [d['Fw'] for d in info_dict]
+    Fa = [d['Fa'] for d in info_dict]
+    Fc = [d['Fc'] for d in info_dict]
+
 
     print(np.trapz(fuel_power, t))
     print(t[-1])
@@ -74,8 +82,8 @@ def Animate(track, vehicle_results):
     Fa_ax = fig2D.add_subplot(427)
     Fa_ax.set_title('Fa')
 
-    Fd_ax = fig2D.add_subplot(428)
-    Fd_ax.set_title('Fd')
+    Fc_ax = fig2D.add_subplot(428)
+    Fc_ax.set_title('Fc')
 
     lambda_ax.plot(t, [x[0] for x in y])
     lambda_ax.plot(t, s)
@@ -85,7 +93,7 @@ def Animate(track, vehicle_results):
     Frr_ax.plot(t, Frr)
     Fw_ax.plot(t, Fw)
     Fa_ax.plot(t, Fa)
-    Fd_ax.plot(t, Fd)
+    Fc_ax.plot(t, Fc)
 
 
     plt.show()
