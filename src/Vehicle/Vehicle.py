@@ -34,8 +34,6 @@ class Vehicle:
         # Initialise vehicle on track
         self.track = track
         self.segment = [starting_segment]
-
-
         self.current_segment = starting_segment
 
         # Initialise state space
@@ -54,13 +52,7 @@ class Vehicle:
             'Fc': 0,
             'V': initial_conditions[0] * self.track.segments[starting_segment].length
         }]
-        # self.fuel_power = [0]
-        # self.P = [0]
-        # self.Frr = [0]
-        # self.Fw = [0]
-        # self.Fa = [0]
-        # self.Fc = [0]
-        # self.V = [initial_conditions[0] * self.track.segments[starting_segment].length]
+
         self.lambda_param = [initial_conditions[0]]
 
 
@@ -72,19 +64,7 @@ class Vehicle:
         while self.t[-1] <= time_limit and self.laps != lap_limit:
             self._step()
 
-
-
-        # self.fuel_power = make_average(self.fuel_power)
-        # self.P = make_average(self.P)
-        # self.Frr = make_average(self.Frr)
-        # self.Fw = make_average(self.Fw)
-        # self.Fc = make_average(self.Fc)
-        # self.Fa = make_average(self.Fa)
-        # self.V = make_average(self.V)
-
         return self.t, self.y, self.segment, self.lambda_param, self.info
-        # return self.t[:-1], self.y[:-1], self.segment[:-1], self.fuel_power, self.P, self.Frr, self.Fw, self.Fa, self.Fc, self.lambda_param[:-1], self.V
-        # return self.t, self.y, self.segment, self.lambda_param
 
     def _step(self):
         """
@@ -134,7 +114,6 @@ class Vehicle:
         lambda_param = y_np1[0] - segment_index
 
         self.info.append(info_total)
-
         self.y.append(y_np1)
         self.t.append(t_np1)
         self.segment.append(self.current_segment)
@@ -174,13 +153,8 @@ class Vehicle:
         :return:
         """
 
-        # print(y)
-
         # Unpack y
         segment_index = int(np.floor(y[0]))
-
-        # print(segment_index)
-
         lambda_param = y[0] - segment_index
 
         # Increment
@@ -210,36 +184,20 @@ class Vehicle:
             elif len(self.track.segments) == 1:
                 self.laps += 1
 
-
-
-
-        #
-        #
-        # # Current track segment
+        # Current track segment
         segment = self.track.segments[segment_index]
 
         # Unpack y
         theta = segment.gradient(lambda_param)  # Road angle (rad)
         segment_length = segment.length  # Length of current track segment (m)
-        # print(segment_length)
-
         V = y[1] * segment_length  # Vehicle speed
-
-        # print(V)
-
-
 
         # Resistive forces
         Fw, Fa, Fc, Frr = self.resistive_forces(theta, V, segment_index, lambda_param)
-        # print(Fw, Fa, Fc, Frr)
 
         # Propulsive force
         throttle_demand = self.control_function(V, theta)
-
         P, fuel_power = self.power(V, throttle_demand, t)
-        # print(P)
-
-        # P = 400
 
         # Equation of motion
         f = [
