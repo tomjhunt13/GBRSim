@@ -29,6 +29,7 @@ def Animate(track, vehicle_results):
         seg_length = track.segments[s[index]].length
 
         linear_velocity[index] = y[index][1] * seg_length * 2.237
+        # linear_velocity[index] = y[index][1] * seg_length
 
         coordinates = track.position(s[index], y[index][0])
         x_pos[index] = coordinates[0]

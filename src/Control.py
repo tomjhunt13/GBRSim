@@ -9,7 +9,7 @@ class CutoffSpeed:
     def demand(self, *args):
 
         # Unpack args
-        V = args[0]
+        V = args[0] * 2.237
         theta = args[1]
 
         if V > self.cutoff_speed or theta < 0:
@@ -30,14 +30,14 @@ class BurnAndCoast_Velocity:
     def demand(self, *args):
 
         # Unpack args
-        V = args[0]
+        V = args[0] * 2.237
         theta = args[1]
 
         previous_throttle = int(self.previous_throttle)
 
-        if theta < 0:
-            self.previous_throttle = 0
-            return 0
+        # if theta < 0:
+        #     self.previous_throttle = 0
+        #     return 0
 
         if V < self.min_vel:
             self.previous_throttle = 1

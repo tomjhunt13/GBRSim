@@ -50,7 +50,7 @@ class BrushedMotor:
 
         i_np1 = sol[-1][0]
 
-        # print(i_np1)
+        print(i_np1)
 
         # Torque
         T_m = self.torque_constant * i_np1
@@ -58,7 +58,7 @@ class BrushedMotor:
         # Power
         power = (V * i_np1) / self.battery_efficiency
 
-        # print('Efficiency: ' +  str((T_m * omega) / (V * i_np1)))
+        print('Efficiency: ' +  str((T_m * omega) / (V * i_np1)))
 
         # Update state
         self.i_n = i_np1
@@ -105,5 +105,48 @@ def MaxonRE65():
 
     return BrushedMotor(motor_properties, battery_properties)
 
+def Moog_C42_L90_30():
+    """
+    """
+
+    # Mechanical Properties
+    Kt = 0.5791
+    Kw = 0.5730
+
+    # Electrical Properties
+    R = 1.45
+    L = 5.4 * 0.001
+
+    # Power Supply
+    V_max = 48
+    Battery_Efficiency = 0.9
+
+    # Motor properties
+    motor_properties = {'torque_constant': Kt, 'motor_speed_constant': Kw, 'R': R, 'L': L}
+    battery_properties = {'V_max': V_max, 'battery_efficiency': Battery_Efficiency}
+
+    return BrushedMotor(motor_properties, battery_properties)
+
+def Moog_C42_L90_10():
+    """
+    """
+
+    # Mechanical Properties
+    Kt = 0.3531
+    Kw = 0.3533
+
+    # Electrical Properties
+    R = 0.6
+    L = 2 * 0.001
+
+    # Power Supply
+    V_max = 48
+    Battery_Efficiency = 0.9
+
+    # Motor properties
+    motor_properties = {'torque_constant': Kt, 'motor_speed_constant': Kw, 'R': R, 'L': L}
+    battery_properties = {'V_max': V_max, 'battery_efficiency': Battery_Efficiency}
+
+    return BrushedMotor(motor_properties, battery_properties)
 
 

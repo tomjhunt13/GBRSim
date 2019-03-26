@@ -18,12 +18,18 @@ t = import_year('2018')
 
 fig3D = plt.figure()
 track_ax = fig3D.add_subplot(111, projection='3d')
+length = 0
 
 for seg in t.segments:
     # print('Horiz: ' + str(seg.horizontal_radius_of_curvature(0.5)))
     # print(seg.radius_of_curvature(0.5))
-    x, y, z = seg.draw_coordinates(num_segments=20)
-    track_ax.plot(x, y, z)
+
+    length += seg.length
+
+    # x, y, z = seg.draw_coordinates(num_segments=20)
+    # track_ax.plot(x, y, z)
+
+print(length)
 
 # x, y, z = t.draw_coordinates(num_segments=5)
 #

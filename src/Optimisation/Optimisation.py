@@ -6,6 +6,19 @@ from src.Vehicle.Vehicle import *
 from src.Results import *
 
 
+
+def Simulation(vehicle, track, control_function, time_limit):
+
+    vehicle_results = vehicle.simulate(track, 0, [0, 0], control_function=control_function, time_limit=time_limit)
+
+    t, y, s, fuel_power, P, Frr, Fw, Fa, Fd = vehicle_results
+
+    energy = np.trapz(fuel_power, t)
+    time = t[-1]
+
+    return energy, time
+
+
 def TransmissionRatioSim(ratio, *args):
 
     vehicle = args[0]
@@ -17,22 +30,78 @@ def TransmissionRatioSim(ratio, *args):
     transmission = vehicle.transmission
     transmission.ratio = ratio[0]
 
-    # powertrain.transmission_ratio = ratio[0]
 
     print('Ratio: ' + str(ratio[0]))
 
-    vehicle_results = vehicle.simulate(track, 0, [0, 0], time_step=0.01, time_limit=time_limit, control_function=control_function)
-    time = vehicle_results[0][-1]
+    energy, time = Simulation(vehicle, track, control_function, time_limit)
 
     print('Time: ' + str(time))
 
     return time
 
+def TransmissionRatioSim_TimeCost(ratio, *args):
 
-def OptimiseTransmissionRatio(initial_ratio, vehicle, track, control_function, time_limit=500):
+    desired_time = args[4]
+
+    result = TransmissionRatioSim(ratio, args[0], args[1], args[2], args[3])
+
+    error = desired_time - result
+
+    return np.sqrt(error * error)
+
+
+def OptimiseTransmissionRatio_Speed(initial_ratio, vehicle, track, control_function, time_limit=500):
 
     x0 = [initial_ratio]
     return minimize(TransmissionRatioSim, x0, args=(vehicle, track, control_function, time_limit), method='Nelder-Mead')
+
+def OptimiseTransmissionRatio_SpecificTime(initial_ratio, desired_time, vehicle, track, control_function, time_limit=500):
+
+    x0 = [initial_ratio]
+    return minimize(TransmissionRatioSim_TimeCost, x0, args=(vehicle, track, control_function, time_limit, desired_time), method='Nelder-Mead')
+
+
+
+
+
+
+def TransmissionRatio_MinMaxSpeed_Time(x, *args):
+    vehicle = args[0]
+    track = args[1]
+    control_instance = args[2]
+    time_limit = args[3]
+
+    # Motor properties
+    transmission = vehicle.transmission
+    transmission.ratio = x[0]
+
+    control_instance.min_vel = x[1]
+    control_instance.max_vel = x[2]
+
+    print('Ratio: ' + str(x[0]) + ', Min Velocity: ' + str(x[1]) + ', Max Velocity: ' + str(x[2]))
+
+    energy, time = Simulation(vehicle, track, control_instance.demand, time_limit)
+
+    print('Time: ' + str(time))
+
+    return time
+
+def TransmissionRatio_MinMax_TimeCost(x, *args):
+    desired_time = args[4]
+
+    result = TransmissionRatio_MinMaxSpeed_Time(x, args[0], args[1], args[2], args[3])
+
+    error = desired_time - result
+
+    return np.sqrt(error * error)
+
+# def OptimiseTransmissionRatio_MinMaxSpeed(x0, vehicle, track, control_function, time_limit=500):
+#
+#     return minimize(TransmissionRatioSim, x0, args=(vehicle, track, control_function, time_limit), method='Nelder-Mead')
+
+
+
+
 
 def CutoffSpeedSim(cutoff_speed, *args):
     print('Cutoff speed: ' + str(cutoff_speed[0]))
@@ -46,7 +115,7 @@ def CutoffSpeedSim(cutoff_speed, *args):
     # Motor properties
     powertrain.number_of_motors = number_of_motors
     powertrain.max_discharge_power = power
-    powertrain.transmission_ratio = OptimiseTransmissionRatio(cutoff_speed[0], power, number_of_motors, powertrain, track, vehicle)['x'][0]
+    powertrain.transmission_ratio = OptimiseTransmissionRatio_Speed(cutoff_speed[0], power, number_of_motors, powertrain, track, vehicle)['x'][0]
 
 
 
