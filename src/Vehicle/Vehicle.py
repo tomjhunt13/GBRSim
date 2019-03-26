@@ -40,7 +40,7 @@ class Vehicle:
 
         # Initialise state space
         self.f = self.equation_of_motion
-        self.y = [np.array(initial_conditions)]
+        self.y = [initial_conditions]
         self.t = [0]
         self.time_step = time_step
 
@@ -50,7 +50,8 @@ class Vehicle:
         self.Frr = [0]
         self.Fw = [0]
         self.Fa = [0]
-        self.Fd = [0]
+        self.Fc = [0]
+        self.V = [initial_conditions[0] * self.track.segments[starting_segment].length]
         self.lambda_param = [initial_conditions[0]]
 
 
@@ -62,8 +63,19 @@ class Vehicle:
         while self.t[-1] <= time_limit and self.laps != lap_limit:
             self._step()
 
-        # return self.t, self.y, self.segment, self.fuel_power, self.P, self.Frr, self.Fw, self.Fa, self.Fd, self.lambda_param
-        return self.t, self.y, self.segment, self.lambda_param
+
+
+        self.fuel_power = make_average(self.fuel_power)
+        self.P = make_average(self.P)
+        self.Frr = make_average(self.Frr)
+        self.Fw = make_average(self.Fw)
+        self.Fc = make_average(self.Fc)
+        self.Fa = make_average(self.Fa)
+        self.V = make_average(self.V)
+
+
+        return self.t[:-1], self.y[:-1], self.segment[:-1], self.fuel_power, self.P, self.Frr, self.Fw, self.Fa, self.Fc, self.lambda_param[:-1], self.V
+        # return self.t, self.y, self.segment, self.lambda_param
 
     def _step(self):
         """
@@ -216,6 +228,16 @@ class Vehicle:
 
             (1 / (segment_length * self.m)) * (P - Frr - Fw - Fa - Fc)
         ]
+
+        self.fuel_power.append(fuel_power)
+        self.P.append(P)
+        self.Frr.append(Frr)
+        self.Fw.append(Fw)
+        self.Fa.append(Fa)
+        self.Fc.append(Fc)
+        self.V.append(V)
+
+
         print(f)
 
         return f
@@ -306,7 +328,23 @@ def direction_modifier(V):
     else:
         return 0
 
+def make_average(original):
 
+    length = int((len(original) - 1) / 4)
+
+    empty = []
+    for i in range(length):
+        print(i)
+
+        k1 = original[4 * i]
+        k2 = original[4 * i + 1]
+        k3 = original[4 * i + 2]
+        k4 = original[4 * i + 3]
+
+        weighted_average = (1 / 6) * (k1 + k4 + 2 * (k2 + k3))
+        empty.append(weighted_average)
+
+    return empty
 
 def increment(current_index, max_index, increment=1):
     """
