@@ -7,9 +7,9 @@ class Vehicle:
         default_vehicle_attributes = {
             'Mass': 170,
             'Crr': 1.5 * 0.001,     # http://www.eshopsem.com/boutique/product.php?id_product=75
-            'Cd': 0.2,
-            'A': 1.26,
-            'PoweredWheelRadius': 0.279,
+            'Cd': 0.3,
+            'A': 1.3,
+            'PoweredWheelRadius': 0.2,
             'LongitudinalCoG': 0.5,     # Assume even weight distribution
         }
 
@@ -35,6 +35,9 @@ class Vehicle:
         self.track = track
         self.segment = [starting_segment]
 
+
+        self.current_segment = starting_segment
+
         # Initialise state space
         self.f = self.equation_of_motion
         self.y = [np.array(initial_conditions)]
@@ -48,6 +51,7 @@ class Vehicle:
         self.Fw = [0]
         self.Fa = [0]
         self.Fd = [0]
+        self.lambda_param = [initial_conditions[0]]
 
 
         self.control_function = control_function
@@ -58,7 +62,8 @@ class Vehicle:
         while self.t[-1] <= time_limit and self.laps != lap_limit:
             self._step()
 
-        return self.t, self.y, self.segment, self.fuel_power, self.P, self.Frr, self.Fw, self.Fa, self.Fd
+        # return self.t, self.y, self.segment, self.fuel_power, self.P, self.Frr, self.Fw, self.Fa, self.Fd, self.lambda_param
+        return self.t, self.y, self.segment, self.lambda_param
 
     def _step(self):
         """
@@ -67,69 +72,46 @@ class Vehicle:
         """
 
         h = self.time_step
-        y_n = self.y[-1]
+        self.y_n = self.y[-1]
         t_n = self.t[-1]
 
         # Euler step
-        f, fuel_power, P, Frr, Fw, Fa, Fd = self.f(t_n, y_n)
-        k_1 = np.multiply(h, f)
-        y_np1 = np.add(y_n, k_1)
+        print('pre: ' + str(self.y_n))
+        k_1 = np.multiply(h, self.f(t_n, self.y_n))
+        k_2 = np.multiply(h, self.f(t_n + (h / 2.0), np.add(self.y_n, np.multiply((0.5), k_1))))
+        k_3 = np.multiply(h, self.f(t_n + (h / 2.0), np.add(self.y_n, np.multiply((0.5), k_2))))
+        k_4 = np.multiply(h, self.f(t_n + h, np.add(self.y_n, k_3)))
+
+        # Apply weighting
+        k_1_w = np.multiply(k_1, 1 / 6)
+        k_2_w = np.multiply(k_2, 1 / 3)
+        k_3_w = np.multiply(k_3, 1 / 3)
+        k_4_w = np.multiply(k_4, 1 / 6)
+
+        y_np1 = np.add(self.y_n, np.add(k_1_w, np.add(k_2_w, np.add(k_3_w, k_4_w))))
+
+
+        # f, fuel_power, P, Frr, Fw, Fa, Fd, lambda_param = self.f(t_n, self.y_n)
+        # f, fuel_power, P, Frr, Fw, Fa, Fd, lambda_param = self.f(t_n, self.y_n)
+        # k_1 = np.multiply(h, f)
+        # print('post: ' + str(self.y_n))
+        # y_np1 = np.add(self.y_n, k_1)
         t_np1 = t_n + h
 
+        segment_index = int(np.floor(y_np1[0]))
+        lambda_param = y_np1[0] - segment_index
 
-        # Current track segment
-        segment_index = self.segment[-1]
-        segment = self.track.segments[segment_index]
-        segment_length = segment.length
-
-        # Check if vehicle currently within bounds of current segment
-        if y_np1[0] > 1:
-            segment_index = increment(segment_index, len(self.track.segments) - 1)
-            segment = self.track.segments[segment_index]
-
-            if segment_index != self.segments_visited[-1]:
-                self.segments_visited.append(segment_index)
-                if len(self.segments_visited) == len(self.track.segments) + 1:
-                    self.laps += 1
-
-            elif len(self.track.segments) == 1:
-                self.laps += 1
-
-            # Update velocity to new track segment
-            current_velocity = y_np1[1] * segment_length
-            segment_length = segment.length
-            new_param_velocity = current_velocity / segment_length
-
-            y_np1 = np.array([
-                0,
-                new_param_velocity
-            ])
-
-        elif y_np1[0] < 0:
-            segment_index = increment(segment_index, len(self.track.segments) - 1, increment=-1)
-            segment = self.track.segments[segment_index]
-
-            self.segments_visited = [segment_index]
-
-            # Update velocity to new track segment
-            current_velocity = y_np1[1] * segment_length
-            segment_length = segment.length
-            new_param_velocity = current_velocity / segment_length
-
-            y_np1 = np.array([
-                1,
-                new_param_velocity
-            ])
 
         self.y.append(y_np1)
         self.t.append(t_np1)
-        self.segment.append(segment_index)
-        self.fuel_power.append(fuel_power)
-        self.P.append(P)
-        self.Frr.append(Frr)
-        self.Fw.append(Fw)
-        self.Fa.append(Fa)
-        self.Fd.append(Fd)
+        self.segment.append(self.current_segment)
+        # self.fuel_power.append(fuel_power)
+        # self.P.append(P)
+        # self.Frr.append(Frr)
+        # self.Fw.append(Fw)
+        # self.Fa.append(Fa)
+        # self.Fd.append(Fd)
+        self.lambda_param.append(lambda_param)
 
     def power(self, velocity, demand, t):
         """
@@ -165,24 +147,67 @@ class Vehicle:
         :return:
         """
 
-        # Current track segment
-        segment_index = self.segment[-1]
+        print(y)
+
+        # Unpack y
+        segment_index = int(np.floor(y[0]))
+
+        print(segment_index)
+
+        lambda_param = y[0] - segment_index
+        # segment = self.track.segments[segment_index]
+
+
+        # Increment
+        if segment_index != self.current_segment:
+
+            # Get velocity for previous segment
+            old_seg_length = self.track.segments[self.current_segment].length
+            old_seg_velocity = y[1] * old_seg_length
+
+            # Continuity
+            if segment_index > len(self.track.segments) - 1:
+                segment_index = 0
+
+            elif segment_index < 0:
+                segment_index = len(self.track.segments) - 1
+
+            self.current_segment = segment_index
+            segment = self.track.segments[segment_index]
+            y[1] = old_seg_velocity / segment.length
+            self.y_n[1] = y[1]
+
+            asdfs = 3
+            print('Now')
+
+
+
+        #
+        #
+        # # Current track segment
         segment = self.track.segments[segment_index]
 
         # Unpack y
-        theta = segment.gradient(y[0])  # Road angle (rad)
+        theta = segment.gradient(lambda_param)  # Road angle (rad)
         segment_length = segment.length  # Length of current track segment (m)
+        print(segment_length)
+
         V = y[1] * segment_length  # Vehicle speed
 
+        print(V)
+
+
+
         # Resistive forces
-        Fw, Fa, Fc, Frr = self.resistive_forces(theta, V, segment_index, y[0])
+        Fw, Fa, Fc, Frr = self.resistive_forces(theta, V, segment_index, lambda_param)
+        print(Fw, Fa, Fc, Frr)
 
         # Propulsive force
         throttle_demand = self.control_function(V, theta)
 
-        # print(throttle_demand)
-
         P, fuel_power = self.power(V, throttle_demand, t)
+        print(P)
+
         # P = 400
 
         # Equation of motion
@@ -191,9 +216,10 @@ class Vehicle:
 
             (1 / (segment_length * self.m)) * (P - Frr - Fw - Fa - Fc)
         ]
+        print(f)
 
-
-        return f, fuel_power, P, Frr, Fw, Fa, Fc
+        return f
+        # return f, fuel_power, P, Frr, Fw, Fa, Fc, lambda_param
 
     def resistive_forces(self, theta, V, segment_index, lambda_param):
         """
@@ -246,7 +272,7 @@ class Vehicle:
 
         return direction_modifier(V) * Frr
 
-    def _cornering_drag(self, V, segment_index, lambda_param, alpha_deg=1):
+    def _cornering_drag(self, V, segment_index, lambda_param, alpha_deg=3):
         """
 
         :return:

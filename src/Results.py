@@ -10,9 +10,10 @@ def Animate(track, vehicle_results):
     vehicle_results = vehicle_results
 
     # Break out simulation results
-    t, y, s, fuel_power, P, Frr, Fw, Fa, Fd = vehicle_results
+    # t, y, s, fuel_power, P, Frr, Fw, Fa, Fd, lambda_param = vehicle_results
+    t, y, s, lambda_param = vehicle_results
 
-    print(np.trapz(fuel_power, t))
+    # print(np.trapz(fuel_power, t))
     print(t[-1])
 
     # Velocity - Time plot
@@ -31,7 +32,7 @@ def Animate(track, vehicle_results):
         linear_velocity[index] = y[index][1] * seg_length * 2.237
         # linear_velocity[index] = y[index][1] * seg_length
 
-        coordinates = track.position(s[index], y[index][0])
+        coordinates = track.position(s[index], lambda_param[index])
         x_pos[index] = coordinates[0]
         y_pos[index] = coordinates[1]
         z_pos[index] = coordinates[2]
@@ -67,12 +68,12 @@ def Animate(track, vehicle_results):
     lambda_ax.plot(t, [x[0] for x in y])
     lambda_ax.plot(t, s)
     vel_ax.plot(t, linear_velocity)
-    fuel_ax.plot(t, fuel_power)
-    P_ax.plot(t, P)
-    Frr_ax.plot(t, Frr)
-    Fw_ax.plot(t, Fw)
-    Fa_ax.plot(t, Fa)
-    Fd_ax.plot(t, Fd)
+    # fuel_ax.plot(t, fuel_power)
+    # P_ax.plot(t, P)
+    # Frr_ax.plot(t, Frr)
+    # Fw_ax.plot(t, Fw)
+    # Fa_ax.plot(t, Fa)
+    # Fd_ax.plot(t, Fd)
 
 
     plt.show()

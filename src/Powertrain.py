@@ -50,7 +50,7 @@ class BrushedMotor:
 
         i_np1 = sol[-1][0]
 
-        print(i_np1)
+        # print(i_np1)
 
         # Torque
         T_m = self.torque_constant * i_np1
@@ -58,7 +58,7 @@ class BrushedMotor:
         # Power
         power = (V * i_np1) / self.battery_efficiency
 
-        print('Efficiency: ' +  str((T_m * omega) / (V * i_np1)))
+        # print('Efficiency: ' +  str((T_m * omega) / (V * i_np1)))
 
         # Update state
         self.i_n = i_np1
