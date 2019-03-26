@@ -87,7 +87,7 @@ class Vehicle:
         self.y_n = self.y[-1]
         t_n = self.t[-1]
 
-        # Euler step
+        # Runge Kutta Step
         print('pre: ' + str(self.y_n))
         k_1 = np.multiply(h, self.f(t_n, self.y_n))
         k_2 = np.multiply(h, self.f(t_n + (h / 2.0), np.add(self.y_n, np.multiply((0.5), k_1))))
@@ -101,13 +101,6 @@ class Vehicle:
         k_4_w = np.multiply(k_4, 1 / 6)
 
         y_np1 = np.add(self.y_n, np.add(k_1_w, np.add(k_2_w, np.add(k_3_w, k_4_w))))
-
-
-        # f, fuel_power, P, Frr, Fw, Fa, Fd, lambda_param = self.f(t_n, self.y_n)
-        # f, fuel_power, P, Frr, Fw, Fa, Fd, lambda_param = self.f(t_n, self.y_n)
-        # k_1 = np.multiply(h, f)
-        # print('post: ' + str(self.y_n))
-        # y_np1 = np.add(self.y_n, k_1)
         t_np1 = t_n + h
 
         segment_index = int(np.floor(y_np1[0]))
@@ -117,12 +110,6 @@ class Vehicle:
         self.y.append(y_np1)
         self.t.append(t_np1)
         self.segment.append(self.current_segment)
-        # self.fuel_power.append(fuel_power)
-        # self.P.append(P)
-        # self.Frr.append(Frr)
-        # self.Fw.append(Fw)
-        # self.Fa.append(Fa)
-        # self.Fd.append(Fd)
         self.lambda_param.append(lambda_param)
 
     def power(self, velocity, demand, t):
@@ -167,8 +154,6 @@ class Vehicle:
         print(segment_index)
 
         lambda_param = y[0] - segment_index
-        # segment = self.track.segments[segment_index]
-
 
         # Increment
         if segment_index != self.current_segment:
@@ -176,6 +161,8 @@ class Vehicle:
             # Get velocity for previous segment
             old_seg_length = self.track.segments[self.current_segment].length
             old_seg_velocity = y[1] * old_seg_length
+
+            
 
             # Continuity
             if segment_index > len(self.track.segments) - 1:
@@ -189,7 +176,14 @@ class Vehicle:
             y[1] = old_seg_velocity / segment.length
             self.y_n[1] = y[1]
 
-            asdfs = 3
+            if segment_index != self.segments_visited[-1]:
+                self.segments_visited.append(segment_index)
+                if len(self.segments_visited) == len(self.track.segments) + 1:
+                    self.laps += 1
+
+            elif len(self.track.segments) == 1:
+                self.laps += 1
+
             print('Now')
 
 
