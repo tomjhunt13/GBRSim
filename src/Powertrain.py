@@ -31,7 +31,7 @@ class BrushedMotor:
 
         # State
         self.t_n = 0
-        self.i_n = 0
+        self.i_n = 50
 
     def power(self, omega, demand, t):
         """
@@ -43,18 +43,22 @@ class BrushedMotor:
 
         # Update i
         dt = (t - self.t_n)
-        t_motor = np.linspace(0, dt, 51)
+        t_motor = np.linspace(0, dt, 31)
         V = demand * self.V_max
 
         sol = odeint(self.state_equation, [self.i_n], t_motor, args=(V, omega))
 
         i_np1 = sol[-1][0]
 
+        # print(i_np1)
+
         # Torque
         T_m = self.torque_constant * i_np1
 
         # Power
         power = (V * i_np1) / self.battery_efficiency
+
+        # print('Efficiency: ' +  str((T_m * omega) / (V * i_np1)))
 
         # Update state
         self.i_n = i_np1

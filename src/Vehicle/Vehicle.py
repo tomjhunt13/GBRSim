@@ -7,9 +7,9 @@ class Vehicle:
         default_vehicle_attributes = {
             'Mass': 170,
             'Crr': 1.5 * 0.001,     # http://www.eshopsem.com/boutique/product.php?id_product=75
-            'Cd': 0.3,
+            'Cd': 0.2,
             'A': 1.3,
-            'PoweredWheelRadius': 0.2,
+            'PoweredWheelRadius': 0.279,
             'LongitudinalCoG': 0.5,     # Assume even weight distribution
         }
 
@@ -92,7 +92,7 @@ class Vehicle:
                 if len(self.segments_visited) == len(self.track.segments) + 1:
                     self.laps += 1
 
-            elif len(self.track.track) == 1:
+            elif len(self.track.segments) == 1:
                 self.laps += 1
 
             # Update velocity to new track segment
@@ -244,7 +244,7 @@ class Vehicle:
 
         return direction_modifier(V) * Frr
 
-    def _cornering_drag(self, V, segment_index, lambda_param, alpha_deg=3):
+    def _cornering_drag(self, V, segment_index, lambda_param, alpha_deg=1):
         """
 
         :return:

@@ -8,21 +8,20 @@ from src.Results import *
 
 def TransmissionRatioSim(ratio, *args):
 
-    power = args[0]
-    number_of_motors = args[1]
-    powertrain = args[2]
-    track = args[3]
-    vehicle = args[4]
-    control_function = args[5]
+    vehicle = args[0]
+    track = args[1]
+    control_function = args[2]
+    time_limit = args[3]
 
     # Motor properties
-    powertrain.number_of_motors = number_of_motors
-    powertrain.max_discharge_power = power
-    powertrain.transmission_ratio = ratio[0]
+    transmission = vehicle.transmission
+    transmission.ratio = ratio[0]
+
+    # powertrain.transmission_ratio = ratio[0]
 
     print('Ratio: ' + str(ratio[0]))
 
-    vehicle_results = vehicle.simulate(track, 0, [0, 0], time_step=0.01, time_limit=1000, control_function=control_function)
+    vehicle_results = vehicle.simulate(track, 0, [0, 0], time_step=0.01, time_limit=time_limit, control_function=control_function)
     time = vehicle_results[0][-1]
 
     print('Time: ' + str(time))
@@ -30,10 +29,10 @@ def TransmissionRatioSim(ratio, *args):
     return time
 
 
-def OptimiseTransmissionRatio(initial_ratio, power, number_of_motors, powertrain, track, vehicle, control_function):
+def OptimiseTransmissionRatio(initial_ratio, vehicle, track, control_function, time_limit=500):
 
     x0 = [initial_ratio]
-    return minimize(TransmissionRatioSim, x0, args=(power, number_of_motors, powertrain, track, vehicle, control_function), method='Nelder-Mead')
+    return minimize(TransmissionRatioSim, x0, args=(vehicle, track, control_function, time_limit), method='Nelder-Mead')
 
 def CutoffSpeedSim(cutoff_speed, *args):
     print('Cutoff speed: ' + str(cutoff_speed[0]))
