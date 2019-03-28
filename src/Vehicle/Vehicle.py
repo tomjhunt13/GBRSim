@@ -130,6 +130,10 @@ class Vehicle:
         :return:
         """
 
+        if demand == 0:
+            # return 0, 0
+            velocity = 0
+
         # Convert linear velocity to wheel rotational speed
         omega_wheel = (1 / self.PoweredWheelRadius) * velocity
 
@@ -194,7 +198,6 @@ class Vehicle:
 
             # Continuity
             if segment_index > len(self.track.segments) - 1:
-                print('mama')
                 segment_index = 0
                 y[0] = 0
 

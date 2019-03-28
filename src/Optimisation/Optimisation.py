@@ -9,7 +9,7 @@ from src.Results import *
 
 def Simulation(vehicle, track, control_function, time_limit):
 
-    vehicle_results = vehicle.simulate(track, 0, [0, 0], control_function=control_function, time_step=0.08, time_limit=time_limit)
+    vehicle_results = vehicle.simulate(track, 0, [0, 0], control_function=control_function, time_step=0.05, time_limit=time_limit)
 
     t, y, s, lambda_param, info_dict = vehicle_results
 
