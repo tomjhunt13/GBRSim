@@ -7,10 +7,10 @@ from src.Optimisation.Optimisation import *
 
 
 
-track = ImportTrack.import_year('2019')
+track = ImportTrack.import_year('2018')
 
 # transmission = Transmission(26.42073489139331, 0.93)
-transmission = Transmission(5, 0.93)
+transmission = Transmission(10, 0.93)
 # powertrain = MaxonRE65()
 powertrain = Moog_C42_L90_10()
 
@@ -38,7 +38,7 @@ print(desired_time)
 # print(optimisation_result[0])
 # optimisation_result = minimize(TransmissionRatio_MinMax_TimeCost, [27.851898193359375, 2, 8], args=(v, track, control, 600, desired_time), method='Nelder-Mead')
 
-vehicle_results = v.simulate(track, 0, [0, 0], control_function=control.demand, time_step=0.1, time_limit=600)
+vehicle_results = v.simulate(track, 0, [0, 0], control_function=control.demand, time_step=0.1, time_limit=1000, lap_limit=1)
 # print(vehicle_results[0][-1])
 # vehicle_results = v.simulate(track, 0, [0, 0], control_function=control.demand, time_step=0.05, time_limit=600)
 # print(vehicle_results[0][-1])

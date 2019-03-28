@@ -110,29 +110,12 @@ class Vehicle:
 
 
         for info in info_total.keys():
-            # info_total[info] = info_1[info]
             info_total[info] = RK_weighting(info_1[info], info_2[info], info_3[info], info_4[info])
 
         segment_index = int(np.floor(y_np1[0]))
         lambda_param = y_np1[0] - segment_index
-        # lambda_param = y_np1[0] - self.current_segment
-
 
         self._update_lap_counter(segment_index)
-
-
-
-        # if self.current_segment != segment
-        # if segment_index != self.segments_visited[-1]:
-        #     self.segments_visited.append(segment_index)
-        #
-        #     if len(self.segments_visited) == len(self.track.segments) + 1:
-        #         self.laps += 1
-        #
-        #     elif len(self.track.segments) == 1:
-        #         self.laps += 1
-
-
         self.info.append(info_total)
         self.y.append(y_np1)
         self.t.append(t_np1)
@@ -170,8 +153,6 @@ class Vehicle:
 
     def _update_lap_counter(self, new_segment):
 
-
-        # Update lap counter
         previous_segment = self.segment[-1]
         segment_diff = new_segment - previous_segment
         segment_diff_mag = np.sqrt(segment_diff * segment_diff)
@@ -192,16 +173,6 @@ class Vehicle:
         else:
             self.segments_visited = [new_segment]
 
-
-
-
-
-        # If only one segment
-
-        # if segment_diff > 0:
-
-
-
     def _state_equation(self, t, y, information_dictionary):
         """
 
@@ -209,8 +180,6 @@ class Vehicle:
         :param y:
         :return:
         """
-
-        print(y[0])
 
         # Unpack y
         segment_index = int(np.floor(y[0]))
@@ -224,41 +193,19 @@ class Vehicle:
             old_seg_velocity = y[1] * old_seg_length
 
             # Continuity
-            if segment_index > self.current_segment:
+            if segment_index > len(self.track.segments) - 1:
+                print('mama')
+                segment_index = 0
+                y[0] = 0
 
-                if segment_index > len(self.track.segments) - 1:
-                    segment_index = 0
-
-                # if segment_index != self.segments_visited[-1]:
-                #     self.segments_visited.append(segment_index)
-                #
-                #     if len(self.segments_visited) == len(self.track.segments) + 1:
-                #         self.laps += 1
-                #
-                #     elif len(self.track.segments) == 1:
-                #         self.laps += 1
-
-            else:
-
-                if segment_index < 0:
-                    segment_index = len(self.track.segments) - 1
-
-                # self.segments_visited = [segment_index]
+            elif segment_index < 0:
+                segment_index = len(self.track.segments) - 1
+                y[0] = segment_index + 0.99999
 
             self.current_segment = segment_index
             segment = self.track.segments[segment_index]
             y[1] = old_seg_velocity / segment.length
             self.y_n[1] = y[1]
-
-
-
-            # if segment_index != self.segments_visited[-1]:
-            #     self.segments_visited.append(segment_index)
-            #     if len(self.segments_visited) == len(self.track.segments) + 1:
-            #         self.laps += 1
-            #
-            # elif len(self.track.segments) == 1:
-            #     self.laps += 1
 
         # Current track segment
         segment = self.track.segments[segment_index]
@@ -291,9 +238,6 @@ class Vehicle:
         information_dictionary['Fc'] = Fc
         information_dictionary['V'] = V
 
-        print(self.laps)
-        print(self.segments_visited[-1])
-
         return f
 
     def resistive_forces(self, theta, V, segment_index, lambda_param):
@@ -306,8 +250,7 @@ class Vehicle:
         :return:
         """
 
-        return self._weight(theta), self._aerodynamic_drag(V), self._cornering_drag(V, segment_index, lambda_param), self._rolling_resitance(V, theta)
-
+        return self._weight(theta), self._aerodynamic_drag(V), self._cornering_drag(V, segment_index, lambda_param), self._rolling_resistance(V, theta)
 
     def _weight(self, theta):
         """
@@ -334,7 +277,7 @@ class Vehicle:
 
         return direction_modifier(V) * Fa
 
-    def _rolling_resitance(self, V, theta):
+    def _rolling_resistance(self, V, theta):
         """
 
         :param V:
@@ -347,7 +290,7 @@ class Vehicle:
 
         return direction_modifier(V) * Frr
 
-    def _cornering_drag(self, V, segment_index, lambda_param, alpha_deg=3):
+    def _cornering_drag(self, V, segment_index, lambda_param, alpha_deg=1):
         """
 
         :return:
@@ -384,21 +327,3 @@ def direction_modifier(V):
 def RK_weighting(k_1, k_2, k_3, k_4):
 
     return (1 / 6) * (k_1 + k_4 + 2 * (k_2 + k_3))
-
-def increment(current_index, max_index, increment=1):
-    """
-
-    :param current_index:
-    :param max_index:
-    :return:
-    """
-
-    next_index = current_index + increment
-
-    if next_index > max_index:
-        return 0
-
-    if next_index < 0:
-        return max_index
-
-    return next_index
