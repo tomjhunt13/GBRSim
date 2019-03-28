@@ -5,6 +5,8 @@ from src.Control import *
 
 track = import_year('2018')
 
+# track
+
 
 
 
@@ -18,8 +20,8 @@ control = ConstantPower()
 vehicle = Vehicle(powertrain, transmission)
 vehicle.track = track
 
-
-V = 5
+# V_mph = 14.9
+V = 6.675
 
 Fw = []
 Fa = []
@@ -45,7 +47,8 @@ for segment_index, segment in enumerate(track.segments):
         Fc.append(cornering_drag)
         Frr.append(rolling_resistance)
 
-        total = weight + aerodynamic_drag + cornering_drag + rolling_resistance
+        # total = weight + aerodynamic_drag + cornering_drag + rolling_resistance
+        total = weight + aerodynamic_drag + rolling_resistance
         print('Total: ' + str(total))
 
         F.append(total)

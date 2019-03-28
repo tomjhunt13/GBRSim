@@ -50,7 +50,7 @@ class BrushedMotor:
 
         i_np1 = sol[-1][0]
 
-        # print(i_np1)
+        print(i_np1)
 
         # Torque
         T_m = self.torque_constant * i_np1

@@ -104,19 +104,39 @@ class Vehicle:
         k_3_w = np.multiply(k_3, 1 / 3)
         k_4_w = np.multiply(k_4, 1 / 6)
 
+        # y_np1 = np.add(self.y_n, k_1)
         y_np1 = np.add(self.y_n, np.add(k_1_w, np.add(k_2_w, np.add(k_3_w, k_4_w))))
         t_np1 = t_n + h
 
+
         for info in info_total.keys():
+            # info_total[info] = info_1[info]
             info_total[info] = RK_weighting(info_1[info], info_2[info], info_3[info], info_4[info])
 
         segment_index = int(np.floor(y_np1[0]))
         lambda_param = y_np1[0] - segment_index
+        # lambda_param = y_np1[0] - self.current_segment
+
+
+        self._update_lap_counter(segment_index)
+
+
+
+        # if self.current_segment != segment
+        # if segment_index != self.segments_visited[-1]:
+        #     self.segments_visited.append(segment_index)
+        #
+        #     if len(self.segments_visited) == len(self.track.segments) + 1:
+        #         self.laps += 1
+        #
+        #     elif len(self.track.segments) == 1:
+        #         self.laps += 1
+
 
         self.info.append(info_total)
         self.y.append(y_np1)
         self.t.append(t_np1)
-        self.segment.append(self.current_segment)
+        self.segment.append(segment_index)
         self.lambda_param.append(lambda_param)
 
     def power(self, velocity, demand, t):
@@ -142,8 +162,45 @@ class Vehicle:
         # Linear force
         linear_force = torque_wheel * self.PoweredWheelRadius
 
+        if fuel_power < 0:
+            fuel_power = 0
+
 
         return linear_force, fuel_power
+
+    def _update_lap_counter(self, new_segment):
+
+
+        # Update lap counter
+        previous_segment = self.segment[-1]
+        segment_diff = new_segment - previous_segment
+        segment_diff_mag = np.sqrt(segment_diff * segment_diff)
+
+        # If no difference
+        if segment_diff_mag == 0:
+            return
+
+        # If incremented
+        if new_segment == 0 or (segment_diff_mag > 0 and previous_segment != 0):
+            # if segment_index != self.segments_visited[-1]:
+            self.segments_visited.append(new_segment)
+
+            if len(self.segments_visited) == len(self.track.segments) + 1:
+                self.laps += 1
+
+        # Otherwise must have  decremented
+        else:
+            self.segments_visited = [new_segment]
+
+
+
+
+
+        # If only one segment
+
+        # if segment_diff > 0:
+
+
 
     def _state_equation(self, t, y, information_dictionary):
         """
@@ -152,6 +209,8 @@ class Vehicle:
         :param y:
         :return:
         """
+
+        print(y[0])
 
         # Unpack y
         segment_index = int(np.floor(y[0]))
@@ -165,24 +224,41 @@ class Vehicle:
             old_seg_velocity = y[1] * old_seg_length
 
             # Continuity
-            if segment_index > len(self.track.segments) - 1:
-                segment_index = 0
+            if segment_index > self.current_segment:
 
-            elif segment_index < 0:
-                segment_index = len(self.track.segments) - 1
+                if segment_index > len(self.track.segments) - 1:
+                    segment_index = 0
+
+                # if segment_index != self.segments_visited[-1]:
+                #     self.segments_visited.append(segment_index)
+                #
+                #     if len(self.segments_visited) == len(self.track.segments) + 1:
+                #         self.laps += 1
+                #
+                #     elif len(self.track.segments) == 1:
+                #         self.laps += 1
+
+            else:
+
+                if segment_index < 0:
+                    segment_index = len(self.track.segments) - 1
+
+                # self.segments_visited = [segment_index]
 
             self.current_segment = segment_index
             segment = self.track.segments[segment_index]
             y[1] = old_seg_velocity / segment.length
             self.y_n[1] = y[1]
 
-            if segment_index != self.segments_visited[-1]:
-                self.segments_visited.append(segment_index)
-                if len(self.segments_visited) == len(self.track.segments) + 1:
-                    self.laps += 1
 
-            elif len(self.track.segments) == 1:
-                self.laps += 1
+
+            # if segment_index != self.segments_visited[-1]:
+            #     self.segments_visited.append(segment_index)
+            #     if len(self.segments_visited) == len(self.track.segments) + 1:
+            #         self.laps += 1
+            #
+            # elif len(self.track.segments) == 1:
+            #     self.laps += 1
 
         # Current track segment
         segment = self.track.segments[segment_index]
@@ -214,6 +290,9 @@ class Vehicle:
         information_dictionary['Fa'] = Fa
         information_dictionary['Fc'] = Fc
         information_dictionary['V'] = V
+
+        print(self.laps)
+        print(self.segments_visited[-1])
 
         return f
 
@@ -305,24 +384,6 @@ def direction_modifier(V):
 def RK_weighting(k_1, k_2, k_3, k_4):
 
     return (1 / 6) * (k_1 + k_4 + 2 * (k_2 + k_3))
-
-def make_average(original):
-
-    length = int((len(original) - 1) / 4)
-
-    empty = []
-    for i in range(length):
-        # print(i)
-
-        k1 = original[4 * i]
-        k2 = original[4 * i + 1]
-        k3 = original[4 * i + 2]
-        k4 = original[4 * i + 3]
-
-        weighted_average = (1 / 6) * (k1 + k4 + 2 * (k2 + k3))
-        empty.append(weighted_average)
-
-    return empty
 
 def increment(current_index, max_index, increment=1):
     """

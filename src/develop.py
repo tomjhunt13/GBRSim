@@ -7,10 +7,10 @@ from src.Optimisation.Optimisation import *
 
 
 
-track = ImportTrack.import_year('2018')
+track = ImportTrack.import_year('2019')
 
 # transmission = Transmission(26.42073489139331, 0.93)
-transmission = Transmission(10, 0.93)
+transmission = Transmission(5, 0.93)
 # powertrain = MaxonRE65()
 powertrain = Moog_C42_L90_10()
 
@@ -23,12 +23,13 @@ v = Vehicle(powertrain, transmission)
 
 # OptimiseTransmissionRatio(15, v, track, control.demand)
 
-total_time = 45 * 60
-laps = 10
+# total_time = 45 * 60
+total_time = 39 * 60
+laps = 11
 desired_time = total_time / laps
 print(desired_time)
 #
-# optimisation_result = OptimiseTransmissionRatio_SpecificTime(10, desired_time, v, track, control.demand)
+# optimisation_result = OptimiseTransmissionRatio_SpecificTime(2, desired_time, v, track, control.demand)
 # ratio = optimisation_result['x'][0]
 #
 # transmission.ratio = ratio

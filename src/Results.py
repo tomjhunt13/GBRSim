@@ -18,44 +18,27 @@ def Animate(track, vehicle_results):
     Fa = [d['Fa'] for d in info_dict]
     Fc = [d['Fc'] for d in info_dict]
 
-
     print(np.trapz(fuel_power, t))
     print(t[-1])
-
-    # P = y[2]
-
-    # info = [
-    #     P,
-    #     fuel_power,
-    #     Fw,
-    #     Fa,
-    #     Fc,
-    #     Frr
-    # ]
 
     # Scale Velocity to mph
     V = [i * 2.237 for i in V]
 
-    # # Velocity - Time plot
-    # linear_velocity = [None] * len(t)
-
     # 3D position
-    x_pos = [None] * len(t)
-    y_pos = [None] * len(t)
-    z_pos = [None] * len(t)
+    # x_pos = [None] * len(t)
+    # y_pos = [None] * len(t)
+    # z_pos = [None] * len(t)
+    x_pos = []
+    y_pos = []
+    z_pos = []
 
     # Iterate over timesteps
     for index in range(len(t)):
-        # Get segment length
-        # seg_length = track.segments[s[index]].length
-
-        # linear_velocity[index] = y[index][1] * seg_length * 2.237
-        # linear_velocity[index] = y[index][1] * seg_length
-
-        coordinates = track.position(s[index], lambda_param[index])
-        x_pos[index] = coordinates[0]
-        y_pos[index] = coordinates[1]
-        z_pos[index] = coordinates[2]
+        if s[index] < len(track.segments):
+            coordinates = track.position(s[index], lambda_param[index])
+            x_pos.append(coordinates[0])
+            y_pos.append(coordinates[1])
+            z_pos.append(coordinates[2])
 
 
     # Initialise figure
@@ -97,7 +80,6 @@ def Animate(track, vehicle_results):
 
 
     plt.show()
-
 
     # 3D
     fig3D = plt.figure()
