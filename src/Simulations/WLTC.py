@@ -210,8 +210,16 @@ def CarSize(t, v, desired_range, base_mass=90, person_mass=75, battery_density=5
     return batt_energy, batt_mass
 
 
-a = CarSize(t, v, 300, base_mass=100, person_mass=70, battery_density=5, Cd=0.2, A=1.26, Crr=0.02)
+base_mass = 230
+person_mass = 70
 
+batt_energy, batt_mass = CarSize(t, v, 100, base_mass=base_mass, person_mass=person_mass, battery_density=5, Cd=0.2, A=1.26, Crr=0.0015)
+
+total_mass = base_mass + person_mass + batt_mass
+
+res = WLTC(t, v, total_mass, 0.2, 1.26, 0.0015)
+
+print()
 
 range_list = np.linspace(10, 1000, 10)
 batt_mass_list = [CarSize(t, v, r)[1] for r in range_list]

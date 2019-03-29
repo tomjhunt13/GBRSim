@@ -8,8 +8,8 @@ class Vehicle:
             'Mass': 170,
             'Crr': 1.5 * 0.001,     # http://www.eshopsem.com/boutique/product.php?id_product=75
             'Cd': 0.3,
-            'A': 1.3,
-            'PoweredWheelRadius': 0.2,
+            'A': 1.26,
+            'PoweredWheelRadius': 0.279,
             'LongitudinalCoG': 0.5,     # Assume even weight distribution
         }
 

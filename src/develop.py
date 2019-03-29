@@ -8,13 +8,13 @@ from src.Optimisation.Optimisation import *
 track = ImportTrack.import_year('2019')
 
 # transmission = Transmission(26.42073489139331, 0.93)
-transmission = Transmission(6.240895701342188, 0.93)
+transmission = Transmission(10, 0.93)
 # powertrain = MaxonRE65()
 powertrain = Moog_C42_L90_10()
 
 # control = CutoffSpeed(8)
-control = BurnAndCoast_Velocity(min_vel=2, max_vel=6)
-# control = ConstantPower()
+# control = BurnAndCoast_Velocity(min_vel=2, max_vel=4)
+control = ConstantPower()
 
 
 v = Vehicle(powertrain, transmission)
