@@ -304,7 +304,7 @@ class Vehicle:
         R = segment.horizontal_radius_of_curvature(lambda_param)
 
         # Centripetal force
-        Fy = (self.m * V * V) / R
+        Fy = (self.m * V * V) / (R * np.cos(alpha_deg))
 
         # Assume max alpha = 3 deg
         alpha = alpha_deg * (np.pi / 180)
