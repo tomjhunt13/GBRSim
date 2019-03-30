@@ -61,20 +61,34 @@ class Vehicle:
         self.segments_visited = [starting_segment]
         self.laps = 0
 
-        while self.t[-1] <= time_limit and self.laps != lap_limit:
-            self._step()
+        t_n = self.t[-1]
+
+        while t_n <= time_limit and self.number_of_laps() != lap_limit:
+
+            t_n = self.t[-1]
+            t_np1 = t_n + time_step
+            self._step(t_np1)
+            self.t.append(t_np1)
+
 
         return self.t, self.y, self.segment, self.lambda_param, self.info
 
-    def _step(self):
+    def number_of_laps(self):
+        """
+        Number of laps car has done
+        :return: Number of laps
+        """
+        return self.laps
+
+    def _step(self, t):
         """
 
         :return:
         """
 
-        h = self.time_step
-        self.y_n = self.y[-1]
         t_n = self.t[-1]
+        h = t - t_n
+        self.y_n = self.y[-1]
 
         info_total = {
             'fuel_power': 0,
@@ -118,7 +132,7 @@ class Vehicle:
         self._update_lap_counter(segment_index)
         self.info.append(info_total)
         self.y.append(y_np1)
-        self.t.append(t_np1)
+        # self.t.append(t_np1)
         self.segment.append(segment_index)
         self.lambda_param.append(lambda_param)
 
