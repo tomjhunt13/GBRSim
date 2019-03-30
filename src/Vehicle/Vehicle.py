@@ -62,13 +62,20 @@ class Vehicle:
         self.laps = 0
 
         t_n = self.t[-1]
+        y_n = self.y[-1]
 
         while t_n <= time_limit and self.number_of_laps() != lap_limit:
 
+            print('Time: ' + str(t_n))
+
             t_n = self.t[-1]
+            y_n = self.y[-1]
+
             t_np1 = t_n + time_step
-            self._step(t_np1)
+            y_np1 = self._step(t_np1, y_n)
+
             self.t.append(t_np1)
+            self.y.append(y_np1)
 
 
         return self.t, self.y, self.segment, self.lambda_param, self.info
@@ -80,7 +87,7 @@ class Vehicle:
         """
         return self.laps
 
-    def _step(self, t):
+    def _step(self, t, y_n):
         """
 
         :return:
@@ -88,7 +95,7 @@ class Vehicle:
 
         t_n = self.t[-1]
         h = t - t_n
-        self.y_n = self.y[-1]
+        self._step_y_n = y_n
 
         info_total = {
             'fuel_power': 0,
@@ -106,11 +113,10 @@ class Vehicle:
         info_4 = {}
 
         # Runge Kutta Step
-        # print('pre: ' + str(self.y_n))
-        k_1 = np.multiply(h, self.f(t_n, self.y_n, info_1))
-        k_2 = np.multiply(h, self.f(t_n + (h / 2.0), np.add(self.y_n, np.multiply((0.5), k_1)), info_2))
-        k_3 = np.multiply(h, self.f(t_n + (h / 2.0), np.add(self.y_n, np.multiply((0.5), k_2)), info_3))
-        k_4 = np.multiply(h, self.f(t_n + h, np.add(self.y_n, k_3), info_4))
+        k_1 = np.multiply(h, self.f(t_n, self._step_y_n, info_1))
+        k_2 = np.multiply(h, self.f(t_n + (h / 2.0), np.add(self._step_y_n, np.multiply((0.5), k_1)), info_2))
+        k_3 = np.multiply(h, self.f(t_n + (h / 2.0), np.add(self._step_y_n, np.multiply((0.5), k_2)), info_3))
+        k_4 = np.multiply(h, self.f(t_n + h, np.add(self._step_y_n, k_3), info_4))
 
         # Apply weighting
         k_1_w = np.multiply(k_1, 1 / 6)
@@ -118,9 +124,7 @@ class Vehicle:
         k_3_w = np.multiply(k_3, 1 / 3)
         k_4_w = np.multiply(k_4, 1 / 6)
 
-        # y_np1 = np.add(self.y_n, k_1)
-        y_np1 = np.add(self.y_n, np.add(k_1_w, np.add(k_2_w, np.add(k_3_w, k_4_w))))
-        t_np1 = t_n + h
+        y_np1 = np.add(self._step_y_n, np.add(k_1_w, np.add(k_2_w, np.add(k_3_w, k_4_w))))
 
 
         for info in info_total.keys():
@@ -131,10 +135,10 @@ class Vehicle:
 
         self._update_lap_counter(segment_index)
         self.info.append(info_total)
-        self.y.append(y_np1)
-        # self.t.append(t_np1)
         self.segment.append(segment_index)
         self.lambda_param.append(lambda_param)
+
+        return y_np1
 
     def power(self, velocity, demand, t):
         """
@@ -222,7 +226,7 @@ class Vehicle:
             self.current_segment = segment_index
             segment = self.track.segments[segment_index]
             y[1] = old_seg_velocity / segment.length
-            self.y_n[1] = y[1]
+            self._step_y_n[1] = y[1]
 
         # Current track segment
         segment = self.track.segments[segment_index]

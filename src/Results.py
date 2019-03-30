@@ -68,7 +68,7 @@ def Animate(track, vehicle_results):
     Fc_ax = fig2D.add_subplot(428)
     Fc_ax.set_title('Fc')
 
-    lambda_ax.plot(t, [x[0] for x in y])
+    # lambda_ax.plot(t, [x[0] for x in y])
     lambda_ax.plot(t, s)
     vel_ax.plot(t, V)
     fuel_ax.plot(t, fuel_power)
