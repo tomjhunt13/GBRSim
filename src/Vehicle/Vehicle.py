@@ -43,14 +43,16 @@ class Vehicle:
         self.time_step = time_step
 
         # Values
-        self.info = [{
+        self.info_dict = [{
             'fuel_power': 0,
             'P': 0,
             'Frr': 0,
             'Fw': 0,
             'Fa': 0,
             'Fc': 0,
-            'V': initial_conditions[0] * self.track.segments[starting_segment].length
+            'V': initial_conditions[0] * self.track.segments[starting_segment].length,
+            'segment': starting_segment,
+            'lambda_param': initial_conditions[0]
         }]
 
         self.lambda_param = [initial_conditions[0]]
@@ -72,13 +74,14 @@ class Vehicle:
             y_n = self.y[-1]
 
             t_np1 = t_n + time_step
-            y_np1 = self._step(t_np1, y_n)
+            y_np1, info_dict = self._step(t_np1, y_n)
 
             self.t.append(t_np1)
             self.y.append(y_np1)
+            self.info_dict.append(info_dict)
 
 
-        return self.t, self.y, self.segment, self.lambda_param, self.info
+        return self.t, self.y, self.info_dict
 
     def number_of_laps(self):
         """
@@ -126,19 +129,18 @@ class Vehicle:
 
         y_np1 = np.add(self._step_y_n, np.add(k_1_w, np.add(k_2_w, np.add(k_3_w, k_4_w))))
 
-
         for info in info_total.keys():
             info_total[info] = RK_weighting(info_1[info], info_2[info], info_3[info], info_4[info])
 
         segment_index = int(np.floor(y_np1[0]))
         lambda_param = y_np1[0] - segment_index
 
-        self._update_lap_counter(segment_index)
-        self.info.append(info_total)
-        self.segment.append(segment_index)
-        self.lambda_param.append(lambda_param)
+        info_total['segment'] = segment_index
+        info_total['lambda_param'] = lambda_param
 
-        return y_np1
+        self._update_lap_counter(segment_index)
+
+        return y_np1, info_total
 
     def power(self, velocity, demand, t):
         """

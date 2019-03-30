@@ -8,7 +8,7 @@ from mpl_toolkits.mplot3d import Axes3D
 def Animate(track, vehicle_results):
 
     # Break out simulation results
-    t, y, s, lambda_param, info_dict = vehicle_results
+    t, y, info_dict = vehicle_results
 
     fuel_power = [d['fuel_power'] for d in info_dict]
     V = [d['V'] for d in info_dict]
@@ -17,6 +17,9 @@ def Animate(track, vehicle_results):
     Fw = [d['Fw'] for d in info_dict]
     Fa = [d['Fa'] for d in info_dict]
     Fc = [d['Fc'] for d in info_dict]
+    s = [d['segment'] for d in info_dict]
+    lambda_param = [d['lambda_param'] for d in info_dict]
+
 
     print(np.trapz(fuel_power, t))
     print(t[-1])
