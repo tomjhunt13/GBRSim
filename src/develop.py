@@ -1,9 +1,8 @@
-from src.Powertrain import *
-from src.Vehicle.Vehicle import *
-from src.Results import *
-from src.Control import *
 from src.Track import ImportTrack
 from src.Optimisation.Optimisation import *
+from src.Powertrain.Powertrain_original import *
+from src.Control import *
+from src.Vehicle.Vehicle import *
 
 track = ImportTrack.import_year('2019')
 
@@ -36,7 +35,7 @@ print(desired_time)
 # print(optimisation_result[0])
 # optimisation_result = minimize(TransmissionRatio_MinMax_TimeCost, [10, 1.7546696194154812, 10.106020212266744], args=(v, track, control, 600, desired_time), method='Nelder-Mead')
 
-vehicle_results = v.simulate(track, 0, [0, 0], control_function=control.demand, time_step=0.05, time_limit=100, lap_limit=2)
+vehicle_results = v.simulate(track, 0, [0, 0], control_function=control.demand, time_step=0.05, time_limit=1000, lap_limit=2)
 # print(vehicle_results[0][-1])
 # vehicle_results = v.simulate(track, 0, [0, 0], control_function=control.demand, time_step=0.05, time_limit=600)
 # print(vehicle_results[0][-1])

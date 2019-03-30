@@ -1,6 +1,6 @@
 from src.Vehicle.Vehicle import *
 from src.Track.ImportTrack import *
-from src.Powertrain import *
+from src.Powertrain.Powertrain_original import *
 from src.Control import *
 
 track = import_year('2018')
