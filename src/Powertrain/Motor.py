@@ -1,4 +1,6 @@
 import numpy as np
+from src.RK4 import *
+
 
 class BrushedMotor:
     def __init__(self, motor_properties, battery_properties):
@@ -43,6 +45,10 @@ class BrushedMotor:
         dt = (t - self.t_n)
         t_motor = np.linspace(0, dt, 2)
         V = demand * V_max
+
+        info = {''}
+
+        y_np1, info = RK4_step(self.f, t_n, self._step_y_n, h, info_total)
 
         sol = odeint(self.state_equation, [self.i_n], t_motor, args=(V, omega))
 

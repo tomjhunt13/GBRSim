@@ -101,7 +101,7 @@ class Vehicle:
         h = t - t_n
         self._step_y_n = y_n
 
-        info_total = {
+        info = {
             'fuel_power': 0,
             'P': 0,
             'Frr': 0,
@@ -111,39 +111,17 @@ class Vehicle:
             'V': 0
         }
 
-        y_np1, info_total = RK4_step(self.f, t_n, self._step_y_n, h, info_total)
-
-        # info_1 = {}
-        # info_2 = {}
-        # info_3 = {}
-        # info_4 = {}
-        #
-        # # Runge Kutta Step
-        # k_1 = np.multiply(h, self.f(t_n, self._step_y_n, info_1))
-        # k_2 = np.multiply(h, self.f(t_n + (h / 2.0), np.add(self._step_y_n, np.multiply((0.5), k_1)), info_2))
-        # k_3 = np.multiply(h, self.f(t_n + (h / 2.0), np.add(self._step_y_n, np.multiply((0.5), k_2)), info_3))
-        # k_4 = np.multiply(h, self.f(t_n + h, np.add(self._step_y_n, k_3), info_4))
-        #
-        # # Apply weighting
-        # k_1_w = np.multiply(k_1, 1 / 6)
-        # k_2_w = np.multiply(k_2, 1 / 3)
-        # k_3_w = np.multiply(k_3, 1 / 3)
-        # k_4_w = np.multiply(k_4, 1 / 6)
-        #
-        # y_np1 = np.add(self._step_y_n, np.add(k_1_w, np.add(k_2_w, np.add(k_3_w, k_4_w))))
-        #
-        # for info in info_total.keys():
-        #     info_total[info] = RK_weighting(info_1[info], info_2[info], info_3[info], info_4[info])
+        y_np1 = RK4_step(self.f, t_n, self._step_y_n, h, info)
 
         segment_index = int(np.floor(y_np1[0]))
         lambda_param = y_np1[0] - segment_index
 
-        info_total['segment'] = segment_index
-        info_total['lambda_param'] = lambda_param
+        info['segment'] = segment_index
+        info['lambda_param'] = lambda_param
 
         self._update_lap_counter(segment_index)
 
-        return y_np1, info_total
+        return y_np1, info
 
     def power(self, velocity, demand, t):
         """
