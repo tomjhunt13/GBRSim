@@ -55,7 +55,7 @@ class BrushedMotor:
 
         # Update i
         dt = (t - self.t_n)
-        t_motor = np.linspace(0, dt, 31)
+        t_motor = np.linspace(0, dt, 2)
         V = demand * V_max
 
         sol = odeint(self.state_equation, [self.i_n], t_motor, args=(V, omega))
