@@ -45,12 +45,12 @@ class Vehicle:
 
         # Values
         self.info_dict = [{
-            'fuel_power': 0,
-            'P': 0,
-            'Frr': 0,
-            'Fw': 0,
-            'Fa': 0,
-            'Fc': 0,
+            # 'fuel_power': 0,
+            # 'P': 0,
+            # 'Frr': 0,
+            # 'Fw': 0,
+            # 'Fa': 0,
+            # 'Fc': 0,
             'V': initial_conditions[0] * self.track.segments[starting_segment].length,
             'segment': starting_segment,
             'lambda_param': initial_conditions[0]
@@ -81,6 +81,9 @@ class Vehicle:
             self.y.append(y_np1)
             self.info_dict.append(info_dict)
 
+
+        # Update info dict
+        update_dictionary_keys(self.info_dict[1], self.info_dict[0])
 
         return self.t, self.y, self.info_dict
 
@@ -289,23 +292,11 @@ class Vehicle:
         # Convert linear velocity to wheel rotational speed
         omega_wheel = (1 / self.PoweredWheelRadius) * velocity
 
+        # Get wheel torque
         wheel_torque = self.powertrain.update(t_np1, information_dictionary, omega_wheel, demand)
-
-        # # Convert wheel rotational speed to motor rotational speed
-        # omega_motor = omega_wheel * self.transmission.ratio
-
-        # # Torque and power at motor
-        # torque_motor, fuel_power = self.powertrain.update(t_np1, omega_motor, demand)
-        #
-        # # Torque and power at wheel
-        # torque_wheel = self.transmission.ratio * self.transmission.efficiency * torque_motor
 
         # Linear force
         linear_force = wheel_torque * self.PoweredWheelRadius
-
-        # if fuel_power < 0:
-        #     fuel_power = 0
-
 
         return linear_force
 
@@ -325,6 +316,20 @@ def direction_modifier(V):
     else:
         return 0
 
-def RK_weighting(k_1, k_2, k_3, k_4):
+def update_dictionary_keys(full_dictionary, destination_dictionary):
+    """
+    Updates destination dictionary with keys its missing from full dictionary
+    :param full_dictionary:
+    :param destination_dictionary:
+    :return:
+    """
 
-    return (1 / 6) * (k_1 + k_4 + 2 * (k_2 + k_3))
+    for key in full_dictionary.keys():
+        if key not in destination_dictionary.keys():
+
+            destination_dictionary[key] = 0
+
+
+# def RK_weighting(k_1, k_2, k_3, k_4):
+#
+#     return (1 / 6) * (k_1 + k_4 + 2 * (k_2 + k_3))
