@@ -2,7 +2,7 @@
 from src.RK4 import *
 
 class Vehicle:
-    def __init__(self, powertrain, transmission, vehicle_parameters={}):
+    def __init__(self, powertrain, vehicle_parameters={}):
 
         # Default attributes
         default_vehicle_attributes = {
@@ -27,7 +27,7 @@ class Vehicle:
         self.longitudinal_CoG = vehicle_parameters['LongitudinalCoG']             # Assume even weight distribution
 
         self.powertrain = powertrain
-        self.transmission = transmission
+        # self.transmission = transmission
 
     def simulate(self, track, starting_segment, initial_conditions, control_function, time_step=0.025, lap_limit=1, time_limit=100):
 
@@ -75,7 +75,7 @@ class Vehicle:
             y_n = self.y[-1]
 
             t_np1 = t_n + time_step
-            y_np1, info_dict = self._update(t_np1, y_n)
+            y_np1, info_dict = self.update(t_np1, y_n)
 
             self.t.append(t_np1)
             self.y.append(y_np1)
@@ -91,7 +91,7 @@ class Vehicle:
         """
         return self.laps
 
-    def _update(self, t_np1, y_n):
+    def update(self, t_np1, y_n):
         """
         Update vehicle system to time t_np1
         :return:
@@ -102,7 +102,6 @@ class Vehicle:
         self._step_y_n = y_n
 
         info = {
-            'fuel_power': 0,
             'P': 0,
             'Frr': 0,
             'Fw': 0,
@@ -122,39 +121,6 @@ class Vehicle:
         self._update_lap_counter(segment_index)
 
         return y_np1, info
-
-    def power(self, velocity, demand, t_np1):
-        """
-
-        :param velocity: Linear vehicle velocity
-        :param demand:
-        :return:
-        """
-
-        if demand == 0:
-            # return 0, 0
-            velocity = 0
-
-        # Convert linear velocity to wheel rotational speed
-        omega_wheel = (1 / self.PoweredWheelRadius) * velocity
-
-        # Convert wheel rotational speed to motor rotational speed
-        omega_motor = omega_wheel * self.transmission.ratio
-
-        # Torque and power at motor
-        torque_motor, fuel_power = self.powertrain._update(t_np1, omega_motor, demand)
-
-        # Torque and power at wheel
-        torque_wheel = self.transmission.ratio * self.transmission.efficiency * torque_motor
-
-        # Linear force
-        linear_force = torque_wheel * self.PoweredWheelRadius
-
-        if fuel_power < 0:
-            fuel_power = 0
-
-
-        return linear_force, fuel_power
 
     def _update_lap_counter(self, new_segment):
 
@@ -224,7 +190,7 @@ class Vehicle:
 
         # Propulsive force
         throttle_demand = self.control_function(V, theta)
-        P, fuel_power = self.power(V, throttle_demand, t)
+        P = self._update_powertrain(t, information_dictionary, V, throttle_demand)
 
         # Equation of motion
         f = [
@@ -234,7 +200,7 @@ class Vehicle:
         ]
 
 
-        information_dictionary['fuel_power'] = fuel_power
+        # information_dictionary['fuel_power'] = fuel_power
         information_dictionary['P'] = P
         information_dictionary['Frr'] = Frr
         information_dictionary['Fw'] = Fw
@@ -311,6 +277,37 @@ class Vehicle:
         alpha = alpha_deg * (np.pi / 180)
 
         return direction_modifier(V) * Fy * np.sin(alpha)
+
+    def _update_powertrain(self, t_np1, information_dictionary, velocity, demand):
+        """
+
+        :param velocity: Linear vehicle velocity
+        :param demand:
+        :return:
+        """
+
+        # Convert linear velocity to wheel rotational speed
+        omega_wheel = (1 / self.PoweredWheelRadius) * velocity
+
+        wheel_torque = self.powertrain.update(t_np1, information_dictionary, omega_wheel, demand)
+
+        # # Convert wheel rotational speed to motor rotational speed
+        # omega_motor = omega_wheel * self.transmission.ratio
+
+        # # Torque and power at motor
+        # torque_motor, fuel_power = self.powertrain.update(t_np1, omega_motor, demand)
+        #
+        # # Torque and power at wheel
+        # torque_wheel = self.transmission.ratio * self.transmission.efficiency * torque_motor
+
+        # Linear force
+        linear_force = wheel_torque * self.PoweredWheelRadius
+
+        # if fuel_power < 0:
+        #     fuel_power = 0
+
+
+        return linear_force
 
 
 def direction_modifier(V):

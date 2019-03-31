@@ -26,7 +26,7 @@ class BrushedMotor:
         # Admin properties
         self.verbose = verbose
 
-    def _update(self, t_np1, omega_n, demand):
+    def update(self, t_np1, omega, demand):
         """
 
         :param wheel_speed: Rotational speed of wheel (radians / second)
@@ -35,7 +35,7 @@ class BrushedMotor:
         """
 
         # Get voltage from controller
-        V = self._controller(omega_n, demand)
+        V = self._controller(omega, demand)
 
         # Current state
         t_n = self.t_n
@@ -45,33 +45,35 @@ class BrushedMotor:
         dt = (t_np1 - t_n)
         y_n = [i_n]
         info_dict = {'di_dt': 0}
-        y_np1 = RK4_step(self._state_equation, self.t_n, y_n, dt, info_dict, V=V, omega=omega_n)
+        y_np1 = RK4_step(self._state_equation, self.t_n, y_n, dt, info_dict, V=V, omega=omega)
         i_np1 = y_np1[0]
         di_dt = info_dict['di_dt']
 
         # Torque
-        T_m = self.torque_constant * i_np1
+        torque = self.torque_constant * i_np1
 
         # Power
         power = (V * i_np1) / self.battery_efficiency
 
         if self.verbose:
+            print('Motor')
             print('i: ' + str(i_np1))
-            print('Efficiency: ' + str((T_m * omega_n) / (V * i_np1)))
+            print('Torque: ' + str(torque))
+            print('Efficiency: ' + str((torque * omega) / (V * i_np1)))
             print('di/dt: ' + str(di_dt))
 
-            # CFL analysis
-            di = i_np1 - i_n
-            cfl = di_dt * (dt / di)
-            print('di: ' + str(di))
-            print('CFL: ' + str(cfl))
+            # # CFL analysis
+            # di = i_np1 - i_n
+            # cfl = di_dt * (dt / di)
+            # print('di: ' + str(di))
+            # print('CFL: ' + str(cfl))
 
         # Update state
         self.i_n = i_np1
         self.di_dt_n = di_dt
         self.t_n = self.t_n + dt
 
-        return T_m, power
+        return torque, power
 
 
     def _state_equation(self, t, y, info_dict, **kwargs):

@@ -10,7 +10,7 @@ def Animate(track, vehicle_results):
     # Break out simulation results
     t, y, info_dict = vehicle_results
 
-    fuel_power = [d['fuel_power'] for d in info_dict]
+    fuel_power = [d['Fuel Power'] for d in info_dict]
     V = [d['V'] for d in info_dict]
     P = [d['P'] for d in info_dict]
     Frr = [d['Frr'] for d in info_dict]

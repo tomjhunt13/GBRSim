@@ -38,7 +38,7 @@ def RK4_step(f, t_n, y_n, dt, info_total, **kwargs):
 
     y_np1 = np.add(y_n, np.add(k_1_w, np.add(k_2_w, np.add(k_3_w, k_4_w))))
 
-    for info in info_total.keys():
+    for info in info_1.keys():
         info_total[info] = RK_weighting(info_1[info], info_2[info], info_3[info], info_4[info])
 
     return y_np1
