@@ -1,6 +1,5 @@
-# import numpy as np
+import numpy as np
 from src.RK4 import *
-
 
 class BrushedMotor:
     def __init__(self, motor_properties, battery_properties, verbose=False):
@@ -38,35 +37,44 @@ class BrushedMotor:
         # Get voltage from controller
         V = self._controller(omega_n, demand)
 
+        # Current state
+        t_n = self.t_n
+        i_n = self.i_n
 
-        # Update i
-        dt = (t_np1 - self.t_n)
-        y_n = [self.i_n]
-
-        info_dict = {'V': V, 'omega': omega_n}
-
-        y_np1 = RK4_step(self._state_equation, self.t_n, y_n, dt, {}, V, omega_n)
+        # Calculate i_np1
+        dt = (t_np1 - t_n)
+        y_n = [i_n]
+        info_dict = {'di_dt': 0}
+        y_np1 = RK4_step(self._state_equation, self.t_n, y_n, dt, info_dict, V=V, omega=omega_n)
         i_np1 = y_np1[0]
-
-        print('i: ' + str(i_np1))
+        di_dt = info_dict['di_dt']
 
         # Torque
         T_m = self.torque_constant * i_np1
 
         # Power
-        power = (self.V * i_np1) / self.battery_efficiency
+        power = (V * i_np1) / self.battery_efficiency
 
-        print('Efficiency: ' + str((T_m * omega_n) / (self.V * i_np1)))
+        if self.verbose:
+            print('i: ' + str(i_np1))
+            print('Efficiency: ' + str((T_m * omega_n) / (V * i_np1)))
+            print('di/dt: ' + str(di_dt))
+
+            # CFL analysis
+            di = i_np1 - i_n
+            cfl = di_dt * (dt / di)
+            print('di: ' + str(di))
+            print('CFL: ' + str(cfl))
 
         # Update state
         self.i_n = i_np1
-        self.di_dt_n = self._state_equation(0, [i_np1], {})
+        self.di_dt_n = di_dt
         self.t_n = self.t_n + dt
 
         return T_m, power
 
 
-    def _state_equation(self, t, y, info_dict, kjargs):
+    def _state_equation(self, t, y, info_dict, **kwargs):
         """
         Returns di / dt
         :param i:
@@ -75,9 +83,13 @@ class BrushedMotor:
         :return:
         """
 
-        V = kjargs
+        V = kwargs['kwargs']['V']
+        omega = kwargs['kwargs']['omega']
 
-        return (1 / self.L) * (V - y[0] * self.R - self.motor_speed_constant * omega)
+        di_dt = (1 / self.L) * (V - y[0] * self.R - self.motor_speed_constant * omega)
+        info_dict['di_dt'] = di_dt
+
+        return di_dt
 
     def _controller(self, omega_n, demand):
         """
@@ -98,7 +110,7 @@ class BrushedMotor:
         V = V_max * demand
 
         if self.verbose:
-            print(V)
+            print('Controller Voltage Out:  ' + str(V))
 
         return V
 
@@ -106,7 +118,7 @@ class BrushedMotor:
         return self.motor_speed_constant * omega
 
 
-def MaxonRE65():
+def MaxonRE65(verbose=False):
     """
 
     :return:
@@ -116,7 +128,7 @@ def MaxonRE65():
 
     # Mechanical Properties
     Kt = 0.001 * 123
-    Kw = 1 / (77.8 * (2 * pi / 60))
+    Kw = 1 / (77.8 * (2 * np.pi / 60))
 
     # Electrical Properties
     R = 0.365
@@ -131,9 +143,9 @@ def MaxonRE65():
     motor_properties = {'torque_constant': Kt, 'motor_speed_constant': Kw, 'R': R, 'L': L, 'Power': Power}
     battery_properties = {'V_max': V_max, 'battery_efficiency': Battery_Efficiency}
 
-    return BrushedMotor(motor_properties, battery_properties)
+    return BrushedMotor(motor_properties, battery_properties, verbose=verbose)
 
-def Moog_C42_L90_30():
+def Moog_C42_L90_30(verbose=False):
     """
     https://www.moog.com/literature/MCG/moc23series.pdf
     """
@@ -155,9 +167,9 @@ def Moog_C42_L90_30():
     motor_properties = {'torque_constant': Kt, 'motor_speed_constant': Kw, 'R': R, 'L': L, 'Power': Power}
     battery_properties = {'V_max': V_max, 'battery_efficiency': Battery_Efficiency}
 
-    return BrushedMotor(motor_properties, battery_properties)
+    return BrushedMotor(motor_properties, battery_properties, verbose=verbose)
 
-def Moog_C42_L90_10():
+def Moog_C42_L90_10(verbose=False):
     """
     https://www.moog.com/literature/MCG/moc23series.pdf
     """
@@ -180,4 +192,4 @@ def Moog_C42_L90_10():
     motor_properties = {'torque_constant': Kt, 'motor_speed_constant': Kw, 'R': R, 'L': L, 'Power': Power}
     battery_properties = {'V_max': V_max, 'battery_efficiency': Battery_Efficiency}
 
-    return BrushedMotor(motor_properties, battery_properties)
+    return BrushedMotor(motor_properties, battery_properties, verbose=verbose)

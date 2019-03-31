@@ -29,7 +29,7 @@ class Vehicle:
         self.powertrain = powertrain
         self.transmission = transmission
 
-    def simulate(self, track, starting_segment, initial_conditions, control_function, time_step=0.01, lap_limit=1, time_limit=100):
+    def simulate(self, track, starting_segment, initial_conditions, control_function, time_step=0.025, lap_limit=1, time_limit=100):
 
 
         # Initialise vehicle on track
@@ -158,8 +158,6 @@ class Vehicle:
 
     def _update_lap_counter(self, new_segment):
 
-        print(type(np))
-
         previous_segment = self.segment[-1]
         segment_diff = new_segment - previous_segment
         segment_diff_mag = np.sqrt(segment_diff * segment_diff)
@@ -180,7 +178,7 @@ class Vehicle:
         else:
             self.segments_visited = [new_segment]
 
-    def _state_equation(self, t, y, information_dictionary):
+    def _state_equation(self, t, y, information_dictionary, **kwargs):
         """
 
         :param t:
