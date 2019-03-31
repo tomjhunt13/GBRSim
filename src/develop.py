@@ -1,8 +1,10 @@
 from src.Track import ImportTrack
 from src.Optimisation.Optimisation import *
-from src.Powertrain.Powertrain_original import *
+# from src.Powertrain.Powertrain_original import *
 from src.Control import *
 from src.Vehicle.Vehicle import *
+from src.Powertrain.BrushedDCMotor import *
+from src.Powertrain.Transmission import *
 
 track = ImportTrack.import_year('2019')
 

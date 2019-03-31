@@ -1,4 +1,4 @@
-import numpy as np
+# import numpy as np
 from src.RK4 import *
 
 class Vehicle:
@@ -75,7 +75,7 @@ class Vehicle:
             y_n = self.y[-1]
 
             t_np1 = t_n + time_step
-            y_np1, info_dict = self._step(t_np1, y_n)
+            y_np1, info_dict = self._update(t_np1, y_n)
 
             self.t.append(t_np1)
             self.y.append(y_np1)
@@ -91,14 +91,14 @@ class Vehicle:
         """
         return self.laps
 
-    def _step(self, t, y_n):
+    def _update(self, t_np1, y_n):
         """
-
+        Update vehicle system to time t_np1
         :return:
         """
 
         t_n = self.t[-1]
-        h = t - t_n
+        h = t_np1 - t_n
         self._step_y_n = y_n
 
         info = {
@@ -123,7 +123,7 @@ class Vehicle:
 
         return y_np1, info
 
-    def power(self, velocity, demand, t):
+    def power(self, velocity, demand, t_np1):
         """
 
         :param velocity: Linear vehicle velocity
@@ -142,7 +142,7 @@ class Vehicle:
         omega_motor = omega_wheel * self.transmission.ratio
 
         # Torque and power at motor
-        torque_motor, fuel_power = self.powertrain.power(omega_motor, demand, t)
+        torque_motor, fuel_power = self.powertrain._update(t_np1, omega_motor, demand)
 
         # Torque and power at wheel
         torque_wheel = self.transmission.ratio * self.transmission.efficiency * torque_motor
@@ -157,6 +157,8 @@ class Vehicle:
         return linear_force, fuel_power
 
     def _update_lap_counter(self, new_segment):
+
+        print(type(np))
 
         previous_segment = self.segment[-1]
         segment_diff = new_segment - previous_segment

@@ -1,10 +1,9 @@
-import numpy as np
-from scipy.integrate import odeint
-from math import pi
+# import numpy as np
+from src.RK4 import *
 
 
 class BrushedMotor:
-    def __init__(self, motor_properties, battery_properties):
+    def __init__(self, motor_properties, battery_properties, verbose=False):
         """
         Approximate brushed motor model without resistance
         """
@@ -22,10 +21,13 @@ class BrushedMotor:
 
         # State
         self.t_n = 0
-        self.i_n = 50
+        self.i_n = 0
         self.di_dt_n = 0
 
-    def power(self, omega, demand, t):
+        # Admin properties
+        self.verbose = verbose
+
+    def _update(self, t_np1, omega_n, demand):
         """
 
         :param wheel_speed: Rotational speed of wheel (radians / second)
@@ -33,24 +35,18 @@ class BrushedMotor:
         :return:
         """
 
-        self.Power = 250
-        back_emf = self._back_emf(omega)
-        L_di_dt = self.L * self.di_dt_n
+        # Get voltage from controller
+        V = self._controller(omega_n, demand)
 
-        V_max = max(np.roots([1, -1 * (L_di_dt + back_emf), -1 * self.Power * self.R]))
-        print('V max: ' + str(V_max))
-
-        if V_max > self.V_max:
-            V_max = self.V_max
 
         # Update i
-        dt = (t - self.t_n)
-        t_motor = np.linspace(0, dt, 2)
-        V = demand * V_max
+        dt = (t_np1 - self.t_n)
+        y_n = [self.i_n]
 
-        sol = odeint(self.state_equation, [self.i_n], t_motor, args=(V, omega))
+        info_dict = {'V': V, 'omega': omega_n}
 
-        i_np1 = sol[-1][0]
+        y_np1 = RK4_step(self._state_equation, self.t_n, y_n, dt, {}, V, omega_n)
+        i_np1 = y_np1[0]
 
         print('i: ' + str(i_np1))
 
@@ -58,19 +54,19 @@ class BrushedMotor:
         T_m = self.torque_constant * i_np1
 
         # Power
-        power = (V * i_np1) / self.battery_efficiency
+        power = (self.V * i_np1) / self.battery_efficiency
 
-        print('Efficiency: ' +  str((T_m * omega) / (V * i_np1)))
+        print('Efficiency: ' + str((T_m * omega_n) / (self.V * i_np1)))
 
         # Update state
         self.i_n = i_np1
-        self.di_dt_n = self.state_equation([i_np1], 0, V, omega)
+        self.di_dt_n = self._state_equation(0, [i_np1], {})
         self.t_n = self.t_n + dt
 
         return T_m, power
 
 
-    def state_equation(self, x, t, V, omega):
+    def _state_equation(self, t, y, info_dict, kjargs):
         """
         Returns di / dt
         :param i:
@@ -79,7 +75,32 @@ class BrushedMotor:
         :return:
         """
 
-        return (1 / self.L) * (V - x[0] * self.R - self.motor_speed_constant * omega)
+        V = kjargs
+
+        return (1 / self.L) * (V - y[0] * self.R - self.motor_speed_constant * omega)
+
+    def _controller(self, omega_n, demand):
+        """
+        Calculates voltage
+        :param omega_n:
+        :param demand:
+        :return:
+        """
+
+        back_emf = self._back_emf(omega_n)
+        L_di_dt = self.L * self.di_dt_n
+
+        V_max = max(np.roots([1, -1 * (L_di_dt + back_emf), -1 * self.Power * self.R]))
+
+        if V_max > self.V_max:
+            V_max = self.V_max
+
+        V = V_max * demand
+
+        if self.verbose:
+            print(V)
+
+        return V
 
     def _back_emf(self, omega):
         return self.motor_speed_constant * omega
@@ -160,5 +181,3 @@ def Moog_C42_L90_10():
     battery_properties = {'V_max': V_max, 'battery_efficiency': Battery_Efficiency}
 
     return BrushedMotor(motor_properties, battery_properties)
-
-

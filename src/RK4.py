@@ -17,7 +17,7 @@ t_n+1 = t + h
 """
 
 
-def RK4_step(f, t_n, y_n, dt, info_total):
+def RK4_step(f, t_n, y_n, dt, info_total, *args):
 
     info_1 = {}
     info_2 = {}
@@ -25,10 +25,10 @@ def RK4_step(f, t_n, y_n, dt, info_total):
     info_4 = {}
 
     # Runge Kutta Step
-    k_1 = np.multiply(dt, f(t_n, y_n, info_1))
-    k_2 = np.multiply(dt, f(t_n + (dt / 2.0), np.add(y_n, np.multiply((0.5), k_1)), info_2))
-    k_3 = np.multiply(dt, f(t_n + (dt / 2.0), np.add(y_n, np.multiply((0.5), k_2)), info_3))
-    k_4 = np.multiply(dt, f(t_n + dt, np.add(y_n, k_3), info_4))
+    k_1 = np.multiply(dt, f(t_n, y_n, info_1, args))
+    k_2 = np.multiply(dt, f(t_n + (dt / 2.0), np.add(y_n, np.multiply((0.5), k_1)), info_2, args))
+    k_3 = np.multiply(dt, f(t_n + (dt / 2.0), np.add(y_n, np.multiply((0.5), k_2)), info_3, args))
+    k_4 = np.multiply(dt, f(t_n + dt, np.add(y_n, k_3), info_4, args))
 
     # Apply weighting
     k_1_w = np.multiply(k_1, 1 / 6)
