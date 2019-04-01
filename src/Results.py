@@ -8,15 +8,18 @@ from mpl_toolkits.mplot3d import Axes3D
 def Animate(track, vehicle_results):
 
     # Break out simulation results
-    t, y, s, lambda_param, info_dict = vehicle_results
+    t, y, info_dict = vehicle_results
 
-    fuel_power = [d['fuel_power'] for d in info_dict]
+    fuel_power = [d['Fuel Power'] for d in info_dict]
     V = [d['V'] for d in info_dict]
     P = [d['P'] for d in info_dict]
     Frr = [d['Frr'] for d in info_dict]
     Fw = [d['Fw'] for d in info_dict]
     Fa = [d['Fa'] for d in info_dict]
     Fc = [d['Fc'] for d in info_dict]
+    s = [d['segment'] for d in info_dict]
+    lambda_param = [d['lambda_param'] for d in info_dict]
+
 
     print(np.trapz(fuel_power, t))
     print(t[-1])
@@ -68,7 +71,7 @@ def Animate(track, vehicle_results):
     Fc_ax = fig2D.add_subplot(428)
     Fc_ax.set_title('Fc')
 
-    lambda_ax.plot(t, [x[0] for x in y])
+    # lambda_ax.plot(t, [x[0] for x in y])
     lambda_ax.plot(t, s)
     vel_ax.plot(t, V)
     fuel_ax.plot(t, fuel_power)
@@ -91,32 +94,3 @@ def Animate(track, vehicle_results):
     vehicle_rep = track_ax.scatter(x_pos, y_pos, z_pos, zdir='z', s=0.1, c=[[1, 0, 0]], depthshade=True)
 
     plt.show()
-
-    # #
-    # #     # Get 3D coordinates
-    # #     coordinates = track.position(s[index], y[index][0])
-    # #     # vehicle_rep.set_xdata(coordinates[0])
-    # #
-    # #     # plt.draw()
-    # #     plt.pause(0.01)
-    #
-    #
-    # # # Initialise marker
-    # # coordinates = track.position(s[0], y[0][0])
-
-    # # #
-    # # # plt.ion()
-
-    # #
-    # # # Iterate over timesteps
-    # # for index in range(len(t)):
-    # #
-    # #     # time.sleep(0.01)
-    # #
-    # #     # Get 3D coordinates
-    # #     coordinates = track.position(s[index], y[index][0])
-    # #     # vehicle_rep.set_xdata(coordinates[0])
-    # #
-    # #     # plt.draw()
-    # #     plt.pause(0.01)
-

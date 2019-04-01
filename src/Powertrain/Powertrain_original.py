@@ -2,16 +2,6 @@ import numpy as np
 from scipy.integrate import odeint
 from math import pi
 
-class Transmission:
-    def __init__(self, ratio=1, efficiency=1):
-        """
-
-        :param ratio:
-        :param efficiency:
-        """
-        self.ratio = ratio
-        self.efficiency = efficiency
-
 
 class BrushedMotor:
     def __init__(self, motor_properties, battery_properties):
