@@ -94,32 +94,3 @@ def Animate(track, vehicle_results):
     vehicle_rep = track_ax.scatter(x_pos, y_pos, z_pos, zdir='z', s=0.1, c=[[1, 0, 0]], depthshade=True)
 
     plt.show()
-
-    # #
-    # #     # Get 3D coordinates
-    # #     coordinates = track.position(s[index], y[index][0])
-    # #     # vehicle_rep.set_xdata(coordinates[0])
-    # #
-    # #     # plt.draw()
-    # #     plt.pause(0.01)
-    #
-    #
-    # # # Initialise marker
-    # # coordinates = track.position(s[0], y[0][0])
-
-    # # #
-    # # # plt.ion()
-
-    # #
-    # # # Iterate over timesteps
-    # # for index in range(len(t)):
-    # #
-    # #     # time.sleep(0.01)
-    # #
-    # #     # Get 3D coordinates
-    # #     coordinates = track.position(s[index], y[index][0])
-    # #     # vehicle_rep.set_xdata(coordinates[0])
-    # #
-    # #     # plt.draw()
-    # #     plt.pause(0.01)
-

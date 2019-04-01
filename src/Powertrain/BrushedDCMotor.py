@@ -26,7 +26,7 @@ class BrushedMotor:
         # Admin properties
         self.verbose = verbose
 
-    def update(self, t_np1, omega, demand):
+    def update(self, t_np1, omega, demand, information_dict):
         """
 
         :param wheel_speed: Rotational speed of wheel (radians / second)
@@ -55,10 +55,12 @@ class BrushedMotor:
         # Power
         power = (V * i_np1) / self.battery_efficiency
 
+        information_dict['Fuel Power'] = max(0, power)
+
         if self.verbose:
             print('Motor')
             print('i: ' + str(i_np1))
-            print('Torque: ' + str(torque))
+            print('Motor Torque: ' + str(torque))
             print('Efficiency: ' + str((torque * omega) / (V * i_np1)))
             print('di/dt: ' + str(di_dt))
 
