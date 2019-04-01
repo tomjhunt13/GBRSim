@@ -54,6 +54,8 @@ class BrushedMotor:
 
         # Power
         power = (V * i_np1) / self.battery_efficiency
+        motor_efficiency = (torque * omega) / (V * i_np1)
+
 
         information_dict['Fuel Power'] = max(0, power)
 
@@ -61,7 +63,7 @@ class BrushedMotor:
             print('Motor')
             print('i: ' + str(i_np1))
             print('Motor Torque: ' + str(torque))
-            print('Efficiency: ' + str((torque * omega) / (V * i_np1)))
+            print('Efficiency: ' + str(motor_efficiency))
             print('di/dt: ' + str(di_dt))
 
             # # CFL analysis
@@ -74,6 +76,11 @@ class BrushedMotor:
         self.i_n = i_np1
         self.di_dt_n = di_dt
         self.t_n = self.t_n + dt
+
+        information_dict['Motor Current'] = i_np1
+        information_dict['Motor Efficiency'] = motor_efficiency
+        information_dict['Motor Torque'] = torque
+        information_dict['Motor Applied Voltage'] = V
 
         return torque, power
 

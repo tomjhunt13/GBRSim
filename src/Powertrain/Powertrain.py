@@ -76,41 +76,31 @@ class FreeWheel(Powertrain):
         y_n = [omega_motor]
         t_n = self.t_n
         dt = t_np1 - t_n
-
         y_np1 = RK4_step(self._state_equation, self.t_n, y_n, dt, {}, T_m=T_m)
         omega_motor_np1 = y_np1[0]
 
+
         # Check if free wheel engaged
         if y_np1 >= omega_motor:
-
+            engaged = True
             self.motor_omega_n = omega_wheel
-            self.t_n = t_np1
-
-            return T_m * self.ratio * self.efficiency
 
         # Else free wheel not engaged, no torque transmitted
-        self.motor_omega_n = omega_motor_np1
-        self.t_n= t_np1
+        else:
+            engaged = False
+            self.motor_omega_n = omega_motor_np1
+            T_m = 0
 
-        return 0
-        #
-        #
-        #
-        #
-        #
-        #
-        # # Convert to wheel torque
-        # T_wheel = T_m * self.ratio * self.efficiency
-        #
-        # # Update information_dictionary
-        # information_dictionary['Wheel Torque'] = T_wheel
-        # information_dictionary['Fuel Power'] = fuel_power
-        #
-        # if self.verbose:
-        #     print('Powertrain')
-        #     print('Wheel Torque: ' + str(T_wheel))
-        #
-        # return T_wheel
+
+        wheel_torque = T_m * self.ratio * self.efficiency
+        self.t_n = t_np1
+
+        information_dictionary['Motor  Speed'] = self.motor_omega_n
+        information_dictionary['Wheel Torque'] = wheel_torque
+        information_dictionary['Free Wheel Engaged'] = engaged
+
+        return wheel_torque
+
 
     def  _state_equation(self, t, y, info_dict, **kwargs):
 

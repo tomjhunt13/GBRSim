@@ -1,25 +1,24 @@
 from src.Track import ImportTrack
 from src.Optimisation.Optimisation import *
-# from src.Powertrain.Powertrain_original import *
+
 from src.Control import *
 from src.Vehicle.Vehicle import *
 from src.Powertrain.BrushedDCMotor import *
-from src.Powertrain.Transmission import *
-
+from src.Results.Results import *
 from src.Powertrain.Powertrain import *
 
-track = ImportTrack.import_year('2019')
+track = ImportTrack.import_year('2018')
 
 
 
-motor = Moog_C42_L90_10(verbose=True)
+motor = Moog_C42_L90_10(verbose=False)
 # powertrain = DirectTransmission(motor, 10, transmission_efficiency=0.93)
 free_wheel_properties = {'motor_shaft_inertia': 1340 * (0.001) * (0.01 * 0.01),  'motor_shaft_viscous': 0, 'motor_shaft_constant':  0 }
 powertrain = FreeWheel(motor, 10, free_wheel_properties, transmission_efficiency=0.93)
 
 
 # control = CutoffSpeed(8)
-control = BurnAndCoast_Velocity(min_vel=1, max_vel=3)
+control = BurnAndCoast_Velocity(min_vel=1, max_vel=4)
 # control = ConstantPower()
 
 
@@ -42,16 +41,10 @@ print(desired_time)
 # print(optimisation_result[0])
 # optimisation_result = minimize(TransmissionRatio_MinMax_TimeCost, [10, 1.7546696194154812, 10.106020212266744], args=(v, track, control, 600, desired_time), method='Nelder-Mead')
 
-vehicle_results = v.simulate(track, 0, [0, 0], control_function=control.demand, time_step=0.01, time_limit=300, lap_limit=1)
-# print(vehicle_results[0][-1])
-# vehicle_results = v.simulate(track, 0, [0, 0], control_function=control.demand, time_step=0.05, time_limit=600)
-# print(vehicle_results[0][-1])
-# vehicle_results = v.simulate(track, 0, [0, 0], control_function=control.demand, time_step=0.025, time_limit=600)
-# print(vehicle_results[0][-1])
-# vehicle_results = v.simulate(track, 0, [0, 0], control_function=control.demand, time_step=0.01, time_limit=600)
-# print(vehicle_results[0][-1])
+vehicle_results = v.simulate(track, 0, [0, 0], control_function=control.demand, time_step=0.01, time_limit=500, lap_limit=1)
 
 
-Animate(track, vehicle_results)
+# write_csv(vehicle_results)
+process_results(track, vehicle_results)
 
 

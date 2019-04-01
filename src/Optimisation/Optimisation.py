@@ -1,6 +1,6 @@
 from scipy.optimize import minimize
 
-from src.Results import *
+from src.Results.Results import *
 
 
 

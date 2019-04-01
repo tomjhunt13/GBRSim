@@ -45,12 +45,6 @@ class Vehicle:
 
         # Values
         self.info_dict = [{
-            # 'fuel_power': 0,
-            # 'P': 0,
-            # 'Frr': 0,
-            # 'Fw': 0,
-            # 'Fa': 0,
-            # 'Fc': 0,
             'V': initial_conditions[0] * self.track.segments[starting_segment].length,
             'segment': starting_segment,
             'lambda_param': initial_conditions[0]
@@ -81,11 +75,10 @@ class Vehicle:
             self.y.append(y_np1)
             self.info_dict.append(info_dict)
 
-
         # Update info dict
         update_dictionary_keys(self.info_dict[1], self.info_dict[0])
 
-        return self.t, self.y, self.info_dict
+        return self.info_dict
 
     def number_of_laps(self):
         """
@@ -120,6 +113,8 @@ class Vehicle:
 
         info['segment'] = segment_index
         info['lambda_param'] = lambda_param
+        info['t'] = t_np1
+        info['y'] = y_np1
 
         self._update_lap_counter(segment_index)
 
@@ -210,6 +205,7 @@ class Vehicle:
         information_dictionary['Fa'] = Fa
         information_dictionary['Fc'] = Fc
         information_dictionary['V'] = V
+        information_dictionary['Throttle Demand'] = throttle_demand
 
         return f
 
