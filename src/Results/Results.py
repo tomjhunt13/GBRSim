@@ -63,6 +63,8 @@ def process_results(track, vehicle_results):
     for i in range(len(vehicle_results)):
         vehicle_results[i]['V_mph'] = vehicle_results[i]['V'] * 2.237
 
+        del vehicle_results[i]['y']
+
     write_csv(vehicle_results)
     #
     # # Break out simulation results

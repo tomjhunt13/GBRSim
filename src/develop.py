@@ -41,7 +41,7 @@ print(desired_time)
 # print(optimisation_result[0])
 # optimisation_result = minimize(TransmissionRatio_MinMax_TimeCost, [10, 1.7546696194154812, 10.106020212266744], args=(v, track, control, 600, desired_time), method='Nelder-Mead')
 
-vehicle_results = v.simulate(track, 0, [0, 0], control_function=control.demand, time_step=0.01, time_limit=400, lap_limit=1)
+vehicle_results = v.simulate(track, 0, [0, 0], control_function=control.demand, time_step=0.01, time_limit=1000, lap_limit=1)
 
 
 # write_csv(vehicle_results)
