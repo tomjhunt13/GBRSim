@@ -44,11 +44,14 @@ def construct_coordinates(track, vehicle_results):
 
     # Iterate over timesteps
     for index in range(len(s)):
-        if s[index] < len(track.segments):
-            coordinates = track.position(s[index], lambda_param[index])
-            vehicle_results[index]['x_pos'] = coordinates[0]
-            vehicle_results[index]['y_pos'] = coordinates[1]
-            vehicle_results[index]['z_pos'] = coordinates[2]
+        if s[index] > len(track.segments) - 1:
+            s[index] = len(track.segments) - 1
+
+
+        coordinates = track.position(s[index], lambda_param[index])
+        vehicle_results[index]['x_pos'] = coordinates[0]
+        vehicle_results[index]['y_pos'] = coordinates[1]
+        vehicle_results[index]['z_pos'] = coordinates[2]
 
 
 def process_results(track, vehicle_results):
@@ -56,6 +59,9 @@ def process_results(track, vehicle_results):
 
     # Append coordinates to vehicle_results
     construct_coordinates(track, vehicle_results)
+
+    for i in range(len(vehicle_results)):
+        vehicle_results[i]['V_mph'] = vehicle_results[i]['V'] * 2.237
 
     write_csv(vehicle_results)
     #

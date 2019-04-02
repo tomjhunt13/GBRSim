@@ -265,15 +265,15 @@ class Vehicle:
         :return:
         """
 
+        # Assume max alpha = 3 deg
+        alpha = alpha_deg * (np.pi / 180)
+
         # Track radius of curvature
         segment = self.track.segments[segment_index]
         R = segment.horizontal_radius_of_curvature(lambda_param)
 
         # Centripetal force
         Fy = (self.m * V * V) / (R * np.cos(alpha_deg))
-
-        # Assume max alpha = 3 deg
-        alpha = alpha_deg * (np.pi / 180)
 
         return direction_modifier(V) * Fy * np.sin(alpha)
 
