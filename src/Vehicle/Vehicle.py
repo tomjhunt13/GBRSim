@@ -255,7 +255,8 @@ class Vehicle:
         """
 
         # Rolling resistance
-        Frr = self.m * self.track.g * np.cos(theta) * self.Crr * np.sign(V)
+        # Frr = self.m * self.track.g * np.cos(theta) * self.Crr * np.sign(V)
+        Frr = self.m * self.track.g * self.Crr * np.sign(V)
 
         return direction_modifier(V) * Frr
 
