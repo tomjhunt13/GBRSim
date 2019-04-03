@@ -8,7 +8,7 @@ class Vehicle:
         default_vehicle_attributes = {
             'Mass': 170,
             'Crr': 1.5 * 0.001,     # http://www.eshopsem.com/boutique/product.php?id_product=75
-            'Cd': 0.3,
+            'Cd': 0.2,
             'A': 1.26,
             'PoweredWheelRadius': 0.279,
             'LongitudinalCoG': 0.5,     # Assume even weight distribution
@@ -199,6 +199,7 @@ class Vehicle:
 
 
         # information_dictionary['fuel_power'] = fuel_power
+        information_dictionary['Gradient'] = 100 * (theta / (np.pi / 4))
         information_dictionary['P'] = P
         information_dictionary['Frr'] = Frr
         information_dictionary['Fw'] = Fw
@@ -293,7 +294,7 @@ class Vehicle:
         wheel_torque = self.powertrain.update(t_np1, information_dictionary, omega_wheel, demand)
 
         # Linear force
-        linear_force = wheel_torque * self.PoweredWheelRadius
+        linear_force = wheel_torque / self.PoweredWheelRadius
 
         return linear_force
 

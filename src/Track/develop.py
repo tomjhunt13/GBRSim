@@ -20,16 +20,21 @@ fig3D = plt.figure()
 track_ax = fig3D.add_subplot(111, projection='3d')
 length = 0
 
+hrof = []
+
 for seg in t.segments:
     # print('Horiz: ' + str(seg.horizontal_radius_of_curvature(0.5)))
     # print(seg.radius_of_curvature(0.5))
 
     length += seg.length
+    hrof.append(seg.horizontal_radius_of_curvature(0.5))
 
     # x, y, z = seg.draw_coordinates(num_segments=20)
     # track_ax.plot(x, y, z)
 
 print(length)
+
+print(min(hrof))
 
 # x, y, z = t.draw_coordinates(num_segments=5)
 #

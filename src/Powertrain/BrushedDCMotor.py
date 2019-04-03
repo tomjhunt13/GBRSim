@@ -45,7 +45,9 @@ class BrushedMotor:
         dt = (t_np1 - t_n)
         y_n = [i_n]
         info_dict = {'di_dt': 0}
-        y_np1 = RK4_step(self._state_equation, self.t_n, y_n, dt, info_dict, V=V, omega=omega)
+        y_np_0p5 = RK4_step(self._state_equation, self.t_n, y_n, dt/2, info_dict, V=V, omega=omega)
+        y_np1 = RK4_step(self._state_equation, self.t_n, y_np_0p5, dt/2, info_dict, V=V, omega=omega)
+
         i_np1 = y_np1[0]
         di_dt = info_dict['di_dt']
 
@@ -113,7 +115,8 @@ class BrushedMotor:
         back_emf = self._back_emf(omega_n)
         L_di_dt = self.L * self.di_dt_n
 
-        V_max = max(np.roots([1, -1 * (L_di_dt + back_emf), -1 * self.Power * self.R]))
+        # V_max = max(np.roots([1, -1 * (L_di_dt + back_emf), -1 * self.Power * self.R]))
+        V_max = max(np.roots([1, -1 * (back_emf), -1 * self.Power * self.R]))
 
         if V_max > self.V_max:
             V_max = self.V_max
@@ -171,7 +174,7 @@ def Moog_C42_L90_30(verbose=False):
     Power = 359
 
     # Power Supply
-    V_max = 48
+    V_max = 90
     Battery_Efficiency = 0.9
 
     # Motor properties

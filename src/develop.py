@@ -7,14 +7,14 @@ from src.Powertrain.BrushedDCMotor import *
 from src.Results.Results import *
 from src.Powertrain.Powertrain import *
 
-track = ImportTrack.import_year('2019')
+track = ImportTrack.import_year('2018')
 
 
 
-motor = Moog_C42_L90_10(verbose=False)
-# powertrain = DirectTransmission(motor, 10, transmission_efficiency=0.93)
-free_wheel_properties = {'motor_shaft_inertia': 1340 * (0.001) * (0.01 * 0.01),  'motor_shaft_viscous': 0, 'motor_shaft_constant': 0}
-powertrain = FreeWheel(motor, 10, free_wheel_properties, transmission_efficiency=0.93)
+motor = MaxonRE65(verbose=True)
+powertrain = DirectTransmission(motor, 5, transmission_efficiency=0.93)
+# free_wheel_properties = {'motor_shaft_inertia': 1340 * (0.001) * (0.01 * 0.01),  'motor_shaft_viscous': 0, 'motor_shaft_constant': 0}
+# powertrain = FreeWheel(motor, 15, free_wheel_properties, transmission_efficiency=0.93)
 
 
 # control = CutoffSpeed(8)
@@ -41,7 +41,7 @@ print(desired_time)
 # print(optimisation_result[0])
 # optimisation_result = minimize(TransmissionRatio_MinMax_TimeCost, [10, 1.7546696194154812, 10.106020212266744], args=(v, track, control, 600, desired_time), method='Nelder-Mead')
 
-vehicle_results = v.simulate(track, 0, [0, 0], control_function=control.demand, time_step=0.01, time_limit=1000, lap_limit=1)
+vehicle_results = v.simulate(track, 0, [0, 0], control_function=control.demand, time_step=0.0025, time_limit=400, lap_limit=1)
 
 
 # write_csv(vehicle_results)
