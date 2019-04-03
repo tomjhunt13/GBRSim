@@ -22,6 +22,9 @@ class DirectTransmission(Powertrain):
 
         super(DirectTransmission, self).__init__(verbose=verbose)
 
+    def reset(self):
+        self.motor.reset()
+
     def update(self, t_np1, information_dictionary, omega_wheel, demand):
 
         # Convert wheel speed to motor speed

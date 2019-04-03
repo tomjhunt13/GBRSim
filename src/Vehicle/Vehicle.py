@@ -42,6 +42,7 @@ class Vehicle:
         self.y = [initial_conditions]
         self.t = [0]
         self.time_step = time_step
+        self.powertrain.reset()
 
         # Values
         self.info_dict = [{

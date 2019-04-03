@@ -2,7 +2,7 @@ import numpy as np
 from src.RK4 import *
 
 class BrushedMotor:
-    def __init__(self, motor_properties, battery_properties, verbose=False):
+    def __init__(self, motor_properties, battery_properties, verbose=False, inner_steps=1):
         """
         Approximate brushed motor model without resistance
         """
@@ -19,12 +19,19 @@ class BrushedMotor:
         self.battery_efficiency = battery_properties['battery_efficiency']
 
         # State
-        self.t_n = 0
-        self.i_n = 0
-        self.di_dt_n = 0
+        self.reset()
+        # self.t_n = 0
+        # self.i_n = 0
+        # self.di_dt_n = 0
 
         # Admin properties
         self.verbose = verbose
+        self.inner_steps = inner_steps
+
+    def reset(self):
+        self.t_n = 0
+        self.i_n = 0
+        self.di_dt_n = 0
 
     def update(self, t_np1, omega, demand, information_dict):
         """
@@ -45,8 +52,14 @@ class BrushedMotor:
         dt = (t_np1 - t_n)
         y_n = [i_n]
         info_dict = {'di_dt': 0}
-        y_np_0p5 = RK4_step(self._state_equation, self.t_n, y_n, dt/2, info_dict, V=V, omega=omega)
-        y_np1 = RK4_step(self._state_equation, self.t_n, y_np_0p5, dt/2, info_dict, V=V, omega=omega)
+
+        # steps = 10
+        for i in range(self.inner_steps):
+            y_np1 = RK4_step(self._state_equation, self.t_n + (1 / self.inner_steps) * i, y_n, dt/self.inner_steps, info_dict, V=V, omega=omega)
+            y_n = y_np1
+
+        # y_np_0p5 = RK4_step(self._state_equation, self.t_n, y_n, dt/2, info_dict, V=V, omega=omega)
+        # y_np1 = RK4_step(self._state_equation, self.t_n, y_np_0p5, dt/2, info_dict, V=V, omega=omega)
 
         i_np1 = y_np1[0]
         di_dt = info_dict['di_dt']
@@ -157,7 +170,7 @@ def MaxonRE65(verbose=False):
     motor_properties = {'torque_constant': Kt, 'motor_speed_constant': Kw, 'R': R, 'L': L, 'Power': Power}
     battery_properties = {'V_max': V_max, 'battery_efficiency': Battery_Efficiency}
 
-    return BrushedMotor(motor_properties, battery_properties, verbose=verbose)
+    return BrushedMotor(motor_properties, battery_properties, verbose=verbose,inner_steps=20)
 
 def Moog_C42_L90_30(verbose=False):
     """

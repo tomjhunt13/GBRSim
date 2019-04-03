@@ -6,11 +6,12 @@ from src.Results.Results import *
 
 def Simulation(vehicle, track, control_function, time_limit):
 
-    vehicle_results = vehicle.simulate(track, 0, [0, 0], control_function=control_function, time_step=0.05, time_limit=time_limit)
+    vehicle_results = vehicle.simulate(track, 0, [0, 0], control_function=control_function, time_step=0.01, time_limit=time_limit)
 
-    t, y, s, lambda_param, info_dict = vehicle_results
+    # t, y, s, lambda_param, info_dict = vehicle_results
 
-    fuel_power = [d['fuel_power'] for d in info_dict]
+    fuel_power = [d['Fuel Power'] for d in vehicle_results]
+    t = [d['t'] for d in vehicle_results]
     # V = [d['V'] for d in info_dict]
     # P = [d['P'] for d in info_dict]
     # Frr = [d['Frr'] for d in info_dict]
@@ -32,8 +33,8 @@ def TransmissionRatioSim(ratio, *args):
     time_limit = args[3]
 
     # Motor properties
-    transmission = vehicle.transmission
-    transmission.ratio = ratio[0]
+    powertrain = vehicle.powertrain
+    powertrain.ratio = ratio[0]
 
 
     print('Ratio: ' + str(ratio[0]))
