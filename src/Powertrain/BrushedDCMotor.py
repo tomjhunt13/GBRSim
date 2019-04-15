@@ -20,9 +20,6 @@ class BrushedMotor:
 
         # State
         self.reset()
-        # self.t_n = 0
-        # self.i_n = 0
-        # self.di_dt_n = 0
 
         # Admin properties
         self.verbose = verbose
@@ -55,14 +52,16 @@ class BrushedMotor:
 
         # steps = 10
         for i in range(self.inner_steps):
-            y_np1 = RK4_step(self._state_equation, self.t_n + (1 / self.inner_steps) * i, y_n, dt/self.inner_steps, info_dict, V=V, omega=omega)
+            y_np1 = RK4_step(self._state_equation, self.t_n + (dt / self.inner_steps) * i, y_n, dt/self.inner_steps, info_dict, V=V, omega=omega)
+
+            # print(y_np1[0] - y_n[0])
+
             y_n = y_np1
 
-        # y_np_0p5 = RK4_step(self._state_equation, self.t_n, y_n, dt/2, info_dict, V=V, omega=omega)
-        # y_np1 = RK4_step(self._state_equation, self.t_n, y_np_0p5, dt/2, info_dict, V=V, omega=omega)
 
         i_np1 = y_np1[0]
         di_dt = info_dict['di_dt']
+        di = i_np1 - i_n
 
         # Torque
         torque = self.torque_constant * i_np1
@@ -79,10 +78,11 @@ class BrushedMotor:
             print('i: ' + str(i_np1))
             print('Motor Torque: ' + str(torque))
             print('Efficiency: ' + str(motor_efficiency))
-            print('di/dt: ' + str(di_dt))
+            print('Actual di/dt: ' + str(di_dt))
 
             # # CFL analysis
-            # di = i_np1 - i_n
+            di = i_np1 - i_n
+            print('Numerical di/dt: ' + str(di / dt))
             # cfl = di_dt * (dt / di)
             # print('di: ' + str(di))
             # print('CFL: ' + str(cfl))
@@ -170,7 +170,7 @@ def MaxonRE65(verbose=False):
     motor_properties = {'torque_constant': Kt, 'motor_speed_constant': Kw, 'R': R, 'L': L, 'Power': Power}
     battery_properties = {'V_max': V_max, 'battery_efficiency': Battery_Efficiency}
 
-    return BrushedMotor(motor_properties, battery_properties, verbose=verbose,inner_steps=20)
+    return BrushedMotor(motor_properties, battery_properties, verbose=verbose, inner_steps=10)
 
 def Moog_C42_L90_30(verbose=False):
     """

@@ -185,7 +185,7 @@ def BattSize(battery_energy, *args):
     m = battery_mass + base_mass_inc_person
 
     efficiency = WLTC(t, v, m, Cd, A, Crr)
-    range_result = efficiency * battery_energy[0]
+    range_result = efficiency * battery_energy[0] *  0.7
 
     print('Energy: ' + str(battery_energy[0]) + ', Mass: ' + str(battery_mass) + ', Range: ' + str(range_result))
 
@@ -213,7 +213,7 @@ def CarSize(t, v, desired_range, base_mass=90, person_mass=75, battery_density=5
 base_mass = 230
 person_mass = 70
 
-batt_energy, batt_mass = CarSize(t, v, 100, base_mass=base_mass, person_mass=person_mass, battery_density=5, Cd=0.2, A=1.26, Crr=0.0015)
+batt_energy, batt_mass = CarSize(t, v, 112, base_mass=base_mass, person_mass=person_mass, battery_density=5, Cd=0.2, A=1.26, Crr=0.0015)
 
 total_mass = base_mass + person_mass + batt_mass
 

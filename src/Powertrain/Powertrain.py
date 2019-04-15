@@ -64,8 +64,13 @@ class FreeWheel(Powertrain):
 
         super(FreeWheel, self).__init__(verbose=verbose)
 
+        # Set up state
+        self.reset()
+
+    def reset(self):
         self.motor_omega_n = 0
         self.t_n = 0
+        self.motor.reset()
 
     def update(self, t_np1, information_dictionary, omega_wheel, demand):
 
@@ -75,24 +80,31 @@ class FreeWheel(Powertrain):
         # Get motor torque
         T_m, fuel_power = self.motor.update(t_np1, omega_motor, demand, information_dictionary)
 
-        # Update motor shaft speed
-        y_n = [omega_motor]
-        t_n = self.t_n
-        dt = t_np1 - t_n
-        y_np1 = RK4_step(self._state_equation, self.t_n, y_n, dt, {}, T_m=T_m)
-        omega_motor_np1 = y_np1[0]
-
-
-        # Check if free wheel engaged
-        if y_np1 >= omega_motor:
+        if demand > 0:
             engaged = True
-            self.motor_omega_n = omega_wheel
 
-        # Else free wheel not engaged, no torque transmitted
         else:
             engaged = False
-            self.motor_omega_n = omega_motor_np1
             T_m = 0
+
+        # # Update motor shaft speed
+        # y_n = [omega_motor]
+        # t_n = self.t_n
+        # dt = t_np1 - t_n
+        # y_np1 = RK4_step(self._state_equation, self.t_n, y_n, dt, {}, T_m=T_m)
+        # omega_motor_np1 = y_np1[0]
+        #
+        #
+        # # Check if free wheel engaged
+        # if y_np1 >= omega_motor:
+        #     engaged = True
+        #     self.motor_omega_n = omega_wheel
+        #
+        # # Else free wheel not engaged, no torque transmitted
+        # else:
+        #     engaged = False
+        #     self.motor_omega_n = omega_motor_np1
+        #     T_m = 0
 
 
         wheel_torque = T_m * self.ratio * self.efficiency
@@ -101,6 +113,9 @@ class FreeWheel(Powertrain):
         information_dictionary['Motor  Speed'] = self.motor_omega_n
         information_dictionary['Wheel Torque'] = wheel_torque
         information_dictionary['Free Wheel Engaged'] = engaged
+
+        if wheel_torque < 0:
+            print()
 
         return wheel_torque
 

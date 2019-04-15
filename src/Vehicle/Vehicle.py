@@ -29,7 +29,7 @@ class Vehicle:
         self.powertrain = powertrain
         # self.transmission = transmission
 
-    def simulate(self, track, starting_segment, initial_conditions, control_function, time_step=0.025, lap_limit=1, time_limit=100):
+    def simulate(self, track, starting_segment, initial_conditions, control_function, time_step=0.025, lap_limit=1, time_limit=100, verbose=True):
 
 
         # Initialise vehicle on track
@@ -55,6 +55,7 @@ class Vehicle:
 
 
         self.control_function = control_function
+        self.verbose = verbose
 
         self.segments_visited = [starting_segment]
         self.laps = 0
@@ -63,8 +64,8 @@ class Vehicle:
         y_n = self.y[-1]
 
         while t_n <= time_limit and self.number_of_laps() != lap_limit:
-
-            print('Time: ' + str(t_n))
+            if self.verbose:
+                print('Time: ' + str(t_n))
 
             t_n = self.t[-1]
             y_n = self.y[-1]
@@ -129,12 +130,17 @@ class Vehicle:
 
         # If segment incremented
         if (self.y[-1][0] < self.y[-2][0] and self.y[-1][1] > 0) or (np.floor(self.y[-1][0]) > np.floor(self.y[-2][0])):
+
+            print(new_segment)
+
             self.segments_visited.append(new_segment)
+
+            print(len(self.segments_visited), len(self.track.segments) + 1)
 
             if len(self.track.segments) == 1:
                 self.laps += 1
 
-            elif len(self.segments_visited) == len(self.track.segments) + 1:
+            elif len(self.segments_visited) >= len(self.track.segments) + 1:
                 self.laps += 1
 
         # Else if decremented
@@ -274,9 +280,9 @@ class Vehicle:
         R = segment.horizontal_radius_of_curvature(lambda_param)
 
         # Centripetal force
-        Fy = (self.m * V * V) / (R * np.cos(alpha_deg))
+        Fy = (self.m * V * V) / (R)
 
-        return direction_modifier(V) * Fy * np.sin(alpha)
+        return direction_modifier(V) * Fy * np.tan(alpha)
 
     def _update_powertrain(self, t_np1, information_dictionary, velocity, demand):
         """

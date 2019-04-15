@@ -8,16 +8,8 @@ def Simulation(vehicle, track, control_function, time_limit):
 
     vehicle_results = vehicle.simulate(track, 0, [0, 0], control_function=control_function, time_step=0.01, time_limit=time_limit)
 
-    # t, y, s, lambda_param, info_dict = vehicle_results
-
     fuel_power = [d['Fuel Power'] for d in vehicle_results]
     t = [d['t'] for d in vehicle_results]
-    # V = [d['V'] for d in info_dict]
-    # P = [d['P'] for d in info_dict]
-    # Frr = [d['Frr'] for d in info_dict]
-    # Fw = [d['Fw'] for d in info_dict]
-    # Fa = [d['Fa'] for d in info_dict]
-    # Fc = [d['Fc'] for d in info_dict]
 
     energy = np.trapz(fuel_power, t)
     time = t[-1]
@@ -223,3 +215,60 @@ def BurnAndCoast_TransmissionRatio_OperatingVoltage(input_vector, *args):
 
     return 1 - y[-1][0]
 
+
+def EnergyTimeCost(ratio, *args):
+
+    vehicle = args[0]
+    track = args[1]
+    control_function = args[2]
+    time_limit = args[3]
+    max_time = args[4]
+
+    # Motor properties
+    powertrain = vehicle.powertrain
+    powertrain.ratio = ratio[0]
+
+    print('Ratio: ' + str(ratio[0]))
+    energy, time = Simulation(vehicle, track, control_function, time_limit)
+
+    multiplier = 1 + max(time - max_time,  0)
+
+    print('Energy: ' + str(energy) + ', Time: ' + str(time))
+
+    return energy * multiplier
+
+def EnergyTimeCost_MinMax(ratio, *args):
+
+    vehicle = args[0]
+    track = args[1]
+    controller = args[2]
+    time_limit = args[3]
+    max_time = args[4]
+
+    # Motor properties
+    powertrain = vehicle.powertrain
+    powertrain.ratio = ratio[0]
+
+    controller.min_vel = ratio[1]
+    controller.max_vel = ratio[2]
+
+
+
+    print('Ratio: ' + str(ratio[0]) + ', Min Velocity: ' + str(ratio[1]) + ', Max Velocity: ' + str(ratio[2]))
+    energy, time = Simulation(vehicle, track, controller.demand, time_limit)
+
+    multiplier = 1 + max(time - max_time,  0)
+
+    print('Energy: ' + str(energy) + ', Time: ' + str(time))
+
+    return energy * multiplier
+
+
+def OptimiseTransmissionRatio_EnergyTime(initial_ratio, max_time, vehicle, track, control_function, time_limit=500):
+
+    x0 = [initial_ratio]
+    return minimize(EnergyTimeCost, x0, args=(vehicle, track, control_function, time_limit, max_time), method='Nelder-Mead')
+
+def OptimiseTransmissionRatio_MinMax_EnergyTime(x0, max_time, vehicle, track, controller, time_limit=500):
+
+    return minimize(EnergyTimeCost_MinMax, x0, args=(vehicle, track, controller, time_limit, max_time), method='Nelder-Mead')
