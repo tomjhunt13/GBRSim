@@ -19,29 +19,26 @@ class Polynomial:
         return y
 
 
-
-
-
-
 class TestOptimiser(unittest.TestCase):
 
-    def test_base_optimiser(self):
-
-        """
-        Test quadratic x^2 returns x = 0
-        """
-
-
+    def test_quadratic(self):
+        print('Quadratic')
         quadratic = Polynomial()
         optimiser = Optimiser()
 
-        optimiser.AddVariable('x', quadratic.x, -2, 1)
+        optimiser.AddVariable('x', quadratic.x, -2, 2)
 
         result = optimiser.Optimise(quadratic.cost)
-
-
         self.assertAlmostEqual(result['x'], 0)
 
+    def test_quartic(self):
+        print('Quartic')
+        quartic = Polynomial([1, 0, 0, 0, 1])
+        optimiser = Optimiser()
+
+        optimiser.AddVariable('x', quartic.x, -2, 2)
+        result = optimiser.Optimise(quartic.cost)
+        self.assertAlmostEqual(result['x'], 0)
 
 
 if __name__ == '__main__':

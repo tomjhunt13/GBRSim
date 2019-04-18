@@ -52,7 +52,7 @@ class Optimiser:
         input = [None] * len(self.variables)
 
         for index, variable in enumerate(self.variables):
-            input[index] = 0.5 * (variable['min'] + variable['max'])
+            input[index] = variable['min'] + np.random.rand(1)[0] * (variable['max'] - variable['min'])
 
         return input
 

@@ -1,17 +1,20 @@
-class a:
-    def __init__(self):
-        self.r = [5]
+from src.Optimisation.Tests.Test_Optimiser import Polynomial
 
 
-def h(input):
-
-    print(input)
-    input[0] += 1
+import numpy as np
 
 
-kjh = a()
+print(np.random.rand(1)[0])
 
-h(kjh.r)
 
-lkhg  = 4
+q = Polynomial([1, 0, 0, 0, 1])
+
+kjh = [-3, -2, -1, 0,  1, 2, 3]
+for i in kjh:
+    q.x = [i]
+    print(q.cost())
+
+a = 4
+
+
 
