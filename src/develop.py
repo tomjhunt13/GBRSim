@@ -10,17 +10,12 @@ from src.Results import Results
 from src.Powertrain import Powertrain
 
 track = ImportTrack.import_year('2018')
-# l1 = Line.Line([[0, 0, 0], [100, 0, 0]])
-# l2 = Line.Line([[100, 0, 0], [100, 100, 0]])
-# track = Track.Track([l1, l2])
+
 
 
 motor = BrushedDCMotor.MaxonRE65(verbose=True)
-# motor =  BrushedDCMotor.Moog_C42_L90_10()
-powertrain = Powertrain.DirectTransmission(motor, 14.698399052931432, transmission_efficiency=0.93)
-# powertrain = Powertrain.DirectTransmission(motor, 8.140108198711413, transmission_efficiency=0.93)
-# free_wheel_properties = {'motor_shaft_inertia': 1340 * (0.001) * (0.01 * 0.01),  'motor_shaft_viscous': 0, 'motor_shaft_constant': 0}
-# powertrain = Powertrain.FreeWheel(motor, 14.698399052931432, free_wheel_properties, transmission_efficiency=0.93)
+# motor = BrushedDCMotor.Moog_C42_L90_10()
+powertrain = Powertrain.DirectTransmission(motor, 12, transmission_efficiency=0.8)
 
 
 # control = CutoffSpeed(8)
@@ -57,7 +52,7 @@ vehicle_results = v.simulate(track, 0, [0, 0], control_function=control.demand, 
 
 t_end = time.time()
 
-t_total = t_end -  t_start
+t_total = t_end - t_start
 
 print(t_total)
 #

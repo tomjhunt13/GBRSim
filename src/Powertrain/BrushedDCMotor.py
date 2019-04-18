@@ -67,11 +67,16 @@ class BrushedMotor:
         torque = self.torque_constant * i_np1
 
         # Power
-        power = (V * i_np1) / self.battery_efficiency
-        motor_efficiency = (torque * omega) / (V * i_np1)
+        electrical_power = (V * i_np1) / self.battery_efficiency
+
+        if np.isclose(electrical_power, 0):
+            motor_efficiency = 0
+
+        else:
+            motor_efficiency = (torque * omega) / (V * i_np1)
 
 
-        information_dict['Fuel Power'] = max(0, power)
+        information_dict['Fuel Power'] = max(0, electrical_power)
 
         if self.verbose:
             print('Motor')
@@ -82,7 +87,7 @@ class BrushedMotor:
 
             # # CFL analysis
             di = i_np1 - i_n
-            print('Numerical di/dt: ' + str(di / dt))
+            # print('Numerical di/dt: ' + str(di / dt))
             # cfl = di_dt * (dt / di)
             # print('di: ' + str(di))
             # print('CFL: ' + str(cfl))
@@ -97,7 +102,7 @@ class BrushedMotor:
         information_dict['Motor Torque'] = torque
         information_dict['Motor Applied Voltage'] = V
 
-        return torque, power
+        return torque, electrical_power
 
 
     def _state_equation(self, t, y, info_dict, **kwargs):

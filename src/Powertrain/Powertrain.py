@@ -16,7 +16,7 @@ class DirectTransmission(Powertrain):
 
     def __init__(self, motor, transmission_ratio, transmission_efficiency=1, verbose=False):
 
-        self.ratio = transmission_ratio
+        self.ratio = [transmission_ratio]
         self.efficiency = transmission_efficiency
         self.motor = motor
 
@@ -28,13 +28,13 @@ class DirectTransmission(Powertrain):
     def update(self, t_np1, information_dictionary, omega_wheel, demand):
 
         # Convert wheel speed to motor speed
-        omega_motor = omega_wheel * self.ratio
+        omega_motor = omega_wheel * self.ratio[0]
 
         # Get motor torque
         T_m, fuel_power = self.motor.update(t_np1, omega_motor, demand, information_dictionary)
 
         # Convert to wheel torque
-        T_wheel = T_m * self.ratio * self.efficiency
+        T_wheel = T_m * self.ratio[0] * self.efficiency
 
         # Update information_dictionary
         information_dictionary['Wheel Torque'] = T_wheel
@@ -51,7 +51,7 @@ class FreeWheel(Powertrain):
 
     def __init__(self, motor, transmission_ratio, free_wheel_properties, transmission_efficiency=1, verbose=False):
 
-        self.ratio = transmission_ratio
+        self.ratio = [transmission_ratio]
         self.efficiency = transmission_efficiency
         self.motor = motor
 
@@ -75,7 +75,7 @@ class FreeWheel(Powertrain):
     def update(self, t_np1, information_dictionary, omega_wheel, demand):
 
         # Convert wheel speed to motor speed
-        omega_motor = omega_wheel * self.ratio
+        omega_motor = omega_wheel * self.ratio[0]
 
         # Get motor torque
         T_m, fuel_power = self.motor.update(t_np1, omega_motor, demand, information_dictionary)
@@ -107,7 +107,7 @@ class FreeWheel(Powertrain):
         #     T_m = 0
 
 
-        wheel_torque = T_m * self.ratio * self.efficiency
+        wheel_torque = T_m * self.ratio[0] * self.efficiency
         self.t_n = t_np1
 
         information_dictionary['Motor  Speed'] = self.motor_omega_n
