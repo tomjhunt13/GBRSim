@@ -4,7 +4,7 @@ class ConstantPower:
 
 class CutoffSpeed:
     def __init__(self, cutoff_speed=10):
-        self.cutoff_speed = cutoff_speed
+        self.cutoff_speed = [cutoff_speed]
 
     def demand(self, *args):
 
@@ -12,7 +12,7 @@ class CutoffSpeed:
         V = args[0] * 2.237
         theta = args[1]
 
-        if V > self.cutoff_speed or theta < 0:
+        if V > self.cutoff_speed[0] or theta < 0:
             throttle_demand = 0
 
         else:
@@ -22,8 +22,8 @@ class CutoffSpeed:
 
 class BurnAndCoast_Velocity:
     def __init__(self, min_vel=5, max_vel=15):
-        self.min_vel = min_vel
-        self.max_vel = max_vel
+        self.min_vel = [min_vel]
+        self.max_vel = [max_vel]
 
         self.previous_throttle = 0
 
@@ -39,11 +39,11 @@ class BurnAndCoast_Velocity:
         #     self.previous_throttle = 0
         #     return 0
 
-        if V < self.min_vel:
+        if V < self.min_vel[0]:
             self.previous_throttle = 1
             return 1
 
-        if V > self.max_vel:
+        if V > self.max_vel[0]:
             self.previous_throttle = 0
             return 0
 

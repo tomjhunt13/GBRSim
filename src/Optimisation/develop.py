@@ -39,7 +39,7 @@ track = ImportTrack.import_year('2018')
 
 
 
-motor = BrushedDCMotor.MaxonRE65(verbose=False)
+motor = BrushedDCMotor.Moog_C42_L90_10(verbose=False)
 powertrain = Powertrain.DirectTransmission(motor, 12, transmission_efficiency=0.8)
 control = Control.BurnAndCoast_Velocity()
 v = Vehicle.Vehicle(powertrain)

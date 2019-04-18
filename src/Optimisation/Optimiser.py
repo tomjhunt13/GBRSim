@@ -22,13 +22,13 @@ class Optimiser:
         # self.variable_name_hash['name'] = len(self.variables) - 1
 
 
-    def Optimise(self, cost_function):
+    def Optimise(self, cost_function, tolerance=1e-7):
 
         self.cost_function = cost_function
 
         input = self._assemble_input_vector()
 
-        optimisation_result = minimize(self._cost, input, method='Nelder-Mead')['x']
+        optimisation_result = minimize(self._cost, input, method='Nelder-Mead', tol=tolerance)['x']
 
         result = {}
         for index, value in enumerate(optimisation_result):

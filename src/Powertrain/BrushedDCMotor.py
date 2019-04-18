@@ -224,4 +224,4 @@ def Moog_C42_L90_10(verbose=False):
     motor_properties = {'torque_constant': Kt, 'motor_speed_constant': Kw, 'R': R, 'L': L, 'Power': Power}
     battery_properties = {'V_max': V_max, 'battery_efficiency': Battery_Efficiency}
 
-    return BrushedMotor(motor_properties, battery_properties, verbose=verbose)
+    return BrushedMotor(motor_properties, battery_properties, verbose=verbose, inner_steps=2)
