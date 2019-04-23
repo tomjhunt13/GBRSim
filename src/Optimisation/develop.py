@@ -58,7 +58,8 @@ sim = Simulation(v.simulate, track, control.demand, desired_time)
 optimiser = Optimiser.Optimiser()
 
 optimiser.AddVariable('Transmission Ratio', powertrain.ratio, 5, 15)
-# optimiser.AddVariable('MinVel', control.min_vel, 1, 7)
+optimiser.AddVariable('MinVel', control.min_vel, 1, 7)
+optimiser.AddVariable('MaxVel', control.min_vel, 10, 25)
 optimum = optimiser.Optimise(sim.cost)
 
 

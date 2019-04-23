@@ -1,6 +1,8 @@
 import numpy as np
 from src.RK4 import *
 
+import time
+
 class BrushedMotor:
     def __init__(self, motor_properties, battery_properties, verbose=False, inner_steps=1):
         """
@@ -50,6 +52,11 @@ class BrushedMotor:
         y_n = [i_n]
         info_dict = {'di_dt': 0}
 
+        print('Motor')
+        t_start = time.time()
+
+
+
         # steps = 10
         for i in range(self.inner_steps):
             y_np1 = RK4_step(self._state_equation, self.t_n + (dt / self.inner_steps) * i, y_n, dt/self.inner_steps, info_dict, V=V, omega=omega)
@@ -57,6 +64,13 @@ class BrushedMotor:
             # print(y_np1[0] - y_n[0])
 
             y_n = y_np1
+
+
+        t_end = time.time()
+
+        t_total = t_end - t_start
+
+        print(t_total)
 
 
         i_np1 = y_np1[0]

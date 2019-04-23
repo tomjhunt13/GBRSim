@@ -1,6 +1,8 @@
 # import numpy as np
 from src.RK4 import *
 
+import time
+
 class Vehicle:
     def __init__(self, powertrain, vehicle_parameters={}):
 
@@ -71,7 +73,17 @@ class Vehicle:
             y_n = self.y[-1]
 
             t_np1 = t_n + time_step
+
+            print('Outer')
+            t_start  = time.time()
+
             y_np1, info_dict = self.update(t_np1, y_n)
+
+            t_end = time.time()
+
+            t_total = t_end - t_start
+
+            print(t_total)
 
             self.t.append(t_np1)
             self.y.append(y_np1)
@@ -193,7 +205,14 @@ class Vehicle:
 
         # Propulsive force
         throttle_demand = self.control_function(V, theta)
+        print('Inner')
+        t_start = time.time()
         P = self._update_powertrain(t, information_dictionary, V, throttle_demand)
+        t_end = time.time()
+
+        t_total = t_end - t_start
+
+        print(t_total)
 
         # Equation of motion
         f = [
