@@ -57,7 +57,7 @@ def RKF45_step(f, t_n, y_n, dt, info_total, **kwargs):
                             info_5, kwargs=kwargs))
 
     # k_6 = h * f(t_n + dt * 1/2, y_n - k_1 * 8/27 + k_2 * 2 - k_3 * 3544/2565 + k_4 * 1859/4104 - k_5 * 11/40)
-    k_6 = np.multiply(dt, f(t_n + dt (1. / 2.),
+    k_6 = np.multiply(dt, f(t_n + dt * (1. / 2.),
                             np.add(y_n,
                                    np.add(np.multiply(-8. / 27., k_1),
                                           np.add(np.multiply(2., k_2),
@@ -68,7 +68,19 @@ def RKF45_step(f, t_n, y_n, dt, info_total, **kwargs):
 
     dy_4, dy_5 = RKF45_weighting(k_1, k_2, k_3, k_4, k_5, k_6)
 
-    # y_np1 = np.add(y_n, np.add(k_1_w, np.add(k_2_w, np.add(k_3_w, k_4_w))))
+    y_np1 = np.add(y_n, dy_4)
+    z_np1 = np.add(y_n, dy_5)
+
+
+    error = np.linalg.norm(np.subtract(z_np1, y_np1))
+
+    tolerance = 0.01
+    scale = np.power(((tolerance * dt) / (2 * error)), 1/4)
+
+    print(scale)
+
+
+
 
     for info in info_1.keys():
         info_total[info] = RKF45_weighting(info_1[info], info_2[info], info_3[info], info_4[info], info_5[info], info_6[info])[0]

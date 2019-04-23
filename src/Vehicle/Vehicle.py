@@ -1,5 +1,5 @@
-# import numpy as np
-from Integration.RK4 import *
+import numpy as np
+from src.Integration import RKF45
 
 import time
 
@@ -74,7 +74,7 @@ class Vehicle:
 
             t_np1 = t_n + time_step
 
-            print('Outer')
+            # print('Outer')
             t_start  = time.time()
 
             y_np1, info_dict = self.update(t_np1, y_n)
@@ -83,7 +83,7 @@ class Vehicle:
 
             t_total = t_end - t_start
 
-            print(t_total)
+            # print(t_total)
 
             self.t.append(t_np1)
             self.y.append(y_np1)
@@ -120,7 +120,7 @@ class Vehicle:
             'V': 0
         }
 
-        y_np1 = RK4_step(self.f, t_n, self._step_y_n, h, info)
+        y_np1 = RKF45.RKF45_step(self.f, t_n, self._step_y_n, h, info)
 
         segment_index = int(np.floor(y_np1[0]))
         lambda_param = y_np1[0] - segment_index
@@ -205,14 +205,14 @@ class Vehicle:
 
         # Propulsive force
         throttle_demand = self.control_function(V, theta)
-        print('Inner')
+        # print('Inner')
         t_start = time.time()
         P = self._update_powertrain(t, information_dictionary, V, throttle_demand)
         t_end = time.time()
 
         t_total = t_end - t_start
 
-        print(t_total)
+        # print(t_total)
 
         # Equation of motion
         f = [

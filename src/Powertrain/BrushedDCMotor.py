@@ -1,4 +1,6 @@
-from Integration.RK4 import *
+import numpy as np
+
+from src.Integration import RKF45
 
 import time
 
@@ -51,14 +53,14 @@ class BrushedMotor:
         y_n = [i_n]
         info_dict = {'di_dt': 0}
 
-        print('Motor')
+        # print('Motor')
         t_start = time.time()
 
 
 
         # steps = 10
         for i in range(self.inner_steps):
-            y_np1 = RK4_step(self._state_equation, self.t_n + (dt / self.inner_steps) * i, y_n, dt/self.inner_steps, info_dict, V=V, omega=omega)
+            y_np1 = RKF45.RKF45_step(self._state_equation, self.t_n + (dt / self.inner_steps) * i, y_n, dt/self.inner_steps, info_dict, V=V, omega=omega)
 
             # print(y_np1[0] - y_n[0])
 
@@ -69,7 +71,7 @@ class BrushedMotor:
 
         t_total = t_end - t_start
 
-        print(t_total)
+        # print(t_total)
 
 
         i_np1 = y_np1[0]
@@ -188,7 +190,7 @@ def MaxonRE65(verbose=False):
     motor_properties = {'torque_constant': Kt, 'motor_speed_constant': Kw, 'R': R, 'L': L, 'Power': Power}
     battery_properties = {'V_max': V_max, 'battery_efficiency': Battery_Efficiency}
 
-    return BrushedMotor(motor_properties, battery_properties, verbose=verbose, inner_steps=10)
+    return BrushedMotor(motor_properties, battery_properties, verbose=verbose, inner_steps=1)
 
 def Moog_C42_L90_30(verbose=False):
     """

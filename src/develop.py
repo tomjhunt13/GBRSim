@@ -13,7 +13,7 @@ track = ImportTrack.import_year('2018')
 
 
 
-motor = BrushedDCMotor.Moog_C42_L90_30(verbose=False)
+motor = BrushedDCMotor.MaxonRE65(verbose=False)
 # motor = BrushedDCMotor.Moog_C42_L90_10()
 powertrain = Powertrain.DirectTransmission(motor, 6.923523966325385, transmission_efficiency=0.8)
 
@@ -48,7 +48,7 @@ import time
 
 t_start = time.time()
 
-vehicle_results = v.simulate(track, 0, [0, 0], control_function=control.demand, time_step=0.02, time_limit=500, lap_limit=1)
+vehicle_results = v.simulate(track, 0, [0, 0], control_function=control.demand, time_step=0.01, time_limit=500, lap_limit=1)
 
 t_end = time.time()
 
