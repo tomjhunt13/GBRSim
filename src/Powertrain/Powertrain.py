@@ -1,5 +1,3 @@
-from src.RK4 import *
-
 class Powertrain:
     def __init__(self, verbose=False):
         self.verbose = verbose

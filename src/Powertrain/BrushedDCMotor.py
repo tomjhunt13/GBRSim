@@ -1,5 +1,4 @@
-import numpy as np
-from src.RK4 import *
+from Integration.RK4 import *
 
 import time
 
