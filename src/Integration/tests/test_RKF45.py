@@ -2,6 +2,15 @@ import unittest
 
 from src.Integration import RKF45
 
+def mass_spring(t, y, info_dict, **kwargs):
+
+    m = 1
+    g = 9.81
+    k = 20
+
+    return [y[1], (-1/m) * k * y[0] + g]
+
+
 class TestRKF45(unittest.TestCase):
 
     def test_RKF45_weighting_scalars(self):
@@ -33,6 +42,19 @@ class TestRKF45(unittest.TestCase):
         self.assertAlmostEqual(dy_4[1], 1., places=3)
         self.assertAlmostEqual(dy_5[0], 1.)
         self.assertAlmostEqual(dy_5[1], 1.)
+
+    def test_mass_spring_damper(self):
+
+        initial_condiditions = [1, 0]
+
+        integrator = RKF45.RKF45(mass_spring)
+        integrator.update(0, initial_condiditions, 1, {})
+
+
+
+
+
+
 
 if __name__ == '__main__':
     unittest.main()
