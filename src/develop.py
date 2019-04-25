@@ -11,7 +11,7 @@ from src.Powertrain import BrushedDCMotor
 from src.Results import Results
 from src.Powertrain import Powertrain
 
-track = ImportTrack.import_year('2018')
+track = ImportTrack.import_year('2019')
 control = Control.ConstantPower()
 
 car = SEMVehicle.SEMVehicle()
@@ -20,7 +20,7 @@ model_kwargs = {'track': track, 'control_function': control.demand}
 
 
 s = RKF45.RKF45()
-vehicle_results = s.solve(car, car.equation_of_motion, model_kwargs, [0,0,0], dt=0.0001, t_end=5)
+vehicle_results = s.solve(car, car.equation_of_motion, model_kwargs, [0,0,0], dt=0.0001, t_end=50)
 Results.process_results(track, vehicle_results)
 
 
