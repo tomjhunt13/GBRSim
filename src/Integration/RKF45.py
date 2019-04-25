@@ -17,6 +17,41 @@ class RKF45:
         self.t_latest = 0
         self.h = self.h_initial
 
+    def solve(self, model, model_update_function, model_kwargs, initial_conditions, dt=0.01, t_end=500):
+
+
+        # Initialise state space
+        self.update_function = model_update_function
+        self.y = [initial_conditions]
+        self.t = [0]
+        self.time_step = dt
+        self.information_dictionary = [{}]
+
+        # Initialise model
+        self.model = model
+        self.model.initialise(initial_conditions, self.information_dictionary[0], kwargs=model_kwargs)
+
+        # Simulation loop
+        while self.end_condition():
+
+            # Pre-step processing
+            self.pre_step()
+
+            # Step
+
+            # Post-step processing
+
+
+
+        pass
+
+    def end_condition(self):
+        return True
+
+    def pre_step(self):
+        pass
+
+
     def update(self, t_n, y_n, t_np1, info_total, **kwargs):
 
         # Update f to time t_np1

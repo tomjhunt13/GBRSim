@@ -114,6 +114,32 @@ class SEMVehicle:
 
         return self.info_dict
 
+    def initialise(self, initial_conditions, information_dictionary, **kwargs):
+
+        # Initialise vehicle on track
+        self.track = kwargs['track']
+        self.segment = kwargs['starting_segment']
+        self.current_segment = kwargs['starting_segment']
+        self.control_function = kwargs['control_function']
+        self.segments_visited = [kwargs['starting_segment']]
+        self.laps = 0
+
+        # Optional kwargs
+        optional_kwargs = {'verbose': False}
+        for keyword in optional_kwargs:
+            if keyword not in kwargs:
+                kwargs[keyword] = optional_kwargs[keyword]
+
+        self.verbose = kwargs['verbose']
+
+
+        # Update information dictionary
+        information_dictionary['V'] = initial_conditions[0] * self.track.segments[kwargs['starting_segment']].length
+        information_dictionary['segment'] = kwargs['starting_segment']
+        information_dictionary['lambda_param'] = initial_conditions[0]
+
+
+
     def number_of_laps(self):
         """
         Number of laps car has done
