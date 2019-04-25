@@ -87,7 +87,7 @@ class SEMVehicle:
     def initialise(self, initial_conditions, information_dictionary, **kwargs):
 
         # Initialise vehicle on track
-        starting_segment = np.floor(initial_conditions[0])
+        starting_segment = int(np.floor(initial_conditions[0]))
         self.current_segment = starting_segment
         self.segments_visited = [starting_segment]
         self.laps = 0
@@ -173,7 +173,7 @@ class SEMVehicle:
             self.current_segment = segment_index
             segment = self.track.segments[segment_index]
             y[1] = old_seg_velocity / segment.length
-            self._step_y_n[1] = y[1]
+            # self._step_y_n[1] = y[1]
 
         # Current track segment
         segment = self.track.segments[segment_index]

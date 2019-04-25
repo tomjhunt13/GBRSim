@@ -1,6 +1,8 @@
 from src.Track import ImportTrack
-from src.Track import Track
-from src.Track import Line
+
+
+from src.Integration import RKF45
+
 
 from src.Optimisation import Optimisation
 from src import Control
@@ -10,9 +12,24 @@ from src.Results import Results
 from src.Powertrain import Powertrain
 
 track = ImportTrack.import_year('2018')
+control = Control.ConstantPower()
+
+car = SEMVehicle.SEMVehicle()
+
+model_kwargs = {'track': track, 'control_function': control.demand}
+
+
+s = RKF45.RKF45()
+vehicle_results = s.solve(car, car.equation_of_motion, model_kwargs, [0,0,0], dt=0.0001, t_end=500)
+Results.process_results(track, vehicle_results)
 
 
 
+
+
+
+
+"""
 motor = BrushedDCMotor.MaxonRE65(verbose=False)
 # motor = BrushedDCMotor.Moog_C42_L90_10()
 powertrain = Powertrain.DirectTransmission(motor, 6.923523966325385, transmission_efficiency=0.8)
@@ -61,3 +78,4 @@ print(t_total)
 Results.process_results(track, vehicle_results)
 
 
+"""

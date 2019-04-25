@@ -20,7 +20,7 @@ class RKF45:
 
         # Initialise model
         self.model = model
-        self.model.initialise(initial_conditions, self.information_dictionary[0], kwargs=model_kwargs)
+        self.model.initialise(initial_conditions, self.information_dictionary[0], **model_kwargs)
 
         # Simulation loop
         while self.end_condition():
@@ -29,10 +29,8 @@ class RKF45:
             self.pre_step()
 
             # Step
-            y_np1, t_np1 = self.update()
             t_n = self.t[-1]
             y_n = self.y[-1]
-
             t_np1 = t_n + self.dt
             y_np1, dictionary_t_np1 = self.update(t_n, y_n)
 
@@ -54,39 +52,37 @@ class RKF45:
         if self.t[-1] >= self.t_end:
             return False
 
-        return self.model.end_conition()
+        return self.model.end_condition()
 
     def pre_step(self):
         pass
 
 
-    def update(self, t_n, y_n, t_np1, **kwargs):
+    def update(self, t_n, y_n, **kwargs):
 
         # t_n = self.t[-1]
         # self._step_y_n = y_n
 
         info_dictionary = {}
 
-        y_np1, scale = self._step(t_n, y_n, info_dictionary)
+        y_np1, scale = self._step(t_n, y_n, info_dictionary, **kwargs)
 
         # Update dt
         if not scale:
-            self.dt = self.h_max
+            self.dt = self.dt_max
 
         elif scale > 1:
 
-            self.dt = min(self.h_max, scale * self.dt)
+            self.dt = min(self.dt_max, scale * self.dt)
 
         else:
-            self.dt = max(self.h_min, scale * self.dt)
+            self.dt = max(self.dt_min, scale * self.dt)
 
 
         return y_np1, info_dictionary
 
 
     def _step(self, t_n, y_n, info_total, **kwargs):
-
-        kwargs_unwrapped = kwargs['kwargs']
 
         info_1 = {}
         info_2 = {}
@@ -98,22 +94,22 @@ class RKF45:
         # Runge Kutta Step
 
         # k_1 = h * f(t_n, y_n)
-        k_1 = np.multiply(self.h, self.f(t_n, y_n, info_1, kwargs=kwargs_unwrapped))
+        k_1 = np.multiply(self.dt, self.f(t_n, y_n, info_1, **kwargs))
 
         # k_2 = h * f(t_n + dt * 1/4, y_n + k_1 * 1/4)
-        k_2 = np.multiply(self.h, self.f(t_n + self.h * (1. / 4.), np.add(y_n, np.multiply(1. / 4., k_1)), info_2, kwargs=kwargs_unwrapped))
+        k_2 = np.multiply(self.dt, self.f(t_n + self.dt * (1. / 4.), np.add(y_n, np.multiply(1. / 4., k_1)), info_2, **kwargs))
 
         # k_3 = h * f(t_n + dt * 3/8, y_n + k_1 * 3/32 + k_2 * 9/32)
-        k_3 = np.multiply(self.h, self.f(t_n + self.h * (3. / 8.),
+        k_3 = np.multiply(self.dt, self.f(t_n + self.dt * (3. / 8.),
                                 np.add(
                                     y_n,
                                     np.add(
                                         np.multiply(3. / 32., k_1),
                                         np.multiply(9. / 32., k_2))),
-                                info_3, kwargs=kwargs_unwrapped))
+                                info_3, **kwargs))
 
         # k_4 = h * f(t_n + dt * 12/13, y_n + k_1 * 1932/2197 - k_2 * 7200/2197 + k_3 * 7296/2197)
-        k_4 = np.multiply(self.h, self.f(t_n + self.h * (12. / 13.),
+        k_4 = np.multiply(self.dt, self.f(t_n + self.dt * (12. / 13.),
                                 np.add(
                                     y_n,
                                     np.add(
@@ -121,26 +117,26 @@ class RKF45:
                                         np.add(
                                             np.multiply(-7200. / 2197., k_2),
                                             np.multiply(7296. / 2197., k_3)))),
-                                info_4, kwargs=kwargs_unwrapped))
+                                info_4, **kwargs))
 
         # k_5 = h * f(t_n + dt, y_n + k_1 * 439/216 - k_2 * 8 + k_3 * 3680/513 - k_4 * 845/4104)
-        k_5 = np.multiply(self.h, self.f(t_n + self.h,
+        k_5 = np.multiply(self.dt, self.f(t_n + self.dt,
                                 np.add(y_n,
                                        np.add(np.multiply(439. / 216., k_1),
                                               np.add(np.multiply(-8., k_2),
                                                      np.add(np.multiply(3680. / 513., k_3),
                                                             np.multiply(-845. / 4104., k_4))))),
-                                info_5, kwargs=kwargs_unwrapped))
+                                info_5, **kwargs))
 
         # k_6 = h * f(t_n + dt * 1/2, y_n - k_1 * 8/27 + k_2 * 2 - k_3 * 3544/2565 + k_4 * 1859/4104 - k_5 * 11/40)
-        k_6 = np.multiply(self.h, self.f(t_n + self.h * (1. / 2.),
+        k_6 = np.multiply(self.dt, self.f(t_n + self.dt * (1. / 2.),
                                 np.add(y_n,
                                        np.add(np.multiply(-8. / 27., k_1),
                                               np.add(np.multiply(2., k_2),
                                                      np.add(np.multiply(-3544. / 2565., k_3),
                                                             np.add(np.multiply(1859. / 4104., k_4),
                                                                    np.multiply(-11. / 40., k_5)))))),
-                                info_6, kwargs=kwargs_unwrapped))
+                                info_6, **kwargs))
 
         dy_4, dy_5 = RKF45_weighting(k_1, k_2, k_3, k_4, k_5, k_6)
 
@@ -149,7 +145,7 @@ class RKF45:
 
         error = np.linalg.norm(np.subtract(z_np1, y_np1))
 
-        scale = np.power(((self.error_tolerance * self.h) / (2 * error)), 1 / 4)
+        scale = np.power(((self.error_tolerance * self.dt) / (2 * error)), 1 / 4)
 
         # print(scale)
 
