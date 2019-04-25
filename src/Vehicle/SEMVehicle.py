@@ -58,87 +58,55 @@ class SEMVehicle:
         self.transmission_ratio = vehicle_parameters['transmission_ratio']
         self.transmision_efficiency = vehicle_parameters['transmision_efficiency']
 
-    def simulate(self, track, starting_segment, initial_conditions, control_function, time_step=0.025, lap_limit=1, time_limit=100, verbose=True):
 
+    def end_condition(self):
 
-        # Initialise vehicle on track
-        self.track = track
-        self.segment = [starting_segment]
-        self.current_segment = starting_segment
+        if self.number_of_laps() != self.lap_limit:
+            return True
 
-        # Initialise state space
-        self.f = self.equation_of_motion
-        self.y = [initial_conditions]
-        self.t = [0]
-        self.time_step = time_step
+        return False
 
-        # Values
-        self.info_dict = [{
-            'V': initial_conditions[0] * self.track.segments[starting_segment].length,
-            'segment': starting_segment,
-            'lambda_param': initial_conditions[0]
-        }]
+    def post_step(self, t_np1, y_np1, information_dictionary):
 
-        self.lambda_param = [initial_conditions[0]]
+        segment_index = int(np.floor(y_np1[0]))
+        lambda_param = y_np1[0] - segment_index
 
+        segment_index = int(np.floor(y_np1[0]))
+        lambda_param = y_np1[0] - segment_index
 
-        self.control_function = control_function
-        self.verbose = verbose
+        information_dictionary['segment'] = segment_index
+        information_dictionary['lambda_param'] = lambda_param
+        information_dictionary['t'] = t_np1
+        information_dictionary['y'] = y_np1
 
-        self.segments_visited = [starting_segment]
-        self.laps = 0
+        self._update_lap_counter(segment_index)
+        self._update_lap_counter(segment_index)
+        pass
 
-        t_n = self.t[-1]
-        y_n = self.y[-1]
-
-        self.solver = RKF45.RKF45(self.equation_of_motion)
-
-        while t_n <= time_limit and self.number_of_laps() != lap_limit:
-            if self.verbose:
-                print('Time: ' + str(t_n))
-
-            t_n = self.t[-1]
-            y_n = self.y[-1]
-
-            t_np1 = t_n + time_step
-
-            y_np1, info_dict = self.update(t_np1, y_n)
-
-
-            self.t.append(t_np1)
-            self.y.append(y_np1)
-            self.info_dict.append(info_dict)
-
-        # Update info dict
-        update_dictionary_keys(self.info_dict[1], self.info_dict[0])
-
-        return self.info_dict
 
     def initialise(self, initial_conditions, information_dictionary, **kwargs):
 
         # Initialise vehicle on track
-        self.track = kwargs['track']
-        self.segment = kwargs['starting_segment']
-        self.current_segment = kwargs['starting_segment']
-        self.control_function = kwargs['control_function']
-        self.segments_visited = [kwargs['starting_segment']]
+        starting_segment = np.floor(initial_conditions[0])
+        self.current_segment = starting_segment
+        self.segments_visited = [starting_segment]
         self.laps = 0
+        self.track = kwargs['track']
+        self.control_function = kwargs['control_function']
 
         # Optional kwargs
-        optional_kwargs = {'verbose': False}
+        optional_kwargs = {'verbose': False, 'lap_limit': 1}
         for keyword in optional_kwargs:
             if keyword not in kwargs:
                 kwargs[keyword] = optional_kwargs[keyword]
 
         self.verbose = kwargs['verbose']
-
+        self.lap_limit = kwargs['lap_limit']
 
         # Update information dictionary
-        information_dictionary['V'] = initial_conditions[0] * self.track.segments[kwargs['starting_segment']].length
-        information_dictionary['segment'] = kwargs['starting_segment']
+        information_dictionary['V'] = initial_conditions[0] * self.track.segments[starting_segment].length
+        information_dictionary['segment'] = starting_segment
         information_dictionary['lambda_param'] = initial_conditions[0]
-
-
 
     def number_of_laps(self):
         """
@@ -146,40 +114,6 @@ class SEMVehicle:
         :return: Number of laps
         """
         return self.laps
-
-    def update(self, t_np1, y_n):
-        """
-        Update vehicle system to time t_np1
-        :return:
-        """
-
-        t_n = self.t[-1]
-        h = t_np1 - t_n
-        self._step_y_n = y_n
-
-        info = {
-            'P': 0,
-            'Frr': 0,
-            'Fw': 0,
-            'Fa': 0,
-            'Fc': 0,
-            'V': 0
-        }
-
-        # y_np1 = RKF45.RKF45_step(self.f, t_n, self._step_y_n, h, info)
-        y_np1 = self.solver.update(t_n, self._step_y_n, h, info)
-
-        segment_index = int(np.floor(y_np1[0]))
-        lambda_param = y_np1[0] - segment_index
-
-        info['segment'] = segment_index
-        info['lambda_param'] = lambda_param
-        info['t'] = t_np1
-        info['y'] = y_np1
-
-        self._update_lap_counter(segment_index)
-
-        return y_np1, info
 
     def _update_lap_counter(self, new_segment):
 
@@ -384,17 +318,3 @@ def direction_modifier(V):
 
     else:
         return 0
-
-
-def update_dictionary_keys(full_dictionary, destination_dictionary):
-    """
-    Updates destination dictionary with keys its missing from full dictionary
-    :param full_dictionary:
-    :param destination_dictionary:
-    :return:
-    """
-
-    for key in full_dictionary.keys():
-        if key not in destination_dictionary.keys():
-
-            destination_dictionary[key] = 0
