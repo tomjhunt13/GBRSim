@@ -2,19 +2,20 @@ import numpy as np
 
 class RKF45:
 
-    def __init__(self, f):
+    def __init__(self, f, h_initial=0.0001):
 
-        self.h_min = 0.01
+        self.h_initial = h_initial
+        self.h_min = 1e-6
         self.h_max = 1
 
-        self.error_tolerance = 1e-5
+        self.error_tolerance = 0.1
 
         self.f = f
         self.reset()
 
     def reset(self):
         self.t_latest = 0
-        self.h = None
+        self.h = self.h_initial
 
     def update(self, t_n, y_n, t_np1, info_total, **kwargs):
 
@@ -34,13 +35,15 @@ class RKF45:
         # Step
         while self.t_latest < t_np1:
 
-            print(self.h)
+            print(self.t_latest)
 
             if self.t_latest + self.h >= t_np1:
                 self.h = t_np1 - self.t_latest
 
             # Step f
             y_latest = self._inner_update(y_latest, info_total)
+
+        print(self.h)
 
         return y_latest
 
@@ -133,7 +136,7 @@ class RKF45:
 
         scale = np.power(((self.error_tolerance * self.h) / (2 * error)), 1 / 4)
 
-        print(scale)
+        # print(scale)
 
         for info in info_1.keys():
             info_total[info] = \
@@ -218,7 +221,7 @@ def RKF45_step(f, t_n, y_n, dt, info_total, **kwargs):
 
     error = np.linalg.norm(np.subtract(z_np1, y_np1))
 
-    tolerance = 0.0001
+    tolerance = 0.01
     scale = np.power(((tolerance * dt) / (2 * error)), 1/4)
 
     print(scale)

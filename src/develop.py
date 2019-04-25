@@ -4,7 +4,7 @@ from src.Track import Line
 
 from src.Optimisation import Optimisation
 from src import Control
-from src.Vehicle import Vehicle
+from src.Vehicle import SEMVehicle
 from src.Powertrain import BrushedDCMotor
 from src.Results import Results
 from src.Powertrain import Powertrain
@@ -23,7 +23,7 @@ control = Control.BurnAndCoast_Velocity(min_vel=1.7270681164579773, max_vel=24.0
 # control = Control.ConstantPower()
 
 
-v = Vehicle.Vehicle(powertrain)
+v = SEMVehicle.SEMVehicle()
 
 # OptimiseTransmissionRatio(15, v, track, control.demand)
 
@@ -48,7 +48,7 @@ import time
 
 t_start = time.time()
 
-vehicle_results = v.simulate(track, 0, [0, 0], control_function=control.demand, time_step=0.01, time_limit=500, lap_limit=1)
+vehicle_results = v.simulate(track, 0, [0, 0, 15], control_function=control.demand, time_step=0.01, time_limit=500, lap_limit=1)
 
 t_end = time.time()
 

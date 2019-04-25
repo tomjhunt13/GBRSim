@@ -10,6 +10,9 @@ def mass_spring(t, y, info_dict, **kwargs):
 
     return [y[1], (-1/m) * k * y[0] + g]
 
+def internet_IVP(t, y, info_dict, **kwargs):
+    return [1 + y[0] * y[0]]
+
 
 class TestRKF45(unittest.TestCase):
 
@@ -50,7 +53,16 @@ class TestRKF45(unittest.TestCase):
         integrator = RKF45.RKF45(mass_spring)
         integrator.update(0, initial_condiditions, 1, {})
 
+    def test_internet_IVP(self):
+        """
+        http://maths.cnam.fr/IMG/pdf/RungeKuttaFehlbergProof.pdf
+        :return:
+        """
 
+        initial_condiditions = [0]
+
+        integrator = RKF45.RKF45(internet_IVP)
+        print(integrator.update(0, initial_condiditions, 1.4, {}))
 
 
 
