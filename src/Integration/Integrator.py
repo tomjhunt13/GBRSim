@@ -3,7 +3,10 @@ class Integrator:
     def __init__(self):
         pass
 
-    def solve(self, model, model_update_function, model_kwargs, initial_conditions, dt=0.01, t_end=500):
+    def solve(self, model, model_update_function, model_kwargs, initial_conditions, dt=0.01, t_end=500, verbose=False):
+
+        # Admin properties
+        self.verbose = verbose
 
         # Initialise state space
         self.f = model_update_function
@@ -23,10 +26,15 @@ class Integrator:
             # Pre-step processing
             self.pre_step()
 
-            # Step
+            # Unpack state
             t_n = self.t[-1]
             y_n = self.y[-1]
             t_np1 = t_n + self.dt
+
+            if self.verbose:
+                print('Time: ' + str(t_n))
+
+            # Step
             y_np1, dictionary_t_np1 = self.update(t_n, y_n)
 
             # Post-step processing

@@ -2,15 +2,19 @@ import numpy as np
 
 from src.Integration.Integrator import Integrator
 
-class RKF45(Integrator):
+class DP45(Integrator):
 
-    def __init__(self, dt_min=1e-3, dt_max=1, error_tolerance=0.1):
+    """
+    Using:  http://depa.fquim.unam.mx/amyd/archivero/DormandPrince_19856.pdf
+    """
+
+    def __init__(self, dt_min=1e-4, dt_max=1, error_tolerance=0.1):
 
         self.dt_min = dt_min
         self.dt_max = dt_max
         self.error_tolerance = error_tolerance
 
-        super(RKF45, self).__init__()
+        super(DP45, self).__init__()
 
 
     def update(self, t_n, y_n, **kwargs):
@@ -43,35 +47,34 @@ class RKF45(Integrator):
         info_5 = {}
         info_6 = {}
 
-        # Runge Kutta Step
 
         # k_1 = h * f(t_n, y_n)
         k_1 = np.multiply(self.dt, self.f(t_n, y_n, info_1, **kwargs))
 
-        # k_2 = h * f(t_n + dt * 1/4, y_n + k_1 * 1/4)
-        k_2 = np.multiply(self.dt, self.f(t_n + self.dt * (1. / 4.), np.add(y_n, np.multiply(1. / 4., k_1)), info_2, **kwargs))
+        # k_2 = h * f(t_n + dt * 1/5, y_n + k_1 * 1/5)
+        k_2 = np.multiply(self.dt, self.f(t_n + self.dt * (1. / 5.), np.add(y_n, np.multiply(1. / 5., k_1)), info_2, **kwargs))
 
-        # k_3 = h * f(t_n + dt * 3/8, y_n + k_1 * 3/32 + k_2 * 9/32)
-        k_3 = np.multiply(self.dt, self.f(t_n + self.dt * (3. / 8.),
+        # k_3 = h * f(t_n + dt * 3/10, y_n + k_1 * 3/40 + k_2 * 9/40)
+        k_3 = np.multiply(self.dt, self.f(t_n + self.dt * (3. / 10.),
                                 np.add(
                                     y_n,
                                     np.add(
-                                        np.multiply(3. / 32., k_1),
-                                        np.multiply(9. / 32., k_2))),
+                                        np.multiply(3. / 40., k_1),
+                                        np.multiply(9. / 40., k_2))),
                                 info_3, **kwargs))
 
-        # k_4 = h * f(t_n + dt * 12/13, y_n + k_1 * 1932/2197 - k_2 * 7200/2197 + k_3 * 7296/2197)
-        k_4 = np.multiply(self.dt, self.f(t_n + self.dt * (12. / 13.),
+        # k_4 = h * f(t_n + dt * 4/5, y_n + k_1 * 44/45 - k_2 * 57/15 + k_3 * 32/9)
+        k_4 = np.multiply(self.dt, self.f(t_n + self.dt * (4. / 5.),
                                 np.add(
                                     y_n,
                                     np.add(
-                                        np.multiply(1932. / 2197., k_1),
+                                        np.multiply(44. / 45., k_1),
                                         np.add(
-                                            np.multiply(-7200. / 2197., k_2),
-                                            np.multiply(7296. / 2197., k_3)))),
+                                            np.multiply(-56. / 15., k_2),
+                                            np.multiply(32. / 9., k_3)))),
                                 info_4, **kwargs))
 
-        # k_5 = h * f(t_n + dt, y_n + k_1 * 439/216 - k_2 * 8 + k_3 * 3680/513 - k_4 * 845/4104)
+        # k_5 = h * f(t_n + dt * 8/9, y_n + k_1 * 439/216 - k_2 * 8 + k_3 * 3680/513 - k_4 * 845/4104)
         k_5 = np.multiply(self.dt, self.f(t_n + self.dt,
                                 np.add(y_n,
                                        np.add(np.multiply(439. / 216., k_1),

@@ -3,6 +3,10 @@ import numpy as np
 
 from src.Optimisation.Optimiser import *
 
+"""
+look up Rosenbrock function
+"""
+
 class Polynomial:
     def __init__(self, coefficients=[0, 0, 1]):
         self.coefficients = coefficients

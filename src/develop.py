@@ -1,7 +1,7 @@
 from src.Track import ImportTrack
 
 
-from src.Integration import RKF45
+from src.Integration import RKF45, RK4
 
 
 from src.Optimisation import Optimisation
@@ -11,7 +11,7 @@ from src.Powertrain import BrushedDCMotor
 from src.Results import Results
 from src.Powertrain import Powertrain
 
-track = ImportTrack.import_year('2019')
+track = ImportTrack.import_year('2018')
 control = Control.ConstantPower()
 
 car = SEMVehicle.SEMVehicle()
@@ -19,8 +19,9 @@ car = SEMVehicle.SEMVehicle()
 model_kwargs = {'track': track, 'control_function': control.demand}
 
 
-s = RKF45.RKF45()
-vehicle_results = s.solve(car, car.equation_of_motion, model_kwargs, [0,0,0], dt=0.0001, t_end=50)
+# s = RKF45.RKF45()
+s = RK4.RK4()
+vehicle_results = s.solve(car, car.equation_of_motion, model_kwargs, [0,0,0], dt=0.001, t_end=100, verbose=True)
 Results.process_results(track, vehicle_results)
 
 

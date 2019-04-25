@@ -71,18 +71,12 @@ class SEMVehicle:
         segment_index = int(np.floor(y_np1[0]))
         lambda_param = y_np1[0] - segment_index
 
-        segment_index = int(np.floor(y_np1[0]))
-        lambda_param = y_np1[0] - segment_index
-
         information_dictionary['segment'] = segment_index
         information_dictionary['lambda_param'] = lambda_param
         information_dictionary['t'] = t_np1
         information_dictionary['y'] = y_np1
 
         self._update_lap_counter(segment_index)
-        self._update_lap_counter(segment_index)
-        pass
-
 
     def initialise(self, initial_conditions, information_dictionary, **kwargs):
 
@@ -213,7 +207,7 @@ class SEMVehicle:
         else:
             motor_efficiency = (motor_torque * omega_motor) / (motor_voltage * y[2])
 
-        information_dictionary['Fuel Power'] = max(0, electrical_power)
+
 
 
 
@@ -224,7 +218,6 @@ class SEMVehicle:
             (1 / self.L) * (motor_voltage - y[2] * self.R - self.motor_speed_constant * omega_motor)
         ]
 
-        # information_dictionary['fuel_power'] = fuel_power
         information_dictionary['Gradient'] = 100 * (theta / (np.pi / 4))
         information_dictionary['P'] = propulsive_force
         information_dictionary['Frr'] = Frr
@@ -233,6 +226,8 @@ class SEMVehicle:
         information_dictionary['Fc'] = Fc
         information_dictionary['V'] = V
         information_dictionary['Throttle Demand'] = throttle_demand
+        information_dictionary['Motor Current'] = y[2]
+        information_dictionary['Fuel Power'] = max(0, electrical_power)
 
         return f
 
