@@ -20,7 +20,7 @@ model_kwargs = {'track': track, 'control_function': control.demand}
 
 
 s = RKF45.RKF45()
-vehicle_results = s.solve(car, car.equation_of_motion, model_kwargs, [0,0,0], dt=0.0001, t_end=500)
+vehicle_results = s.solve(car, car.equation_of_motion, model_kwargs, [0,0,0], dt=0.0001, t_end=5)
 Results.process_results(track, vehicle_results)
 
 

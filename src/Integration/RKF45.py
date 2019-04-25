@@ -43,9 +43,9 @@ class RKF45:
             self.information_dictionary.append(dictionary_t_np1)
 
         # Update info dict
-        update_dictionary_keys(self.info_dict[1], self.info_dict[0])
+        update_dictionary_keys(self.information_dictionary[1], self.information_dictionary[0])
 
-        return self.info_dict
+        return self.information_dictionary
 
     def end_condition(self):
 
@@ -147,7 +147,7 @@ class RKF45:
 
         scale = np.power(((self.error_tolerance * self.dt) / (2 * error)), 1 / 4)
 
-        # print(scale)
+        print(error, scale)
 
         for info in info_1.keys():
             info_total[info] = \

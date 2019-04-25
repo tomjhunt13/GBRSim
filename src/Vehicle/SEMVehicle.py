@@ -117,28 +117,30 @@ class SEMVehicle:
 
     def _update_lap_counter(self, new_segment):
 
-        # If first initial step
-        if len(self.y) < 2:
-            return
+        pass
 
-        # If segment incremented
-        if (self.y[-1][0] < self.y[-2][0] and self.y[-1][1] > 0) or (np.floor(self.y[-1][0]) > np.floor(self.y[-2][0])):
-
-            print(new_segment)
-
-            self.segments_visited.append(new_segment)
-
-            print(len(self.segments_visited), len(self.track.segments) + 1)
-
-            if len(self.track.segments) == 1:
-                self.laps += 1
-
-            elif len(self.segments_visited) >= len(self.track.segments) + 1:
-                self.laps += 1
-
-        # Else if decremented
-        if (self.y[-1][0] > self.y[-2][0] and self.y[-1][1] < 0) or (np.floor(self.y[-1][0]) < np.floor(self.y[-2][0])):
-            self.segments_visited = [new_segment]
+        # # If first initial step
+        # if len(self.y) < 2:
+        #     return
+        #
+        # # If segment incremented
+        # if (self.y[-1][0] < self.y[-2][0] and self.y[-1][1] > 0) or (np.floor(self.y[-1][0]) > np.floor(self.y[-2][0])):
+        #
+        #     print(new_segment)
+        #
+        #     self.segments_visited.append(new_segment)
+        #
+        #     print(len(self.segments_visited), len(self.track.segments) + 1)
+        #
+        #     if len(self.track.segments) == 1:
+        #         self.laps += 1
+        #
+        #     elif len(self.segments_visited) >= len(self.track.segments) + 1:
+        #         self.laps += 1
+        #
+        # # Else if decremented
+        # if (self.y[-1][0] > self.y[-2][0] and self.y[-1][1] < 0) or (np.floor(self.y[-1][0]) < np.floor(self.y[-2][0])):
+        #     self.segments_visited = [new_segment]
 
     def equation_of_motion(self, t, y, information_dictionary, **kwargs):
         """
