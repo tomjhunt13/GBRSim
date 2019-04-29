@@ -1,15 +1,10 @@
+import time
+
 from src.Track import ImportTrack
-
-
-from src.Integration import RKF45, RK4
-
-
-from src.Optimisation import Optimisation
+from src.Integration import RKF45, RK4, DP45
 from src import Control
 from src.Vehicle import SEMVehicle
-from src.Powertrain import BrushedDCMotor
 from src.Results import Results
-from src.Powertrain import Powertrain
 
 track = ImportTrack.import_year('2018')
 control = Control.ConstantPower()
@@ -19,9 +14,14 @@ car = SEMVehicle.SEMVehicle()
 model_kwargs = {'track': track, 'control_function': control.demand}
 
 
-# s = RKF45.RKF45()
-s = RK4.RK4()
+# s = RKF45.RKF45()   # Elapsed time: 189.21647214889526
+# s = RK4.RK4()       # Elapsed time: 183.0775592327118
+s = DP45.DP45()       # Elapsed time: Huuuge
+
+t_s = time.time()
 vehicle_results = s.solve(car, car.equation_of_motion, model_kwargs, [0,0,0], dt=0.001, t_end=100, verbose=True)
+print('Elapsed time: ' + str(time.time() - t_s))
+
 Results.process_results(track, vehicle_results)
 
 

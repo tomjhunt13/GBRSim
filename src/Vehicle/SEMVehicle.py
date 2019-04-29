@@ -149,8 +149,6 @@ class SEMVehicle:
         :return:
         """
 
-
-
         print(y)
 
         # Unpack y
@@ -200,8 +198,8 @@ class SEMVehicle:
         omega_motor = (self.transmission_ratio / self.PoweredWheelRadius) * V
 
         back_emf = self.motor_speed_constant * omega_motor
-        V_max = max(np.roots([1, -1 * (back_emf), -1 * self.Power * self.R]))
-        # V_max = 48
+        # V_max = max(np.roots([1, -1 * (back_emf), -1 * self.Power * self.R]))
+        V_max = 48
 
         if V_max > self.V_max:
             V_max = self.V_max
@@ -300,7 +298,7 @@ class SEMVehicle:
 
         # Track radius of curvature
         segment = self.track.segments[segment_index]
-        R = segment.horizontal_radius_of_curvature(lambda_param)
+        R = segment.horizontal_radius_of_curvature(lambda_param)    # Longest resistive force calculation
 
         # Centripetal force
         Fy = (self.m * V * V) / (R)
