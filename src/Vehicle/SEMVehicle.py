@@ -199,7 +199,7 @@ class SEMVehicle:
 
         back_emf = self.motor_speed_constant * omega_motor
         # V_max = max(np.roots([1, -1 * (back_emf), -1 * self.Power * self.R]))
-        V_max = 48
+        V_max = 12
 
         if V_max > self.V_max:
             V_max = self.V_max

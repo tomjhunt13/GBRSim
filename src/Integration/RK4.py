@@ -22,7 +22,7 @@ from src.Integration.Integrator import Integrator
 
 class RK4(Integrator):
 
-    def __init__(self, dt_min=1e-3, dt_max=1, error_tolerance=0.1):
+    def __init__(self):
 
         super(RK4, self).__init__()
 
