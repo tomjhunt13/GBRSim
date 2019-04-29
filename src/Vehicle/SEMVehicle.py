@@ -1,5 +1,6 @@
 import numpy as np
-from src.Integration import RKF45
+
+import time
 
 class SEMVehicle:
 
@@ -58,7 +59,6 @@ class SEMVehicle:
         self.transmission_ratio = vehicle_parameters['transmission_ratio']
         self.transmision_efficiency = vehicle_parameters['transmision_efficiency']
 
-
     def end_condition(self):
 
         if self.number_of_laps() != self.lap_limit:
@@ -102,6 +102,11 @@ class SEMVehicle:
         information_dictionary['segment'] = starting_segment
         information_dictionary['lambda_param'] = initial_conditions[0]
 
+        # Pre-calculate constants
+        self.aero_force = 0.5 * self.Cd * self.A * self.track.rho
+        self.mg = self.m * self.track.g
+        self.rolling_resistance_force = self.mg * self.Crr
+
     def number_of_laps(self):
         """
         Number of laps car has done
@@ -143,6 +148,8 @@ class SEMVehicle:
         :param y:
         :return:
         """
+
+
 
         print(y)
 
@@ -194,6 +201,7 @@ class SEMVehicle:
 
         back_emf = self.motor_speed_constant * omega_motor
         V_max = max(np.roots([1, -1 * (back_emf), -1 * self.Power * self.R]))
+        # V_max = 48
 
         if V_max > self.V_max:
             V_max = self.V_max
@@ -206,9 +214,6 @@ class SEMVehicle:
 
         else:
             motor_efficiency = (motor_torque * omega_motor) / (motor_voltage * y[2])
-
-
-
 
 
         # Build state vector
@@ -229,6 +234,10 @@ class SEMVehicle:
         information_dictionary['Motor Current'] = y[2]
         information_dictionary['Fuel Power'] = max(0, electrical_power)
 
+
+
+        # 0.0041201114654541016
+
         return f
 
     def resistive_forces(self, theta, V, segment_index, lambda_param):
@@ -241,7 +250,14 @@ class SEMVehicle:
         :return:
         """
 
-        return self._weight(theta), self._aerodynamic_drag(V), self._cornering_drag(V, segment_index, lambda_param), self._rolling_resistance(V, theta)
+        direction_mod = direction_modifier(V)
+
+        Fw = self._weight(theta)
+        Fa = direction_mod * self._aerodynamic_drag(V)
+        Fc = direction_mod * self._cornering_drag(V, segment_index, lambda_param)
+        Frr = self._rolling_resistance(V, theta)
+
+        return Fw, Fa, Fc, Frr
 
     def _weight(self, theta):
         """
@@ -250,7 +266,7 @@ class SEMVehicle:
         :return:
         """
 
-        return self.m * self.track.g * np.sin(theta)
+        return self.mg * np.sin(theta)
 
     def _aerodynamic_drag(self, V):
         """
@@ -261,12 +277,7 @@ class SEMVehicle:
         :return:
         """
 
-        rho = self.track.rho
-
-        # Aerodynamic drag
-        Fa = 0.5 * rho * self.Cd * self.A * V * V
-
-        return direction_modifier(V) * Fa
+        return self.aero_force * V * V
 
     def _rolling_resistance(self, V, theta):
         """
@@ -276,11 +287,7 @@ class SEMVehicle:
         :return:
         """
 
-        # Rolling resistance
-        # Frr = self.m * self.track.g * np.cos(theta) * self.Crr * np.sign(V)
-        Frr = self.m * self.track.g * self.Crr * np.sign(V)
-
-        return direction_modifier(V) * Frr
+        return self.rolling_resistance_force * np.sign(V)
 
     def _cornering_drag(self, V, segment_index, lambda_param, alpha_deg=1):
         """
@@ -298,7 +305,7 @@ class SEMVehicle:
         # Centripetal force
         Fy = (self.m * V * V) / (R)
 
-        return direction_modifier(V) * Fy * np.tan(alpha)
+        return Fy * np.tan(alpha)
 
 
 def direction_modifier(V):
