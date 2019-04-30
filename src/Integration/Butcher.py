@@ -36,7 +36,9 @@ class Butcher(Integrator.Integrator):
             t_n_stage = t_n + self.dt * self.h[index]
             y_n_stage = y_n
             for coefficient_index, coefficient in enumerate(self.A[index]):
-                y_n_stage = np.add(y_n_stage, np.multiply(coefficient, k[coefficient_index]))
+
+                if coefficient != 0.:
+                    y_n_stage = np.add(y_n_stage, np.multiply(coefficient, k[coefficient_index]))
 
             k[index] = np.multiply(self.dt, self.f(t_n_stage, y_n_stage, info[index], **kwargs))
 
@@ -61,7 +63,12 @@ class Butcher(Integrator.Integrator):
 
             k_weighted[coefficient_index] = np.multiply(coefficient, input_vector[coefficient_index])
 
-        dy = np.sum(k_weighted)
+
+        dy = k_weighted[0]
+        for k in k_weighted:
+            dy = np.add(dy, k)
+
+        # dy = [np.sum(k_weighted[i]) for i in range
 
             # dy = np.add(dy, np.multiply(coefficient, input_vector[coefficient_index]))
 

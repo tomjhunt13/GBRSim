@@ -253,7 +253,7 @@ class SEMVehicle:
         Fw = self._weight(theta)
         Fa = direction_mod * self._aerodynamic_drag(V)
         Fc = direction_mod * self._cornering_drag(V, segment_index, lambda_param)
-        Frr = self._rolling_resistance(V, theta)
+        Frr = direction_mod * self._rolling_resistance(V)
 
         return Fw, Fa, Fc, Frr
 
@@ -277,7 +277,7 @@ class SEMVehicle:
 
         return self.aero_force * V * V
 
-    def _rolling_resistance(self, V, theta):
+    def _rolling_resistance(self, V):
         """
 
         :param V:
@@ -285,7 +285,7 @@ class SEMVehicle:
         :return:
         """
 
-        return self.rolling_resistance_force * np.sign(V)
+        return self.rolling_resistance_force
 
     def _cornering_drag(self, V, segment_index, lambda_param, alpha_deg=1):
         """
