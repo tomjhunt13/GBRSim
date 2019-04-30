@@ -6,7 +6,7 @@ from src.Integration import Butcher
 import time
 
 class BrushedMotor(Model.Model):
-    def __init__(self, motor_parameters, dt=1e-2, solver=Butcher.RK8, verbose=False, inner_steps=1):
+    def __init__(self, motor_parameters={}, dt=1e-2, solver=Butcher.RK8, verbose=False):
         """
         Approximate brushed motor model without resistance
         """

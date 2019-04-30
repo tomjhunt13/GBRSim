@@ -3,13 +3,15 @@ import time
 from src.Track import ImportTrack
 from src.Integration import RKF45, RK4, DP45, Butcher
 from src import Control
-from src.Model import IntegratedModel
+from src.Model import VehicleModel, PowertrainModel, BrushedDCMotor
 from src.Results import Results
 
 track = ImportTrack.import_year('2018')
 control = Control.ConstantPower()
 
-car = IntegratedModel.SEMVehicle()
+motor = BrushedDCMotor.BrushedMotor()
+powertrain = PowertrainModel.DirectTransmission(motor, 10, transmission_efficiency=0.8, verbose=True)
+car = VehicleModel.Vehicle()
 
 model_kwargs = {'track': track, 'control_function': control.demand}
 

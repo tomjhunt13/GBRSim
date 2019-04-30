@@ -1,10 +1,11 @@
 import numpy as np
-
 import time
 
-class SEMVehicle:
+from src.Model import Model
 
-    def __init__(self, vehicle_parameters={}):
+class Vehicle(Model.Model):
+
+    def __init__(self, powertrain, vehicle_parameters={}):
 
         # Default attributes
         default_vehicle_attributes = {
@@ -58,6 +59,11 @@ class SEMVehicle:
         # Transmission properties
         self.transmission_ratio = vehicle_parameters['transmission_ratio']
         self.transmission_efficiency = vehicle_parameters['transmission_efficiency']
+
+        # Powertrain
+        self.powertrain = powertrain
+
+        super(Vehicle, self).__init__()
 
     def end_condition(self):
 
@@ -186,39 +192,16 @@ class SEMVehicle:
 
         # Propulsive force
         throttle_demand = self.control_function(V, theta)
-        motor_torque = self.motor_torque_constant * y[2]
-        propulsive_force = (1 / self.PoweredWheelRadius) * self.transmission_efficiency * \
-                           self.transmission_ratio * motor_torque
+        propulsive_force = self._update_powertrain(t, information_dictionary, V, throttle_demand)
 
         # Resistive forces
         Fw, Fa, Fc, Frr = self.resistive_forces(theta, V, segment_index, lambda_param)
         resistive_force = Fw + Fa + Fc + Frr
 
-        # Motor
-        omega_motor = (self.transmission_ratio / self.PoweredWheelRadius) * V
-
-        back_emf = self.motor_speed_constant * omega_motor
-        V_max = max(np.roots([1, -1 * (back_emf), -1 * self.Power * self.R]))
-        # V_max = 48
-
-        if V_max > self.V_max:
-            V_max = self.V_max
-
-        motor_voltage = V_max * throttle_demand
-        electrical_power = (V * y[2]) / self.battery_efficiency
-
-        if np.isclose(electrical_power, 0):
-            motor_efficiency = 0
-
-        else:
-            motor_efficiency = (motor_torque * omega_motor) / (motor_voltage * y[2])
-
-
         # Build state vector
         f = [
             y[1],
-            (1 / self.m) * (propulsive_force - resistive_force),
-            (1 / self.L) * (motor_voltage - y[2] * self.R - self.motor_speed_constant * omega_motor)
+            (1 / self.m) * (propulsive_force - resistive_force)
         ]
 
         information_dictionary['Gradient'] = 100 * (theta / (np.pi / 4))
@@ -256,14 +239,6 @@ class SEMVehicle:
         Frr = direction_mod * self._rolling_resistance(V)
 
         return Fw, Fa, Fc, Frr
-
-    def _motor(self, V, omega):
-
-        T_m = 4
-
-        return T_m
-
-    # def _brushless
 
     def _weight(self, theta):
         """
@@ -312,6 +287,25 @@ class SEMVehicle:
         Fy = (self.m * V * V) / (R)
 
         return Fy * np.tan(alpha)
+
+    def _update_powertrain(self, t_np1, information_dictionary, velocity, demand):
+        """
+
+        :param velocity: Linear vehicle velocity
+        :param demand:
+        :return:
+        """
+
+        # Convert linear velocity to wheel rotational speed
+        omega_wheel = (1 / self.PoweredWheelRadius) * velocity
+
+        # Get wheel torque
+        wheel_torque = self.powertrain.update(t_np1, information_dictionary, omega_wheel, demand)
+
+        # Linear force
+        linear_force = wheel_torque / self.PoweredWheelRadius
+
+        return linear_force
 
 
 def direction_modifier(V):
