@@ -46,11 +46,15 @@ class Integrator:
             self.information_dictionary.append(dictionary_t_np1)
 
         # Update info dict
+        # if len(self.information_dictionary) != 1:
         update_dictionary_keys(self.information_dictionary[1], self.information_dictionary[0])
 
         return self.information_dictionary
 
     def end_condition(self):
+
+        if len(self.information_dictionary) == 1:
+            return True
 
         if self.t[-1] >= self.t_end:
             return False

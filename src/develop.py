@@ -9,9 +9,9 @@ from src.Results import Results
 track = ImportTrack.import_year('2018')
 control = Control.ConstantPower()
 
-motor = BrushedDCMotor.BrushedMotor()
-powertrain = PowertrainModel.DirectTransmission(motor, 10, transmission_efficiency=0.8, verbose=True)
-car = VehicleModel.Vehicle()
+motor = BrushedDCMotor.MaxonRE65()
+powertrain = PowertrainModel.DirectTransmission(motor, 10, transmission_efficiency=0.8, verbose=False)
+car = VehicleModel.Vehicle(powertrain)
 
 model_kwargs = {'track': track, 'control_function': control.demand}
 
@@ -22,7 +22,7 @@ model_kwargs = {'track': track, 'control_function': control.demand}
 s = Butcher.RK8()
 
 t_s = time.time()
-vehicle_results = s.solve(car, car.equation_of_motion, model_kwargs, [1e-4, 1e-4, 1e-4], dt=1, t_end=200, verbose=True)
+vehicle_results = s.solve(car, car.equation_of_motion, model_kwargs, [1e-4, 1e-4], dt=0.5, t_end=200, verbose=True)
 print('Elapsed time: ' + str(time.time() - t_s))
 
 Results.process_results(track, vehicle_results)

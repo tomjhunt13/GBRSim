@@ -6,7 +6,7 @@ from src.Integration import Butcher
 import time
 
 class BrushedMotor(Model.Model):
-    def __init__(self, motor_parameters={}, dt=1e-2, solver=Butcher.RK8, verbose=False):
+    def __init__(self, motor_parameters={}, dt=1e-3, solver=Butcher.RK8, verbose=False):
         """
         Approximate brushed motor model without resistance
         """
@@ -14,8 +14,8 @@ class BrushedMotor(Model.Model):
         # Default attributes
         default_motor_attributes = {
         # Motor properties
-        'motor_torque_constant': 0.001 * 123,
-        'motor_speed_constant': 1 / (77.8 * (2 * np.pi / 60)),
+        'torque_constant': 0.001 * 123,
+        'speed_constant': 1 / (77.8 * (2 * np.pi / 60)),
         'R': 0.365,
         'L': 0.161 * 0.001,
 
@@ -30,8 +30,8 @@ class BrushedMotor(Model.Model):
                 motor_parameters[attribute] = default_motor_attributes[attribute]
 
         # Motor properties
-        self.motor_torque_constant = motor_parameters['motor_torque_constant']
-        self.motor_speed_constant = motor_parameters['motor_speed_constant']
+        self.torque_constant = motor_parameters['torque_constant']
+        self.speed_constant = motor_parameters['speed_constant']
         self.R = motor_parameters['R']
         self.L = motor_parameters['L']
         self.Power = motor_parameters['Power']
@@ -77,8 +77,8 @@ class BrushedMotor(Model.Model):
         y_np1 = solver.solve(self, self._state_equation, {'V': V, 'omega': omega}, [i_n], dt=self.dt, t_start=t_n, t_end=t_np1, verbose=self.verbose)
 
 
-        i_np1 = y_np1[0]
-        di_dt = information_dict['di_dt']
+        i_np1 = y_np1[-1]['y'][0]
+        # di_dt = information_dict['di_dt']
 
         # Torque
         torque = self.torque_constant * i_np1
@@ -100,12 +100,11 @@ class BrushedMotor(Model.Model):
             print('i: ' + str(i_np1))
             print('Motor Torque: ' + str(torque))
             print('Efficiency: ' + str(motor_efficiency))
-            print('Actual di/dt: ' + str(di_dt))
+            # print('Actual di/dt: ' + str(di_dt))
 
 
         # Update state
         self.i_n = i_np1
-        self.di_dt_n = di_dt
         self.t_n = t_np1
 
         information_dict['Fuel Power'] = max(0, electrical_power)
@@ -116,6 +115,14 @@ class BrushedMotor(Model.Model):
 
         return torque, electrical_power
 
+    def initialise(self, initial_conditions, information_dictionary, **kwargs):
+        self.V = kwargs['V']
+        self.omega = kwargs['omega']
+
+    def post_step(self, t_np1, y_np1, information_dictionary):
+        information_dictionary['t'] = t_np1
+        information_dictionary['y'] = y_np1
+
     def _state_equation(self, t, y, info_dict, **kwargs):
         """
         Returns di / dt
@@ -125,10 +132,7 @@ class BrushedMotor(Model.Model):
         :return:
         """
 
-        V = kwargs['V']
-        omega = kwargs['omega']
-
-        di_dt = (1 / self.L) * (V - y[0] * self.R - self._back_emf(omega))
+        di_dt = (1 / self.L) * (self.V - y[0] * self.R - self._back_emf(self.omega))
         info_dict['di_dt'] = di_dt
 
         return di_dt
@@ -158,7 +162,7 @@ class BrushedMotor(Model.Model):
         return V
 
     def _back_emf(self, omega):
-        return self.motor_speed_constant * omega
+        return self.speed_constant * omega
 
 
 def MaxonRE65(verbose=False):
@@ -183,7 +187,7 @@ def MaxonRE65(verbose=False):
     Battery_Efficiency = 0.9
 
     # Motor properties
-    motor_parameters = {'torque_constant': Kt, 'motor_speed_constant': Kw, 'R': R, 'L': L, 'Power': Power,
+    motor_parameters = {'torque_constant': Kt, 'speed_constant': Kw, 'R': R, 'L': L, 'Power': Power,
                         'V_max': V_max, 'battery_efficiency': Battery_Efficiency}
 
     return BrushedMotor(motor_parameters, verbose=verbose)
@@ -207,7 +211,7 @@ def Moog_C42_L90_30(verbose=False):
     Battery_Efficiency = 0.9
 
     # Motor properties
-    motor_parameters = {'torque_constant': Kt, 'motor_speed_constant': Kw, 'R': R, 'L': L, 'Power': Power,
+    motor_parameters = {'torque_constant': Kt, 'speed_constant': Kw, 'R': R, 'L': L, 'Power': Power,
                         'V_max': V_max, 'battery_efficiency': Battery_Efficiency}
 
     return BrushedMotor(motor_parameters, verbose=verbose)
@@ -232,7 +236,7 @@ def Moog_C42_L90_10(verbose=False):
 
 
     # Motor properties
-    motor_parameters = {'torque_constant': Kt, 'motor_speed_constant': Kw, 'R': R, 'L': L, 'Power': Power,
+    motor_parameters = {'torque_constant': Kt, 'speed_constant': Kw, 'R': R, 'L': L, 'Power': Power,
                         'V_max': V_max, 'battery_efficiency': Battery_Efficiency}
 
     return BrushedMotor(motor_parameters, verbose=verbose)

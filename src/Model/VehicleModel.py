@@ -212,12 +212,6 @@ class Vehicle(Model.Model):
         information_dictionary['Fc'] = Fc
         information_dictionary['V'] = V
         information_dictionary['Throttle Demand'] = throttle_demand
-        information_dictionary['Motor Current'] = y[2]
-        information_dictionary['Fuel Power'] = max(0, electrical_power)
-
-
-
-        # 0.0041201114654541016
 
         return f
 
