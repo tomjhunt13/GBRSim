@@ -198,7 +198,7 @@ class Vehicle:
         # Unpack y
         theta = segment.gradient(lambda_param)  # Road angle (rad)
         segment_length = segment.length  # Length of current track segment (m)
-        V = y[1] * segment_length  # Vehicle speed
+        V = y[1] * segment_length  # Model speed
 
         # Resistive forces
         Fw, Fa, Fc, Frr = self.resistive_forces(theta, V, segment_index, lambda_param)

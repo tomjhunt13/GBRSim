@@ -3,10 +3,11 @@ import numpy as np
 from src.Track import ImportTrack
 from src.Optimisation import Optimiser
 from src import Control
-from src.Vehicle import Vehicle
-from src.Powertrain import BrushedDCMotor
+from src.Model import Vehicle
+from Model.Powertrain import BrushedDCMotor, Powertrain
+
+
 # from src.Results import Results
-from src.Powertrain import Powertrain
 
 
 class Simulation:

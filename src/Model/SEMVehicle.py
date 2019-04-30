@@ -8,7 +8,7 @@ class SEMVehicle:
 
         # Default attributes
         default_vehicle_attributes = {
-            # Vehicle properties
+            # Model properties
             'Mass': 170,
             'Crr': 1.5 * 0.001,     # http://www.eshopsem.com/boutique/product.php?id_product=75
             'Cd': 0.2,
@@ -182,7 +182,7 @@ class SEMVehicle:
         # Unpack y
         theta = segment.gradient(lambda_param)  # Road angle (rad)
         segment_length = segment.length  # Length of current track segment (m)
-        V = y[1] * segment_length  # Vehicle speed
+        V = y[1] * segment_length  # Model speed
 
         # Propulsive force
         throttle_demand = self.control_function(V, theta)

@@ -3,7 +3,7 @@ import time
 from src.Track import ImportTrack
 from src.Integration import RKF45, RK4, DP45, Butcher
 from src import Control
-from src.Vehicle import SEMVehicle
+from src.Model import SEMVehicle
 from src.Results import Results
 
 track = ImportTrack.import_year('2018')
