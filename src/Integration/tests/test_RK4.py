@@ -1,25 +1,27 @@
 import numpy as np
 import unittest
 
-from src.Integration import Butcher
+from src.Integration import RK4
 from src.Integration.tests import IVP_test_cases
 
+def mass_spring(t, y, info_dict, **kwargs):
+
+    m = 1
+    g = 9.81
+    k = 20
+
+    return [y[1], (-1/m) * k * y[0] + g]
+
+def internet_IVP(t, y, info_dict, **kwargs):
+    return [1 + y[0] * y[0]]
+
+
 class TestButcher(unittest.TestCase):
-
-    def test_wikipedia_IVP(self):
-
-        ivp = IVP_test_cases.IVP()
-
-        s = Butcher.Butcher(A=[[], [2. / 3.]],  b=[1. / 4., 3. / 4.], h=[0, 2. / 3.])
-
-        results = s.solve(ivp, ivp.wikipedia_f, {}, [1], dt=0.025, t_start=1, t_end=1.1)
-
-        self.assertAlmostEqual(results[1]['y'][0], 1.066869388)
 
     def test_RK4_func_IVP(self):
         ivp = IVP_test_cases.IVP()
 
-        s = Butcher.Butcher()
+        s = RK4.RK4()
 
         results = s.solve(ivp, ivp.rk4_test_func, {}, [1], dt=0.1, t_start=0, t_end=1)
 
@@ -30,24 +32,14 @@ class TestButcher(unittest.TestCase):
     def test_seperation_of_variables_RK4(self):
         ivp = IVP_test_cases.IVP()
 
-        s = Butcher.RK4()
+        s = RK4.RK4()
 
         results = s.solve(ivp, ivp.seperation_of_variables_grad, {}, [1], dt=0.01, t_start=0, t_end=1)
 
         for result_t in results[1:]:
-
             self.assertAlmostEqual(result_t['y'][0], ivp.seperation_of_variables_analytical(result_t['t'], 1))
 
-    def test_seperation_of_variables_RK8(self):
-        ivp = IVP_test_cases.IVP()
 
-        s = Butcher.RK8()
-
-        results = s.solve(ivp, ivp.seperation_of_variables_grad, {}, [1], dt=0.5, t_start=0, t_end=1)
-
-        for result_t in results[1:]:
-
-            self.assertAlmostEqual(result_t['y'][0], ivp.seperation_of_variables_analytical(result_t['t'], 1))
 
 
 

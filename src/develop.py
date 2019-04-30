@@ -15,9 +15,9 @@ model_kwargs = {'track': track, 'control_function': control.demand}
 
 
 # s = RKF45.RKF45()   # Elapsed time: 189.21647214889526
-# s = RK4.RK4()       # Elapsed time: 183.0775592327118
+s = RK4.RK4()       # Elapsed time: 183.0775592327118
 # s = DP45.DP45()       # Elapsed time: Huuuge
-s = Butcher.RK4()
+# s = Butcher.RK4()
 
 t_s = time.time()
 vehicle_results = s.solve(car, car.equation_of_motion, model_kwargs, [1e-4, 1e-4, 1e-4], dt=0.0005, t_end=0.1, verbose=True)
