@@ -1,18 +1,7 @@
 import unittest
 
 from src.Integration import RKF45
-
-def mass_spring(t, y, info_dict, **kwargs):
-
-    m = 1
-    g = 9.81
-    k = 20
-
-    return [y[1], (-1/m) * k * y[0] + g]
-
-def internet_IVP(t, y, info_dict, **kwargs):
-    return [1 + y[0] * y[0]]
-
+from src.Integration.tests import IVP_test_cases
 
 class TestRKF45(unittest.TestCase):
 
@@ -46,26 +35,16 @@ class TestRKF45(unittest.TestCase):
         self.assertAlmostEqual(dy_5[0], 1.)
         self.assertAlmostEqual(dy_5[1], 1.)
 
-    def test_mass_spring_damper(self):
+    def test_separation_of_variables(self):
+        ivp = IVP_test_cases.IVP()
 
-        initial_condiditions = [1, 0]
+        s = RKF45.RKF45()
 
-        integrator = RKF45.RKF45(mass_spring)
-        integrator.update(0, initial_condiditions, 1, {})
+        results = s.solve(ivp, ivp.separation_of_variables_grad, {}, [1], dt=0.005, t_start=0, t_end=3)
 
-    def test_internet_IVP(self):
-        """
-        http://maths.cnam.fr/IMG/pdf/RungeKuttaFehlbergProof.pdf
-        :return:
-        """
+        for result_t in results[1:]:
 
-        initial_condiditions = [0]
-
-        integrator = RKF45.RKF45(internet_IVP)
-        print(integrator.update(0, initial_condiditions, 1.4, {}))
-
-
-
+            self.assertAlmostEqual(result_t['y'][0], ivp.separation_of_variables_analytical(result_t['t'], 1), places=1)
 
 
 if __name__ == '__main__':

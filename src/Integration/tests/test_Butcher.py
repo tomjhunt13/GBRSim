@@ -32,22 +32,22 @@ class TestButcher(unittest.TestCase):
 
         s = Butcher.RK4()
 
-        results = s.solve(ivp, ivp.seperation_of_variables_grad, {}, [1], dt=0.01, t_start=0, t_end=1)
+        results = s.solve(ivp, ivp.separation_of_variables_grad, {}, [1], dt=0.01, t_start=0, t_end=1)
 
         for result_t in results[1:]:
 
-            self.assertAlmostEqual(result_t['y'][0], ivp.seperation_of_variables_analytical(result_t['t'], 1))
+            self.assertAlmostEqual(result_t['y'][0], ivp.separation_of_variables_analytical(result_t['t'], 1))
 
-    def test_seperation_of_variables_RK8(self):
+    def test_separation_of_variables_RK8(self):
         ivp = IVP_test_cases.IVP()
 
         s = Butcher.RK8()
 
-        results = s.solve(ivp, ivp.seperation_of_variables_grad, {}, [1], dt=0.5, t_start=0, t_end=1)
+        results = s.solve(ivp, ivp.separation_of_variables_grad, {}, [1], dt=0.5, t_start=0, t_end=1)
 
         for result_t in results[1:]:
 
-            self.assertAlmostEqual(result_t['y'][0], ivp.seperation_of_variables_analytical(result_t['t'], 1))
+            self.assertAlmostEqual(result_t['y'][0], ivp.separation_of_variables_analytical(result_t['t'], 1))
 
 
 

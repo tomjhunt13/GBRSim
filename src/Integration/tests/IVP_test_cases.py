@@ -21,14 +21,14 @@ class IVP:
         "Example from: https://www.intmath.com/differential-equations/12-runge-kutta-rk4-des.php"
         return [(5 * t * t - y[0]) / np.exp(t + y[0])]
 
-    def seperation_of_variables_grad(self, t, y, information_dictionary, **kwargs):
+    def separation_of_variables_grad(self, t, y, information_dictionary, **kwargs):
         """
         dy / dt = y
         """
 
         return y
 
-    def seperation_of_variables_analytical(self, t, y_0):
+    def separation_of_variables_analytical(self, t, y_0):
         """
         dy / dt = y
         """
