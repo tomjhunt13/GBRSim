@@ -3,13 +3,13 @@ import time
 from src.Track import ImportTrack
 from src.Integration import RKF45, RK4, DP45, Butcher
 from src import Control
-from src.Model import SEMVehicle
+from src.Model import IntegratedModel
 from src.Results import Results
 
 track = ImportTrack.import_year('2018')
 control = Control.ConstantPower()
 
-car = SEMVehicle.SEMVehicle()
+car = IntegratedModel.SEMVehicle()
 
 model_kwargs = {'track': track, 'control_function': control.demand}
 

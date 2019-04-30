@@ -46,7 +46,6 @@ class Butcher(Integrator.Integrator):
         y_np1 = np.add(y_n, dy)
 
         for info_key in info[0].keys():
-            info_list = [info[index][info_key] for index in range(number_of_stages)]
             info_total[info_key] = self.apply_weighting([info[index][info_key] for index in range(number_of_stages)])
 
         return y_np1
@@ -54,24 +53,16 @@ class Butcher(Integrator.Integrator):
 
     def apply_weighting(self, input_vector):
 
-        # dy = [0] * len(input_vector[0])
-
         k_weighted = [None] * len(self.b)
-        # For each element of input vector apply weighting
 
+        # For each element of input vector apply weighting
         for coefficient_index, coefficient in enumerate(self.b):
 
             k_weighted[coefficient_index] = np.multiply(coefficient, input_vector[coefficient_index])
 
-
         dy = k_weighted[0]
         for k in k_weighted:
             dy = np.add(dy, k)
-
-        # dy = [np.sum(k_weighted[i]) for i in range
-
-            # dy = np.add(dy, np.multiply(coefficient, input_vector[coefficient_index]))
-
         return dy
 
 
