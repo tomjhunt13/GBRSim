@@ -58,9 +58,8 @@ class TestButcher(unittest.TestCase):
         results = s.solve(ivp, ivp.rk4_test_func, {}, [1], dt=0.1, t_start=0, t_end=1)
 
         self.assertAlmostEqual(results[1]['y'][0], 0.9655827899)
-
-
-
+        self.assertAlmostEqual(results[2]['y'][0], 0.937796275)
+        self.assertAlmostEqual(results[3]['y'][0], 0.9189181059)
 
 
 
