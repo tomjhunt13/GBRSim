@@ -5,7 +5,7 @@ from src.Model import Model
 
 class Vehicle(Model.Model):
 
-    def __init__(self, powertrain, vehicle_parameters={}):
+    def __init__(self, powertrain, vehicle_parameters={}, verbose=False):
 
         # Default attributes
         default_vehicle_attributes = {
@@ -32,6 +32,9 @@ class Vehicle(Model.Model):
 
         # Powertrain
         self.powertrain = powertrain
+
+        # Admin properties
+        self.verbose = verbose
 
         super(Vehicle, self).__init__()
 
@@ -68,18 +71,21 @@ class Vehicle(Model.Model):
         self.current_segment = starting_segment
         self.laps = 0
         self.track = kwargs['track']
-        self.control_function = kwargs['control_function']
         self._step_y_n = initial_conditions
         self.y = [initial_conditions]
         self.highest_segment = starting_segment
 
+        # Initialise controller
+        self.controller = kwargs['controller']
+        self.controller.initialise(track=self.track)
+        self.control_function = self.controller.demand
+
         # Optional kwargs
-        optional_kwargs = {'verbose': False, 'lap_limit': 1}
+        optional_kwargs = {'lap_limit': 1}
         for keyword in optional_kwargs:
             if keyword not in kwargs:
                 kwargs[keyword] = optional_kwargs[keyword]
 
-        self.verbose = kwargs['verbose']
         self.lap_limit = kwargs['lap_limit']
 
         # Update information dictionary
@@ -158,7 +164,7 @@ class Vehicle(Model.Model):
         V = y[1] * segment_length  # Model speed
 
         # Propulsive force
-        throttle_demand = self.control_function(V, theta)
+        throttle_demand = self.control_function(V=V, theta=theta, segment=theta, lambda_param=lambda_param)
         propulsive_force = self._update_powertrain(t, information_dictionary, V, throttle_demand)
 
         # Resistive forces

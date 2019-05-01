@@ -1,5 +1,7 @@
-from src.Model.Vehicle import *
+from src.Model.VehicleModel import *
 from src.Track.ImportTrack import *
+from src.Model.BrushedDCMotor import *
+from src.Model.PowertrainModel import *
 from src.Control import *
 
 import matplotlib.pyplot as plt

@@ -2,18 +2,18 @@ import time
 
 from src.Track import ImportTrack
 from src.Integration import RKF45, RK4, DP45, Butcher
-from src import Control
+from src.Strategy import Controller
 from src.Model import VehicleModel, PowertrainModel, BrushedDCMotor
 from src.Results import Results
 
 track = ImportTrack.import_year('2019')
-control = Control.ConstantPower()
+controller = Controller.ConstantPower(10)
 
 motor = BrushedDCMotor.MaxonRE65(solver=Butcher.RK4, dt=1e-3, verbose=False)
 powertrain = PowertrainModel.FreeWheel(motor, 4, transmission_efficiency=0.8, verbose=False)
-car = VehicleModel.Vehicle(powertrain)
+car = VehicleModel.Vehicle(powertrain, verbose=True)
 
-model_kwargs = {'track': track, 'control_function': control.demand}
+model_kwargs = {'track': track, 'controller': controller}
 s = Butcher.RK4()
 
 t_s = time.time()

@@ -3,8 +3,6 @@ import numpy as np
 from src.Track import ImportTrack
 from src.Optimisation import Optimiser
 from src import Control
-from src.Model import Vehicle
-from Model.Powertrain import BrushedDCMotor, Powertrain
 
 
 # from src.Results import Results
@@ -40,28 +38,28 @@ track = ImportTrack.import_year('2018')
 
 
 
-motor = BrushedDCMotor.Moog_C42_L90_10(verbose=False)
-powertrain = Powertrain.DirectTransmission(motor, 12, transmission_efficiency=0.8)
-control = Control.BurnAndCoast_Velocity()
-v = Vehicle.Vehicle(powertrain)
-
-
-total_time = 45 * 60
-# total_time = 39 * 60
-# laps = 11
-laps = 15
-desired_time = total_time / laps
-# print(desired_time)
-
-sim = Simulation(v.simulate, track, control.demand, desired_time)
-
-
-optimiser = Optimiser.Optimiser()
-
-optimiser.AddVariable('Transmission Ratio', powertrain.ratio, 5, 15)
-optimiser.AddVariable('MinVel', control.min_vel, 1, 7)
-optimiser.AddVariable('MaxVel', control.min_vel, 10, 25)
-optimum = optimiser.Optimise(sim.cost)
+# motor = BrushedDCMotor.Moog_C42_L90_10(verbose=False)
+# powertrain = Powertrain.DirectTransmission(motor, 12, transmission_efficiency=0.8)
+# control = Control.BurnAndCoast_Velocity()
+#
+#
+#
+# total_time = 45 * 60
+# # total_time = 39 * 60
+# # laps = 11
+# laps = 15
+# desired_time = total_time / laps
+# # print(desired_time)
+#
+# sim = Simulation(v.simulate, track, control.demand, desired_time)
+#
+#
+# optimiser = Optimiser.Optimiser()
+#
+# optimiser.AddVariable('Transmission Ratio', powertrain.ratio, 5, 15)
+# optimiser.AddVariable('MinVel', control.min_vel, 1, 7)
+# optimiser.AddVariable('MaxVel', control.min_vel, 10, 25)
+# optimum = optimiser.Optimise(sim.cost)
 
 
 
