@@ -2,7 +2,6 @@ import numpy as np
 
 from src.Track import ImportTrack
 from src.Optimisation import Optimiser
-from src import Control
 
 
 # from src.Results import Results
