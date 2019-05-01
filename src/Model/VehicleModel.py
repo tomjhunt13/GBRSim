@@ -164,7 +164,7 @@ class Vehicle(Model.Model):
         V = y[1] * segment_length  # Model speed
 
         # Propulsive force
-        throttle_demand = self.control_function(V=V, theta=theta, segment=theta, lambda_param=lambda_param)
+        throttle_demand = self.control_function(V=V, theta=theta, segment=theta, lambda_param=y[0])
         propulsive_force = self._update_powertrain(t, information_dictionary, V, throttle_demand)
 
         # Resistive forces

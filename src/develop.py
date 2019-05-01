@@ -7,7 +7,7 @@ from src.Model import VehicleModel, PowertrainModel, BrushedDCMotor
 from src.Results import Results
 
 track = ImportTrack.import_year('2019')
-controller = Controller.BurnAndCoast(number_of_burns=3)
+controller = Controller.BurnAndCoast(number_of_burns=4)
 
 motor = BrushedDCMotor.MaxonRE65(solver=Butcher.RK4, dt=1e-3, verbose=False)
 powertrain = PowertrainModel.FreeWheel(motor, 4, transmission_efficiency=0.8, verbose=False)
