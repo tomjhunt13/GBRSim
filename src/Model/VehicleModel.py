@@ -16,21 +16,6 @@ class Vehicle(Model.Model):
             'A': 1.26,
             'PoweredWheelRadius': 0.279,
             'LongitudinalCoG': 0.5,     # Assume even weight distribution
-
-            # # Motor properties
-            # 'motor_torque_constant': 0.001 * 123,
-            # 'motor_speed_constant': 1 / (77.8 * (2 * np.pi / 60)),
-            # 'R': 0.365,
-            # 'L': 0.161 * 0.001,
-
-            # # Battery properties
-            # 'Power': 250,
-            # 'V_max': 48,
-            # 'Battery_Efficiency': 0.9,
-            #
-            # # Transmission properties
-            # 'transmission_ratio': 10,
-            # 'transmission_efficiency': 0.8,
         }
 
         for attribute in default_vehicle_attributes.keys():
@@ -44,21 +29,6 @@ class Vehicle(Model.Model):
         self.A = vehicle_parameters['A']        # Frontal area (m^2)
         self.PoweredWheelRadius = vehicle_parameters['PoweredWheelRadius']       # Radius of tyre for powered wheel
         self.longitudinal_CoG = vehicle_parameters['LongitudinalCoG']
-
-        # # Motor properties
-        # self.motor_torque_constant = vehicle_parameters['motor_torque_constant']
-        # self.motor_speed_constant = vehicle_parameters['motor_speed_constant']
-        # self.R = vehicle_parameters['R']
-        # self.L = vehicle_parameters['L']
-        # self.Power = vehicle_parameters['Power']
-        #
-        # # Battery properties
-        # self.V_max = vehicle_parameters['V_max']
-        # self.battery_efficiency = vehicle_parameters['Battery_Efficiency']
-        #
-        # # Transmission properties
-        # self.transmission_ratio = vehicle_parameters['transmission_ratio']
-        # self.transmission_efficiency = vehicle_parameters['transmission_efficiency']
 
         # Powertrain
         self.powertrain = powertrain
@@ -74,11 +44,8 @@ class Vehicle(Model.Model):
 
     def pre_step(self, t_n, y_n):
 
-        # pass
-
         for i in range(2):
             y_n[i] = self._step_y_n[i]
-            # y_n[i] = 2
 
     def post_step(self, t_np1, y_np1, information_dictionary):
 
@@ -91,6 +58,7 @@ class Vehicle(Model.Model):
         information_dictionary['y'] = y_np1
 
         self._step_y_n = y_np1
+        self.y.append(y_np1)
         self._update_lap_counter(segment_index)
 
     def initialise(self, initial_conditions, information_dictionary, **kwargs):
@@ -98,11 +66,12 @@ class Vehicle(Model.Model):
         # Initialise vehicle on track
         starting_segment = int(np.floor(initial_conditions[0]))
         self.current_segment = starting_segment
-        self.segments_visited = [starting_segment]
         self.laps = 0
         self.track = kwargs['track']
         self.control_function = kwargs['control_function']
         self._step_y_n = initial_conditions
+        self.y = [initial_conditions]
+        self.highest_segment = starting_segment
 
         # Optional kwargs
         optional_kwargs = {'verbose': False, 'lap_limit': 1}
@@ -132,40 +101,28 @@ class Vehicle(Model.Model):
 
     def _update_lap_counter(self, new_segment):
 
-        pass
+        # If first initial step
+        if len(self.y) < 2:
+            return
 
-        # # If first initial step
-        # if len(self.y) < 2:
-        #     return
-        #
-        # # If segment incremented
-        # if (self.y[-1][0] < self.y[-2][0] and self.y[-1][1] > 0) or (np.floor(self.y[-1][0]) > np.floor(self.y[-2][0])):
-        #
-        #     print(new_segment)
-        #
-        #     self.segments_visited.append(new_segment)
-        #
-        #     print(len(self.segments_visited), len(self.track.segments) + 1)
-        #
-        #     if len(self.track.segments) == 1:
-        #         self.laps += 1
-        #
-        #     elif len(self.segments_visited) >= len(self.track.segments) + 1:
-        #         self.laps += 1
-        #
-        # # Else if decremented
-        # if (self.y[-1][0] > self.y[-2][0] and self.y[-1][1] < 0) or (np.floor(self.y[-1][0]) < np.floor(self.y[-2][0])):
-        #     self.segments_visited = [new_segment]
+        # If segment incremented
+        if (self.y[-1][0] < self.y[-2][0] and self.y[-1][1] > 0) or (np.floor(self.y[-1][0]) > np.floor(self.y[-2][0])):
+
+            print(new_segment)
+
+            if new_segment < self.highest_segment:
+
+                self.laps += 1
+
+            else:
+
+                self.highest_segment = new_segment
 
     def equation_of_motion(self, t, y, information_dictionary, **kwargs):
-        """
 
-        :param t:
-        :param y:
-        :return:
-        """
 
-        print(y)
+        if self.verbose:
+            print(y)
 
         # Unpack y
         segment_index = int(np.floor(y[0]))
