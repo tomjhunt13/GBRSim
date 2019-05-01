@@ -6,7 +6,7 @@ from src.Integration import Butcher
 import time
 
 class BrushedMotor(Model.Model):
-    def __init__(self, motor_parameters={}, dt=1e-3, solver=Butcher.RK8, verbose=False):
+    def __init__(self, motor_parameters={}, dt=1e-3, solver=Butcher.RK4, verbose=False):
         """
         Approximate brushed motor model without resistance
         """
@@ -68,6 +68,7 @@ class BrushedMotor(Model.Model):
 
         # Get voltage from controller
         V = self._controller(omega, demand)
+        # V = 48
 
         # Current state
         t_n = self.t_n
@@ -146,9 +147,6 @@ class BrushedMotor(Model.Model):
         """
 
         back_emf = self._back_emf(omega_n)
-        L_di_dt = self.L * self.di_dt_n
-
-        # V_max = max(np.roots([1, -1 * (L_di_dt + back_emf), -1 * self.Power * self.R]))
         V_max = max(np.roots([1, -1 * (back_emf), -1 * self.Power * self.R]))
 
         if V_max > self.V_max:
@@ -165,7 +163,7 @@ class BrushedMotor(Model.Model):
         return self.speed_constant * omega
 
 
-def MaxonRE65(verbose=False):
+def MaxonRE65(dt=1e-3, solver=Butcher.RK4,  verbose=False):
     """
 
     :return:
@@ -190,9 +188,9 @@ def MaxonRE65(verbose=False):
     motor_parameters = {'torque_constant': Kt, 'speed_constant': Kw, 'R': R, 'L': L, 'Power': Power,
                         'V_max': V_max, 'battery_efficiency': Battery_Efficiency}
 
-    return BrushedMotor(motor_parameters, verbose=verbose)
+    return BrushedMotor(motor_parameters, dt=dt, solver=solver, verbose=verbose)
 
-def Moog_C42_L90_30(verbose=False):
+def Moog_C42_L90_30(dt=1e-3, solver=Butcher.RK4, verbose=False):
     """
     https://www.moog.com/literature/MCG/moc23series.pdf
     """
@@ -214,9 +212,9 @@ def Moog_C42_L90_30(verbose=False):
     motor_parameters = {'torque_constant': Kt, 'speed_constant': Kw, 'R': R, 'L': L, 'Power': Power,
                         'V_max': V_max, 'battery_efficiency': Battery_Efficiency}
 
-    return BrushedMotor(motor_parameters, verbose=verbose)
+    return BrushedMotor(motor_parameters, dt=dt, solver=solver, verbose=verbose)
 
-def Moog_C42_L90_10(verbose=False):
+def Moog_C42_L90_10(dt=1e-3, solver=Butcher.RK4, verbose=False):
     """
     https://www.moog.com/literature/MCG/moc23series.pdf
     """
@@ -239,4 +237,4 @@ def Moog_C42_L90_10(verbose=False):
     motor_parameters = {'torque_constant': Kt, 'speed_constant': Kw, 'R': R, 'L': L, 'Power': Power,
                         'V_max': V_max, 'battery_efficiency': Battery_Efficiency}
 
-    return BrushedMotor(motor_parameters, verbose=verbose)
+    return BrushedMotor(motor_parameters, dt=dt, solver=solver, verbose=verbose)

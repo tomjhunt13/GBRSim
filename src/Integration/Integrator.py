@@ -23,13 +23,13 @@ class Integrator:
         # Simulation loop
         while self.end_condition():
 
-            # Pre-step processing
-            self.pre_step()
-
             # Unpack state
             t_n = self.t[-1]
             y_n = self.y[-1]
             t_np1 = t_n + self.dt
+
+            # Pre-step processing
+            self.model.pre_step(t_n, y_n)
 
             if self.verbose:
                 print('Time: ' + str(t_n))

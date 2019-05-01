@@ -47,16 +47,16 @@ class DirectTransmission(Powertrain):
 
 class FreeWheel(Powertrain):
 
-    def __init__(self, motor, transmission_ratio, free_wheel_properties, transmission_efficiency=1, verbose=False):
+    def __init__(self, motor, transmission_ratio, free_wheel_properties={}, transmission_efficiency=1, verbose=False):
 
         self.ratio = [transmission_ratio]
         self.efficiency = transmission_efficiency
         self.motor = motor
 
         # Unpack free wheel properties
-        self.motor_shaft_inertia = free_wheel_properties['motor_shaft_inertia']
-        self.motor_shaft_viscous = free_wheel_properties['motor_shaft_viscous']
-        self.motor_shaft_constant = free_wheel_properties['motor_shaft_constant']
+        # self.motor_shaft_inertia = free_wheel_properties['motor_shaft_inertia']
+        # self.motor_shaft_viscous = free_wheel_properties['motor_shaft_viscous']
+        # self.motor_shaft_constant = free_wheel_properties['motor_shaft_constant']
 
         self.free_wheel_properties = free_wheel_properties
 
