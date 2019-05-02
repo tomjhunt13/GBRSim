@@ -7,11 +7,11 @@ from src.Model import VehicleModel, PowertrainModel, BrushedDCMotor
 from src.Results import Results
 
 track = ImportTrack.import_year('2018')
-controller = Controller.BurnAndCoast(number_of_burns=2)
-controller.location_spacings[0][0] = 0.3176088178248599
-controller.location_spacings[1][0] = 0.30494126006598354
-controller.location_spacings[2][0] = 0.2268444260115963
-controller.location_spacings[3][0] = 0.22971726714767973
+controller = Controller.BurnAndCoast(number_of_burns=5)
+# controller.location_spacings[0][0] = 0.3176088178248599
+# controller.location_spacings[1][0] = 0.30494126006598354
+# controller.location_spacings[2][0] = 0.2268444260115963
+# controller.location_spacings[3][0] = 0.22971726714767973
 
 
 motor = BrushedDCMotor.MaxonRE65(solver=RK4.RK4, dt=1e-3, verbose=False)

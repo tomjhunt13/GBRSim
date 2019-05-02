@@ -201,7 +201,7 @@ class Vehicle(Model.Model):
         Fw = self._weight(theta)
         Fa = direction_mod * self._aerodynamic_drag(V)
         Fc = direction_mod * self._cornering_drag(V, segment_index, lambda_param)
-        Frr = direction_mod * self._rolling_resistance(V)
+        Frr = direction_mod * self._rolling_resistance()
 
         return Fw, Fa, Fc, Frr
 
@@ -225,7 +225,7 @@ class Vehicle(Model.Model):
 
         return self.aero_force * V * V
 
-    def _rolling_resistance(self, V):
+    def _rolling_resistance(self):
         """
 
         :param V:
