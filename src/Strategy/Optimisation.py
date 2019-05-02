@@ -16,8 +16,8 @@ from src.Optimisation import SA
 
 # Create model
 track = ImportTrack.import_year('2018')
-controller = Controller.BurnAndCoast(number_of_burns=3)
-controller = Controller.ConstantPower()
+controller = Controller.BurnAndCoast(number_of_burns=2)
+# controller = Controller.ConstantPower()
 
 motor = BrushedDCMotor.MaxonRE65(dt=1e-3, verbose=False)
 powertrain = PowertrainModel.FreeWheel(motor, 10, transmission_efficiency=0.8, verbose=False)
@@ -40,9 +40,13 @@ sim = SimulationWrapper.SimulationWrapper(car, track, controller, desired_time)
 optimiser = SA.SA()
 
 optimiser.AddVariable('Transmission Ratio', powertrain.ratio, 5, 15)
+optimiser.AddVariable('dt_1', controller.location_spacings[0], 0.01, 0.5)
+optimiser.AddVariable('dt_2', controller.location_spacings[1], 0.01, 0.5)
+optimiser.AddVariable('dt_3', controller.location_spacings[2], 0.01, 0.5)
+optimiser.AddVariable('dt_3', controller.location_spacings[3], 0.01, 0.5)
 # optimiser.AddVariable('MinVel', control.min_vel, 1, 7)
 # optimiser.AddVariable('MaxVel', control.min_vel, 10, 25)
-optimum = optimiser.Optimise(sim.cost, max_iterations=100)
+optimum = optimiser.Optimise(sim.cost, max_iterations=500)
 
 print(optimum)
 
