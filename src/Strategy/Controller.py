@@ -69,15 +69,16 @@ class BurnAndCoast(Controller):
 
         # Initialise evenly
         self.number_of_burns = number_of_burns
-        number_of_segments = number_of_burns * 2 - 1
+        number_of_segments = number_of_burns * 2
         spacing = 1 / number_of_segments
-        self.location_spacings = [[spacing]] * number_of_segments
 
-        # Set demands
+        # Set demands and spacings
         next_demand = 1
         self.demands = [None] * number_of_segments
+        self.location_spacings = [None] * number_of_segments
         for index in range(number_of_segments):
             self.demands[index] = [next_demand]
+            self.location_spacings[index] = [spacing]
 
             next_demand = 1 - next_demand
 
@@ -99,8 +100,8 @@ class BurnAndCoast(Controller):
 
     def demand(self, **kwargs):
 
-        if kwargs['V'] < self.min_speed:
-            return 1
+        # if kwargs['V'] < self.min_speed:
+        #     return 0.1
 
         # Get distance around track
         lambda_param = kwargs['lambda_param']
