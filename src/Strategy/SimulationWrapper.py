@@ -25,7 +25,7 @@ class SimulationWrapper:
         energy = np.trapz(fuel_power, t)
         time = t[-1]
 
-        multiplier = 1 + max(time - self.max_sim_time, 0)
+        multiplier = 1 + max(time - self.max_lap_time, 0)
 
         cost = energy * multiplier
 
