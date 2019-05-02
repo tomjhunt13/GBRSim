@@ -1,6 +1,8 @@
 import numpy as np
 
-class IVP:
+from src.Model import Model
+
+class IVP(Model.Model):
 
     def initialise(self, a, b, **model_kwargs):
         pass

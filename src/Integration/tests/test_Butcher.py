@@ -14,7 +14,7 @@ class TestButcher(unittest.TestCase):
 
         results = s.solve(ivp, ivp.wikipedia_f, {}, [1], dt=0.025, t_start=1, t_end=1.1)
 
-        self.assertAlmostEqual(results[1]['y'][0], 1.066869388)
+        self.assertAlmostEqual(results[1]['y'][0], 1.066869388, places=5)
 
     def test_RK4_func_IVP(self):
         ivp = IVP_test_cases.IVP()
@@ -36,7 +36,7 @@ class TestButcher(unittest.TestCase):
 
         for result_t in results[1:]:
 
-            self.assertAlmostEqual(result_t['y'][0], ivp.separation_of_variables_analytical(result_t['t'], 1))
+            self.assertAlmostEqual(result_t['y'][0], ivp.separation_of_variables_analytical(result_t['t'], 1), places=5)
 
     def test_separation_of_variables_RK8(self):
         ivp = IVP_test_cases.IVP()
@@ -47,7 +47,7 @@ class TestButcher(unittest.TestCase):
 
         for result_t in results[1:]:
 
-            self.assertAlmostEqual(result_t['y'][0], ivp.separation_of_variables_analytical(result_t['t'], 1))
+            self.assertAlmostEqual(result_t['y'][0], ivp.separation_of_variables_analytical(result_t['t'], 1), places=5)
 
 
 

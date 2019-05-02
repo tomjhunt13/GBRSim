@@ -114,8 +114,6 @@ class Vehicle(Model.Model):
         # If segment incremented
         if (self.y[-1][0] < self.y[-2][0] and self.y[-1][1] > 0) or (np.floor(self.y[-1][0]) > np.floor(self.y[-2][0])):
 
-            print(new_segment)
-
             if new_segment < self.highest_segment:
 
                 self.laps += 1

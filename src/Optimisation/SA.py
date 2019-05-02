@@ -5,7 +5,7 @@ from src.Optimisation import Optimiser
 
 class SA(Optimiser.Optimiser):
 
-    def __init__(self, k_max=500, sample_generator=1):
+    def __init__(self):
         super(SA, self).__init__()
 
     def Optimise(self, cost_function, max_iterations=1000, initial_temp=5230):
@@ -25,7 +25,7 @@ class SA(Optimiser.Optimiser):
     def _assemble_bounds_vector(self):
 
         bounds = [None] * len(self.variables)
-        for index, var in self.variables:
+        for index, var in enumerate(self.variables):
             bounds[index] = (var['min'], var['max'])
 
         return bounds
