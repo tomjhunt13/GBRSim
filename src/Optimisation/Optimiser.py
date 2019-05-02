@@ -2,7 +2,6 @@ import numpy as np
 
 from scipy.optimize import minimize
 
-
 class Optimiser:
     def __init__(self):
 
@@ -19,22 +18,10 @@ class Optimiser:
     def AddVariable(self, name, variable_ref, min, max):
 
         self.variables.append({'name': name, 'var': variable_ref, 'min': min, 'max': max})
-        # self.variable_name_hash['name'] = len(self.variables) - 1
 
+    def Optimise(self, cost_function):
 
-    def Optimise(self, cost_function, tolerance=1e-7):
-
-        self.cost_function = cost_function
-
-        input = self._assemble_input_vector()
-
-        optimisation_result = minimize(self._cost, input, method='Nelder-Mead', tol=tolerance)['x']
-
-        result = {}
-        for index, value in enumerate(optimisation_result):
-            result[self.variables[index]['name']] = value
-
-        return result
+        pass
 
     def _cost(self, input_vector):
 
@@ -67,7 +54,5 @@ class Optimiser:
 
             print(variable['name'] + ': ' + str(input_vector[index]))
             variable['var'][0] = input_vector[index]
-
-            a = 56
 
 

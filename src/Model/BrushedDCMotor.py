@@ -76,10 +76,7 @@ class BrushedMotor(Model.Model):
 
         solver = self.solver()
         y_np1 = solver.solve(self, self._state_equation, {'V': V, 'omega': omega}, [i_n], dt=self.dt, t_start=t_n, t_end=t_np1, verbose=self.verbose)
-
-
         i_np1 = y_np1[-1]['y'][0]
-        # di_dt = information_dict['di_dt']
 
         # Torque
         torque = self.torque_constant * i_np1
@@ -92,9 +89,6 @@ class BrushedMotor(Model.Model):
 
         else:
             motor_efficiency = (torque * omega) / (V * i_np1)
-
-
-
 
         if self.verbose:
             print('Motor')
@@ -147,7 +141,7 @@ class BrushedMotor(Model.Model):
         """
 
         back_emf = self._back_emf(omega_n)
-        V_max = max(np.roots([1, -1 * (back_emf), -1 * self.Power * self.R]))
+        V_max = max(np.roots([1, -1 * back_emf, -1 * self.Power * self.R]))
 
         if V_max > self.V_max:
             V_max = self.V_max

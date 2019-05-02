@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from src.Optimisation.Optimiser import *
+from src.Optimisation import GradOptimiser
 
 """
 look up Rosenbrock function
@@ -40,7 +40,7 @@ class TestOptimiser(unittest.TestCase):
     def test_quadratic(self):
         print('Quadratic')
         quadratic = Polynomial()
-        optimiser = Optimiser()
+        optimiser = GradOptimiser.GradOptimiser()
 
         optimiser.AddVariable('x', quadratic.x, -2, 2)
 
@@ -50,7 +50,7 @@ class TestOptimiser(unittest.TestCase):
     def test_quartic(self):
         print('Quartic')
         quartic = Polynomial([1, 0, 0, 0, 1])
-        optimiser = Optimiser()
+        optimiser = GradOptimiser.GradOptimiser()
 
         optimiser.AddVariable('x', quartic.x, -2, 2)
         result = optimiser.Optimise(quartic.cost)
@@ -59,7 +59,7 @@ class TestOptimiser(unittest.TestCase):
     def test_xy(self):
         print('XY')
         xy = XY()
-        optimiser = Optimiser()
+        optimiser = GradOptimiser.GradOptimiser()
 
         optimiser.AddVariable('x', xy.x, -2, 2)
         optimiser.AddVariable('y', xy.y, -2, 2)
