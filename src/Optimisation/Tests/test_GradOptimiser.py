@@ -1,45 +1,18 @@
 import unittest
-import numpy as np
 
+from src.Optimisation.tests import example_functions
 from src.Optimisation import GradOptimiser
 
 """
 look up Rosenbrock function
 """
 
-class Polynomial:
-    def __init__(self, coefficients=[0, 0, 1]):
-        self.coefficients = coefficients
-
-        self.x = [0]
-
-    def cost(self):
-        x = self.x[0]
-        y = 0
-        for index, value in enumerate(self.coefficients):
-
-            y += np.power(x, index) * value
-
-        return y
-
-class XY:
-    def __init__(self, coefficients=[0, 0, 1]):
-        self.coefficients = coefficients
-
-        self.x = [0]
-        self.y = [0]
-
-    def cost(self):
-
-        return self.x[0] * self.x[0] + self.y[0] * self.y[0]
-
-
 
 class TestOptimiser(unittest.TestCase):
 
     def test_quadratic(self):
         print('Quadratic')
-        quadratic = Polynomial()
+        quadratic = example_functions.Polynomial()
         optimiser = GradOptimiser.GradOptimiser()
 
         optimiser.AddVariable('x', quadratic.x, -2, 2)
@@ -49,7 +22,7 @@ class TestOptimiser(unittest.TestCase):
 
     def test_quartic(self):
         print('Quartic')
-        quartic = Polynomial([1, 0, 0, 0, 1])
+        quartic = example_functions.Polynomial([1, 0, 0, 0, 1])
         optimiser = GradOptimiser.GradOptimiser()
 
         optimiser.AddVariable('x', quartic.x, -2, 2)
@@ -58,7 +31,7 @@ class TestOptimiser(unittest.TestCase):
 
     def test_xy(self):
         print('XY')
-        xy = XY()
+        xy = example_functions.XY()
         optimiser = GradOptimiser.GradOptimiser()
 
         optimiser.AddVariable('x', xy.x, -2, 2)

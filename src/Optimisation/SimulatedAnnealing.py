@@ -22,7 +22,7 @@ class SA(Optimiser.Optimiser):
 
         return result
 
-    def _assemble_input_vector(self):
+    def _assemble_bounds_vector(self):
 
         bounds = [None] * len(self.variables)
         for index, var in self.variables:

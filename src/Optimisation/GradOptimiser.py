@@ -1,7 +1,6 @@
 import numpy as np
 
 from scipy.optimize import minimize
-
 from src.Optimisation import Optimiser
 
 class GradOptimiser(Optimiser.Optimiser):
@@ -21,3 +20,17 @@ class GradOptimiser(Optimiser.Optimiser):
             result[self.variables[index]['name']] = value
 
         return result
+
+    def _assemble_input_vector(self):
+
+        """
+        for each variable:
+
+        """
+
+        input = [None] * len(self.variables)
+
+        for index, variable in enumerate(self.variables):
+            input[index] = variable['min'] + np.random.rand(1)[0] * (variable['max'] - variable['min'])
+
+        return input
