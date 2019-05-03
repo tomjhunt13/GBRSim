@@ -122,6 +122,11 @@ class Vehicle(Model.Model):
 
                 self.highest_segment = new_segment
 
+        # Else if decremented
+        elif (self.y[-1][0] > self.y[-2][0] and self.y[-1][1] < 0) or (np.floor(self.y[-1][0]) < np.floor(self.y[-2][0])):
+
+            self.highest_segment = new_segment
+
     def equation_of_motion(self, t, y, information_dictionary, **kwargs):
 
 
