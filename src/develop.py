@@ -19,14 +19,32 @@ from src.Results import Results
 #                                 [0.14947800646632983],
 #                                 [0.37957323617532296]]
 
-# 2018, 2 burns
+# # 2018, 2 burns
+# track = ImportTrack.import_year('2018')
+# controller = Controller.BurnAndCoast(number_of_burns=2)
+# tr = 11.562858266880488
+# controller.location_spacings = [[0.09810088786524852],
+#                                 [0.36485885775760474],
+#                                 [0.34170404681209077],
+#                                 [0.14749639937281714]]
+
+# 2018, 6 burns
 track = ImportTrack.import_year('2018')
-controller = Controller.BurnAndCoast(number_of_burns=2)
-tr = 11.562858266880488
-controller.location_spacings = [[0.09810088786524852],
-                                [0.36485885775760474],
-                                [0.34170404681209077],
-                                [0.14749639937281714]]
+controller = Controller.BurnAndCoast(number_of_burns=6)
+tr = 14.731240558547322
+controller.location_spacings = [[0.267547362730309],
+                                [0.40033148399078783],
+                                [0.19291264702309055],
+                                [0.21404195822957228],
+                                [0.02157327090312653],
+                                [0.22404043454019507],
+                                [0.19630226193112],
+                                [0.05181996418860302],
+                                [0.223274216442926],
+                                [0.45128993450618554],
+                                [0.07632456462219304],
+                                [0.32582525419810304]]
+
 
 
 
