@@ -13,6 +13,8 @@ class SimulationWrapper:
         self.solver = solver
         self.verbose = verbose
 
+        self.track_length = self.track.total_length()
+
     def cost(self):
 
         model_kwargs = {'track': self.track, 'controller': self.controller}
@@ -22,14 +24,17 @@ class SimulationWrapper:
 
         fuel_power = [d['Fuel Power'] for d in vehicle_results]
         t = [d['t'] for d in vehicle_results]
+        total_lambda = [d['y'][0] for d in vehicle_results[1:]]
         energy = np.trapz(fuel_power, t)
         time = t[-1]
 
-        multiplier = 1 + max(time - self.max_lap_time, 0)
+        time_multiplier = 1 + max(time - self.max_lap_time, 0)
+        distance = max(total_lambda) / len(self.track.segments)
+        completion_multiplier = max(0, 0.99 - (distance))
 
-        cost = energy * multiplier
+        cost = energy * time_multiplier + completion_multiplier * 3600000
 
         if self.verbose:
-            print('Completion Time: ' + str(time) + ', Energy: ' + str(energy) + ', Cost: ' + str(cost))
+            print('Completion Time: ' + str(time) + ', Energy: ' + str(energy) + ', Cost: ' + str(cost) + ', Distance: ' + str(distance))
 
-        return energy * multiplier
+        return energy * time_multiplier

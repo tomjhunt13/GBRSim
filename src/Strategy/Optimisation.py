@@ -15,7 +15,7 @@ from src.Optimisation import SA
 
 # Create model
 track = ImportTrack.import_year('2018')
-controller = Controller.BurnAndCoast(number_of_burns=6)
+controller = Controller.BurnAndCoast(number_of_burns=5)
 # controller = Controller.ConstantPower()
 
 motor = BrushedDCMotor.MaxonRE65(dt=1e-3, verbose=False)
@@ -36,9 +36,10 @@ optimiser = SA.SA()
 
 OptimisationWrapper.OptimiseTransmissionRatio(optimiser, powertrain)
 OptimisationWrapper.OptimiseBurnLocations(optimiser, controller)
+# OptimisationWrapper.OptimiseBurnDemands(optimiser, controller)
 
 
-optimum = optimiser.Optimise(sim.cost, max_iterations=200)
+optimum = optimiser.Optimise(sim.cost, max_iterations=500)
 
 print(optimum)
 
