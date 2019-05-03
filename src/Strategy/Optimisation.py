@@ -1,14 +1,13 @@
-import numpy as np
-
 # Model
 from src.Track import ImportTrack
 from src.Model import VehicleModel
 from src.Model import PowertrainModel
 from src.Model import BrushedDCMotor
 
-# Optimisation
+# Strategy
 from src.Strategy import SimulationWrapper
 from src.Strategy import Controller
+from src.Strategy import OptimisationWrapper
 
 # Optimiser
 from src.Optimisation import SA
@@ -16,7 +15,7 @@ from src.Optimisation import SA
 
 # Create model
 track = ImportTrack.import_year('2018')
-controller = Controller.BurnAndCoast(number_of_burns=4)
+controller = Controller.BurnAndCoast(number_of_burns=6)
 # controller = Controller.ConstantPower()
 
 motor = BrushedDCMotor.MaxonRE65(dt=1e-3, verbose=False)
@@ -33,24 +32,13 @@ desired_time = total_time / laps
 
 sim = SimulationWrapper.SimulationWrapper(car, track, controller, desired_time)
 
-
-
-
-
 optimiser = SA.SA()
 
-optimiser.AddVariable('Transmission Ratio', powertrain.ratio, 5, 15)
-optimiser.AddVariable('dt_1', controller.location_spacings[0], 0.01, 0.5)
-optimiser.AddVariable('dt_2', controller.location_spacings[1], 0.01, 0.5)
-optimiser.AddVariable('dt_3', controller.location_spacings[2], 0.01, 0.5)
-optimiser.AddVariable('dt_3', controller.location_spacings[3], 0.01, 0.5)
-optimiser.AddVariable('dt_3', controller.location_spacings[4], 0.01, 0.5)
-optimiser.AddVariable('dt_3', controller.location_spacings[5], 0.01, 0.5)
-optimiser.AddVariable('dt_3', controller.location_spacings[6], 0.01, 0.5)
-optimiser.AddVariable('dt_3', controller.location_spacings[7], 0.01, 0.5)
-# optimiser.AddVariable('MinVel', control.min_vel, 1, 7)
-# optimiser.AddVariable('MaxVel', control.min_vel, 10, 25)
-optimum = optimiser.Optimise(sim.cost, max_iterations=500)
+OptimisationWrapper.OptimiseTransmissionRatio(optimiser, powertrain)
+OptimisationWrapper.OptimiseBurnLocations(optimiser, controller)
+
+
+optimum = optimiser.Optimise(sim.cost, max_iterations=200)
 
 print(optimum)
 
