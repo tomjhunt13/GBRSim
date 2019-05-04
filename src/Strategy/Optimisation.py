@@ -12,6 +12,9 @@ from src.Strategy import OptimisationWrapper
 # Optimiser
 from src.Optimisation import SA
 
+# Temp
+from src.Results import Results
+
 
 # Create model
 track = ImportTrack.import_year('2018')
@@ -40,8 +43,11 @@ OptimisationWrapper.OptimiseBurnLocations(optimiser, controller)
 
 
 optimum = optimiser.Optimise(sim.cost, max_iterations=1)
+optimiser._update_parameters(optimum)
+vehicle_results = sim.run()
+Results.process_results(track, vehicle_results)
 
-print(optimum)
+
 
 
 

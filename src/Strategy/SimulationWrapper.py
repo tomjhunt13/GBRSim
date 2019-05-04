@@ -17,11 +17,7 @@ class SimulationWrapper:
 
     def cost(self):
 
-        model_kwargs = {'track': self.track, 'controller': self.controller}
-        solver = self.solver()
-        vehicle_results = solver.solve(self.car, self.car.equation_of_motion, model_kwargs, [1e-4, 1e-4], dt=0.25,
-                                       t_end=self.max_sim_time, verbose=False)
-
+        vehicle_results = self.run()
         fuel_power = [d['Fuel Power'] for d in vehicle_results]
         t = [d['t'] for d in vehicle_results]
         total_lambda = [d['y'][0] for d in vehicle_results[1:]]
@@ -38,3 +34,14 @@ class SimulationWrapper:
             print('Completion Time: ' + str(time) + ', Energy: ' + str(energy) + ', Cost: ' + str(cost) + ', Distance: ' + str(distance))
 
         return energy * time_multiplier
+
+    def run(self):
+        model_kwargs = {'track': self.track, 'controller': self.controller}
+        solver = self.solver()
+        vehicle_results = solver.solve(self.car, self.car.equation_of_motion, model_kwargs, [1e-4, 1e-4], dt=0.25,
+                                       t_end=self.max_sim_time, verbose=False)
+
+        return vehicle_results
+
+
+

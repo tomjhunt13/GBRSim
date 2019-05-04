@@ -33,7 +33,7 @@ class Optimiser:
         result = {}
         for index, value in enumerate(optimisation_result):
             result[self.variables[index]['name']] = value
-
+        
         return result
 
     def _optimise(self, **kwargs):

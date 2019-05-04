@@ -12,8 +12,9 @@ class SA(Optimiser.Optimiser):
     def _optimise(self, **kwargs):
 
         bounds = self._assemble_bounds_vector()
+        optimisation_result = dual_annealing(self._cost, bounds, maxiter=kwargs['max_iterations'], initial_temp=kwargs['initial_temperature'])
 
-        return dual_annealing(self._cost, bounds, maxiter=kwargs['max_iterations'], initial_temp=kwargs['initial_temperature'])['x']
+        return optimisation_result['x']
 
     def _assemble_bounds_vector(self):
 
