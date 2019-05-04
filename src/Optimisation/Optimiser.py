@@ -3,7 +3,7 @@ import numpy as np
 from scipy.optimize import minimize
 
 class Optimiser:
-    def __init__(self):
+    def __init__(self, verbose=True):
 
         """
         Attributes:
@@ -14,7 +14,7 @@ class Optimiser:
         #  is a list so it maintains order
         self.variables = []
         self.default_parameters = {}
-        # self.variable_name_hash = {}
+        self.verbose = verbose
 
     def AddVariable(self, name, variable_ref, min, max):
 
@@ -33,7 +33,10 @@ class Optimiser:
         result = {}
         for index, value in enumerate(optimisation_result):
             result[self.variables[index]['name']] = value
-        
+
+        if self.verbose:
+            print('Optimised Values: ' + str(result))
+
         return result
 
     def _optimise(self, **kwargs):
@@ -54,7 +57,8 @@ class Optimiser:
 
         for index, variable in enumerate(self.variables):
 
-            print(variable['name'] + ': ' + str(input_vector[index]))
+            if self.verbose:
+                print(variable['name'] + ': ' + str(input_vector[index]))
             variable['var'][0] = input_vector[index]
 
 

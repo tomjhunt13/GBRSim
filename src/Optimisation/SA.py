@@ -3,9 +3,9 @@ from src.Optimisation import Optimiser
 
 class SA(Optimiser.Optimiser):
 
-    def __init__(self):
+    def __init__(self, verbose=True):
 
-        super(SA, self).__init__()
+        super(SA, self).__init__(verbose=verbose)
 
         self.default_parameters = {'max_iterations': 1, 'initial_temperature': 5230}
 
