@@ -74,6 +74,7 @@ class Vehicle(Model.Model):
         self._step_y_n = initial_conditions
         self.y = [initial_conditions]
         self.highest_segment = starting_segment
+        # self.track_length = self.track.total_length()
 
         # Initialise controller
         self.controller = kwargs['controller']
@@ -117,6 +118,7 @@ class Vehicle(Model.Model):
             if new_segment < self.highest_segment:
 
                 self.laps += 1
+                self.highest_segment = new_segment
 
             else:
 

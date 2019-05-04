@@ -6,7 +6,7 @@ class SA(Optimiser.Optimiser):
     def __init__(self):
         super(SA, self).__init__()
 
-    def Optimise(self, cost_function, max_iterations=1000, initial_temp=5230):
+    def Optimise(self, cost_function, max_iterations=1, initial_temp=5230):
 
         self.cost_function = cost_function
 

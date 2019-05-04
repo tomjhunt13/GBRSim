@@ -39,7 +39,7 @@ OptimisationWrapper.OptimiseBurnLocations(optimiser, controller)
 # OptimisationWrapper.OptimiseBurnDemands(optimiser, controller)
 
 
-optimum = optimiser.Optimise(sim.cost, max_iterations=500)
+optimum = optimiser.Optimise(sim.cost, max_iterations=1)
 
 print(optimum)
 
