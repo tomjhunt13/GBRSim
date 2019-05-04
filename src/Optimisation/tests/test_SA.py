@@ -17,7 +17,7 @@ class TestOptimiser(unittest.TestCase):
 
         optimiser.AddVariable('x', quadratic.x, -2, 2)
 
-        result = optimiser.Optimise(quadratic.cost)
+        result = optimiser.Optimise(quadratic.cost, max_iterations=1000)
         self.assertAlmostEqual(result['x'], 0, places=3)
 
     def test_quartic(self):
@@ -26,7 +26,7 @@ class TestOptimiser(unittest.TestCase):
         optimiser = SA.SA()
 
         optimiser.AddVariable('x', quartic.x, -2, 2)
-        result = optimiser.Optimise(quartic.cost)
+        result = optimiser.Optimise(quartic.cost, max_iterations=1000)
         self.assertAlmostEqual(result['x'], 0, places=3)
 
     def test_xy(self):
@@ -36,7 +36,7 @@ class TestOptimiser(unittest.TestCase):
 
         optimiser.AddVariable('x', xy.x, -2, 2)
         optimiser.AddVariable('y', xy.y, -2, 2)
-        result = optimiser.Optimise(xy.cost)
+        result = optimiser.Optimise(xy.cost, max_iterations=1000)
         self.assertAlmostEqual(result['x'], 0)
         self.assertAlmostEqual(result['y'], 0, places=3)
 

@@ -13,13 +13,30 @@ class Optimiser:
         """
         #  is a list so it maintains order
         self.variables = []
+        self.default_parameters = {}
         # self.variable_name_hash = {}
 
     def AddVariable(self, name, variable_ref, min, max):
 
         self.variables.append({'name': name, 'var': variable_ref, 'min': min, 'max': max})
 
-    def Optimise(self, cost_function):
+    def Optimise(self, cost_function, **kwargs):
+
+        self.cost_function = cost_function
+
+        for key in self.default_parameters.keys():
+            if key not in kwargs.keys():
+                kwargs[key] = self.default_parameters[key]
+
+        optimisation_result = self._optimise(**kwargs)
+
+        result = {}
+        for index, value in enumerate(optimisation_result):
+            result[self.variables[index]['name']] = value
+
+        return result
+
+    def _optimise(self, **kwargs):
 
         pass
 
