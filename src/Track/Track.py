@@ -1,3 +1,5 @@
+import numpy as np
+
 class Track:
     def __init__(self, segment_list):
         """
@@ -72,3 +74,9 @@ class Track:
             length += segment.length
 
         return length
+
+    def scale(self, segment_index, t):
+
+        dx_dt = self.segments[segment_index].dx_dt(t)
+
+        return np.linalg.norm(dx_dt)

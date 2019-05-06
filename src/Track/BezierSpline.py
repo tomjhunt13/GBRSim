@@ -19,7 +19,7 @@ class CubicBezier(Segment):
         """
 
         # Get first derivative
-        d = self._first_derivative(t)
+        d = self.dx_dt(t)
 
         return np.multiply((1 / np.linalg.norm(d)), d)
 
@@ -89,8 +89,8 @@ class CubicBezier(Segment):
         """
 
         # Derivatives
-        dS_dt = self._first_derivative(t)
-        d2S_dt2 = self._second_derivative(t)
+        dS_dt = self.dx_dt(t)
+        d2S_dt2 = self.d2x_dt2(t)
         dS_dt_mag = np.linalg.norm(dS_dt)
 
         # Curvature calculation
@@ -110,7 +110,7 @@ class CubicBezier(Segment):
         return curvature
 
 
-    def _first_derivative(self, t):
+    def dx_dt(self, t):
         """
         For a value of parameter t, compute the first derivative wrt t
         :param t: float between 0 and 1 - value of t to get first derivative at
@@ -136,7 +136,7 @@ class CubicBezier(Segment):
 
         return list(np.add(np.add(P0_contribution, P1_contribution), np.add(P2_contribution, P3_contribution)))
 
-    def _second_derivative(self, t):
+    def d2x_dt2(self, t):
         """
         For a value of parameter t, compute the second derivative wrt t
         :param t: float between 0 and 1 - value of t to get second derivative at

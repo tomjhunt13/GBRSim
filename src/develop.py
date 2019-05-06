@@ -7,6 +7,7 @@ from src.Results import Results
 
 
 
+
 # # 2018, 3 burns
 # track = ImportTrack.import_year('2018')
 # controller = Controller.BurnAndCoast(number_of_burns=3)
@@ -45,20 +46,25 @@ from src.Results import Results
 #                                 [0.32582525419810304]]
 
 
-# 2018, 5 burns
-track = ImportTrack.import_year('2018')
-controller = Controller.BurnAndCoast(number_of_burns=5)
-tr = 16.625476896762848
-controller.location_spacings = [[0.2325945767871258],
-                                [0.2235767597303815],
-                                [0.27717865129200847],
-                                [0.450859423314137],
-                                [0.3381125682936139],
-                                [0.012665318369254877],
-                                [0.20441195485078167],
-                                [0.32473284386235557],
-                                [0.07540777865509461],
-                                [0.37483379897557567]]
+# # 2018, 5 burns
+# track = ImportTrack.import_year('2018')
+# controller = Controller.BurnAndCoast(number_of_burns=5, verbose=True)
+# tr = 16.625476896762848
+# controller.location_spacings = [[0.2325945767871258],
+#                                 [0.2235767597303815],
+#                                 [0.27717865129200847],
+#                                 [0.450859423314137],
+#                                 [0.3381125682936139],
+#                                 [0.012665318369254877],
+#                                 [0.20441195485078167],
+#                                 [0.32473284386235557],
+#                                 [0.07540777865509461],
+#                                 [0.37483379897557567]]
+
+
+controller = Controller.ConstantPower()
+tr = 12
+track = ImportTrack.import_year('2019')
 
 motor = BrushedDCMotor.MaxonRE65(solver=RK4.RK4, dt=1e-3, verbose=False)
 powertrain = PowertrainModel.FreeWheel(motor, tr, transmission_efficiency=0.8, verbose=False)
@@ -68,7 +74,7 @@ model_kwargs = {'track': track, 'controller': controller}
 s = RK4.RK4()
 
 t_s = time.time()
-vehicle_results = s.solve(car, car.equation_of_motion, model_kwargs, [1e-4, 1e-4], dt=0.25, t_end=300, verbose=True)
+vehicle_results = s.solve(car, car.equation_of_motion, model_kwargs, [1e-4, 1e-4], dt=0.05, t_end=300, verbose=True)
 print('Elapsed time: ' + str(time.time() - t_s))
 
 Results.process_results(track, vehicle_results)

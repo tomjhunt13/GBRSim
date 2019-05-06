@@ -74,7 +74,8 @@ class Vehicle(Model.Model):
         self._step_y_n = initial_conditions
         self.y = [initial_conditions]
         self.highest_segment = starting_segment
-        # self.track_length = self.track.total_length()
+        self.track_length = self.track.total_length()
+        self.distance = 0
 
         # Initialise controller
         self.controller = kwargs['controller']
@@ -165,8 +166,8 @@ class Vehicle(Model.Model):
 
         # Unpack y
         theta = segment.gradient(lambda_param)  # Road angle (rad)
-        segment_length = segment.length  # Length of current track segment (m)
-        V = y[1] * segment_length  # Model speed
+        segment_scale = self.track.scale(segment_index, lambda_param)
+        V = y[1] * segment_scale  # Model speed
 
         # Propulsive force
         throttle_demand = self.control_function(V=V, theta=theta, segment=theta, lambda_param=y[0])
@@ -179,7 +180,7 @@ class Vehicle(Model.Model):
         # Build state vector
         f = [
             y[1],
-            (1 / (self.m * segment_length)) * (propulsive_force - resistive_force)
+            (1 / (self.m * segment_scale)) * (propulsive_force - resistive_force)
         ]
 
         information_dictionary['Gradient'] = 100 * (theta / (np.pi / 4))

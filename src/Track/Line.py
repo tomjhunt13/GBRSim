@@ -35,9 +35,11 @@ class Line(Segment):
         """
         return list(np.add(self.coordinates[0], np.multiply(t, self._AB())))
 
-
     def radius_of_curvature(self, t):
         return 1e8
+
+    def dx_dt(self, t):
+        return self._AB()
 
     def _length(self):
         return np.linalg.norm(self._AB())

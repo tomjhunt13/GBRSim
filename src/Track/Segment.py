@@ -54,6 +54,9 @@ class Segment:
     def position(self, t):
         pass
 
+    def dx_dt(self, t):
+        pass
+
     def horizontal_radius_of_curvature(self, t):
         return self.radius_of_curvature(t)
 
