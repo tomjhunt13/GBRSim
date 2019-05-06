@@ -1,6 +1,6 @@
 import time
 from src.Track import ImportTrack
-from src.Integration import RKF45, RK4, DP45, Butcher
+from src.Integration import RKF45, RK4, DP45, Butcher, Euler
 from src.Strategy import Controller
 from src.Model import VehicleModel, PowertrainModel, BrushedDCMotor, IntegratedModel
 from src.Results import Results
@@ -71,10 +71,10 @@ powertrain = PowertrainModel.FreeWheel(motor, tr, transmission_efficiency=0.8, v
 car = VehicleModel.Vehicle(powertrain, verbose=False)
 
 model_kwargs = {'track': track, 'controller': controller}
-s = RK4.RK4()
+s = Euler.Euler()
 
 t_s = time.time()
-vehicle_results = s.solve(car, car.equation_of_motion, model_kwargs, [1e-4, 1e-4], dt=0.05, t_end=300, verbose=True)
+vehicle_results = s.solve(car, car.equation_of_motion, model_kwargs, [1e-4, 1e-4], dt=0.00001, t_end=90, verbose=True)
 print('Elapsed time: ' + str(time.time() - t_s))
 
 Results.process_results(track, vehicle_results)
