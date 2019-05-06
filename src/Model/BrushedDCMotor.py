@@ -68,7 +68,6 @@ class BrushedMotor(Model.Model):
 
         # Get voltage from controller
         V = self._controller(omega, demand)
-        # V = 48
 
         # Current state
         t_n = self.t_n

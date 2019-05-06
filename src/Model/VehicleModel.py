@@ -74,6 +74,8 @@ class Vehicle(Model.Model):
         self._step_y_n = initial_conditions
         self.y = [initial_conditions]
         self.highest_segment = starting_segment
+        self.track_length = self.track.total_length()
+        self.highest_distance = initial_conditions
 
         # Initialise controller
         self.controller = kwargs['controller']
@@ -172,7 +174,7 @@ class Vehicle(Model.Model):
         # Build state vector
         f = [
             y[1],
-            (1 / self.m) * (propulsive_force - resistive_force)
+            (1 / (self.m * segment_length)) * (propulsive_force - resistive_force)
         ]
 
         information_dictionary['Gradient'] = 100 * (theta / (np.pi / 4))

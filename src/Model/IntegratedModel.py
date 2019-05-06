@@ -1,8 +1,10 @@
 import numpy as np
 
+from src.Model import Model
+
 import time
 
-class SEMVehicle:
+class SEMVehicle(Model.Model):
 
     def __init__(self, vehicle_parameters={}):
 
@@ -83,22 +85,27 @@ class SEMVehicle:
         # Initialise vehicle on track
         starting_segment = int(np.floor(initial_conditions[0]))
         self.current_segment = starting_segment
-        self.segments_visited = [starting_segment]
         self.laps = 0
         self.track = kwargs['track']
-        self.control_function = kwargs['control_function']
+        self._step_y_n = initial_conditions
+        self.y = [initial_conditions]
+        self.highest_segment = starting_segment
+
+        # Initialise controller
+        self.controller = kwargs['controller']
+        self.controller.initialise(track=self.track)
+        self.control_function = self.controller.demand
 
         # Optional kwargs
-        optional_kwargs = {'verbose': False, 'lap_limit': 1}
+        optional_kwargs = {'lap_limit': 1}
         for keyword in optional_kwargs:
             if keyword not in kwargs:
                 kwargs[keyword] = optional_kwargs[keyword]
 
-        self.verbose = kwargs['verbose']
         self.lap_limit = kwargs['lap_limit']
 
         # Update information dictionary
-        information_dictionary['V'] = initial_conditions[0] * self.track.segments[starting_segment].length
+        information_dictionary['V'] = initial_conditions[1] * self.track.segments[starting_segment].length
         information_dictionary['segment'] = starting_segment
         information_dictionary['lambda_param'] = initial_conditions[0]
 
@@ -116,30 +123,20 @@ class SEMVehicle:
 
     def _update_lap_counter(self, new_segment):
 
-        pass
+        # If first initial step
+        if len(self.y) < 2:
+            return
 
-        # # If first initial step
-        # if len(self.y) < 2:
-        #     return
-        #
-        # # If segment incremented
-        # if (self.y[-1][0] < self.y[-2][0] and self.y[-1][1] > 0) or (np.floor(self.y[-1][0]) > np.floor(self.y[-2][0])):
-        #
-        #     print(new_segment)
-        #
-        #     self.segments_visited.append(new_segment)
-        #
-        #     print(len(self.segments_visited), len(self.track.segments) + 1)
-        #
-        #     if len(self.track.segments) == 1:
-        #         self.laps += 1
-        #
-        #     elif len(self.segments_visited) >= len(self.track.segments) + 1:
-        #         self.laps += 1
-        #
-        # # Else if decremented
-        # if (self.y[-1][0] > self.y[-2][0] and self.y[-1][1] < 0) or (np.floor(self.y[-1][0]) < np.floor(self.y[-2][0])):
-        #     self.segments_visited = [new_segment]
+        # If segment incremented
+        if (self.y[-1][0] < self.y[-2][0] and self.y[-1][1] > 0) or (np.floor(self.y[-1][0]) > np.floor(self.y[-2][0])):
+
+            if new_segment < self.highest_segment:
+
+                self.laps += 1
+
+            else:
+
+                self.highest_segment = new_segment
 
     def equation_of_motion(self, t, y, information_dictionary, **kwargs):
         """
@@ -185,7 +182,7 @@ class SEMVehicle:
         V = y[1] * segment_length  # Model speed
 
         # Propulsive force
-        throttle_demand = self.control_function(V, theta)
+        throttle_demand = self.control_function(V=V, theta=theta, segment=theta, lambda_param=y[0])
         motor_torque = self.motor_torque_constant * y[2]
         propulsive_force = (1 / self.PoweredWheelRadius) * self.transmision_efficiency * \
                             self.transmission_ratio * motor_torque
@@ -198,8 +195,9 @@ class SEMVehicle:
         omega_motor = (self.transmission_ratio / self.PoweredWheelRadius) * V
 
         back_emf = self.motor_speed_constant * omega_motor
-        V_max = max(np.roots([1, -1 * (back_emf), -1 * self.Power * self.R]))
-        # V_max = 48
+        print('Back EMF: ' + str(back_emf))
+        # V_max = max(np.roots([1, -1 * (back_emf), -1 * self.Power * self.R]))
+        V_max = 48
 
         if V_max > self.V_max:
             V_max = self.V_max
@@ -217,7 +215,7 @@ class SEMVehicle:
         # Build state vector
         f = [
             y[1],
-            (1 / self.m) * (propulsive_force - resistive_force),
+            (1 / self.m * segment_length) * (propulsive_force - resistive_force),
             (1 / self.L) * (motor_voltage - y[2] * self.R - self.motor_speed_constant * omega_motor)
         ]
 
