@@ -35,4 +35,4 @@ class IVP(Model.Model):
         dy / dt = y
         """
 
-        return np.exp(t) * y_0
+        return float(np.exp(t) * y_0)

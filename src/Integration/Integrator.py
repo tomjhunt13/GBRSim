@@ -26,7 +26,7 @@ class Integrator:
             # Unpack state
             t_n = self.t[-1]
             y_n = self.y[-1]
-            t_np1 = t_n + self.dt
+            t_np1 = [t_n + self.dt]
 
             # Pre-step processing
             self.model.pre_step(t_n, y_n)
@@ -41,7 +41,7 @@ class Integrator:
             self.model.post_step(t_np1, y_np1, dictionary_t_np1)
 
             # Update state
-            self.t.append(t_np1)
+            self.t.append(t_np1[0])
             self.y.append(y_np1)
             self.information_dictionary.append(dictionary_t_np1)
 

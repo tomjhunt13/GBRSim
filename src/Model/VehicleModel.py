@@ -57,7 +57,7 @@ class Vehicle(Model.Model):
 
         information_dictionary['segment'] = segment_index
         information_dictionary['lambda_param'] = lambda_param
-        information_dictionary['t'] = t_np1
+        information_dictionary['t'] = t_np1[0]
         information_dictionary['y'] = y_np1
 
         self._step_y_n = y_np1
@@ -196,7 +196,6 @@ class Vehicle(Model.Model):
 
     def resistive_forces(self, theta, V, segment_index, lambda_param):
         """
-
         :param theta:
         :param V:
         :param segment_index:
@@ -215,7 +214,6 @@ class Vehicle(Model.Model):
 
     def _weight(self, theta):
         """
-
         :param theta:
         :return:
         """
@@ -224,7 +222,6 @@ class Vehicle(Model.Model):
 
     def _aerodynamic_drag(self, V):
         """
-
         :param segment_index:
         :param lambda_param:
         :param V:
@@ -235,7 +232,6 @@ class Vehicle(Model.Model):
 
     def _rolling_resistance(self):
         """
-
         :param V:
         :param theta:
         :return:
@@ -245,7 +241,6 @@ class Vehicle(Model.Model):
 
     def _cornering_drag(self, V, segment_index, lambda_param, alpha_deg=1):
         """
-
         :return:
         """
 
@@ -263,7 +258,6 @@ class Vehicle(Model.Model):
 
     def _update_powertrain(self, t_np1, information_dictionary, velocity, demand):
         """
-
         :param velocity: Linear vehicle velocity
         :param demand:
         :return:
@@ -283,7 +277,6 @@ class Vehicle(Model.Model):
 
 def direction_modifier(V):
     """
-
     :param V:
     :return:
     """

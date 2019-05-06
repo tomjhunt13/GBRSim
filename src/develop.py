@@ -68,13 +68,15 @@ track = ImportTrack.import_year('2019')
 
 motor = BrushedDCMotor.MaxonRE65(solver=RK4.RK4, dt=1e-3, verbose=False)
 powertrain = PowertrainModel.FreeWheel(motor, tr, transmission_efficiency=0.8, verbose=False)
-car = VehicleModel.Vehicle(powertrain, verbose=False)
+car = VehicleModel.Vehicle(powertrain, verbose=True)
 
 model_kwargs = {'track': track, 'controller': controller}
-s = Euler.Euler()
+s = RK4.RK4()
 
 t_s = time.time()
-vehicle_results = s.solve(car, car.equation_of_motion, model_kwargs, [1e-4, 1e-4], dt=0.00001, t_end=90, verbose=True)
+vehicle_results = s.solve(car, car.equation_of_motion, model_kwargs, [1e-4, 1e-4], dt=0.25, t_end=90, verbose=True)
 print('Elapsed time: ' + str(time.time() - t_s))
 
 Results.process_results(track, vehicle_results)
+
+
