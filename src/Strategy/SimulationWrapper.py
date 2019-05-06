@@ -13,23 +13,35 @@ class SimulationWrapper:
         self.solver = solver
         self.verbose = verbose
 
+        self.track_length = self.track.total_length()
+
     def cost(self):
 
+        vehicle_results = self.run()
+        fuel_power = [d['Fuel Power'] for d in vehicle_results]
+        t = [d['t'] for d in vehicle_results]
+        total_lambda = [d['y'][0] for d in vehicle_results[1:]]
+        energy = np.trapz(fuel_power, t)
+        time = t[-1]
+
+        time_multiplier = 1 + max(time - self.max_lap_time, 0)
+        distance = max(total_lambda) / len(self.track.segments)
+        completion_multiplier = max(0, 0.99 - (distance))
+
+        cost = energy * time_multiplier + completion_multiplier * 3600000
+
+        if self.verbose:
+            print('Completion Time: ' + str(time) + ', Energy: ' + str(energy) + ', Cost: ' + str(cost) + ', Distance: ' + str(distance))
+
+        return energy * time_multiplier
+
+    def run(self):
         model_kwargs = {'track': self.track, 'controller': self.controller}
         solver = self.solver()
         vehicle_results = solver.solve(self.car, self.car.equation_of_motion, model_kwargs, [1e-4, 1e-4], dt=0.25,
                                        t_end=self.max_sim_time, verbose=False)
 
-        fuel_power = [d['Fuel Power'] for d in vehicle_results]
-        t = [d['t'] for d in vehicle_results]
-        energy = np.trapz(fuel_power, t)
-        time = t[-1]
+        return vehicle_results
 
-        multiplier = 1 + max(time - self.max_lap_time, 0)
 
-        cost = energy * multiplier
 
-        if self.verbose:
-            print('Completion Time: ' + str(time) + ', Energy: ' + str(energy) + ', Cost: ' + str(cost))
-
-        return energy * multiplier

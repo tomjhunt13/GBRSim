@@ -74,7 +74,12 @@ class Vehicle(Model.Model):
         self._step_y_n = initial_conditions
         self.y = [initial_conditions]
         self.highest_segment = starting_segment
+<<<<<<< HEAD
+        self.track_length = self.track.total_length()
+        self.highest_distance = initial_conditions
+=======
         # self.track_length = self.track.total_length()
+>>>>>>> f1ebef9bc486b7673584c028fe81802e8e4c3fc3
 
         # Initialise controller
         self.controller = kwargs['controller']
