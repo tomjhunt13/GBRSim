@@ -14,7 +14,7 @@ class Circle(Segment):
     def direction(self, lambda_parameter):
         """
 
-        :param t:
+        :param lambda_parameter:
         :return:
         """
 

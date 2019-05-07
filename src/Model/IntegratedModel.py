@@ -1,12 +1,12 @@
 import numpy as np
 
-from src.Model import Model
+from src.Model import VehicleRoot
 
 import time
 
-class SEMVehicle(Model.Model):
+class IntegratedModel(VehicleRoot.VehicleRoot):
 
-    def __init__(self, vehicle_parameters={}):
+    def __init__(self, vehicle_parameters={}, verbose=False):
 
         # Default attributes
         default_vehicle_attributes = {
@@ -31,20 +31,14 @@ class SEMVehicle(Model.Model):
 
             # Transmission properties
             'transmission_ratio': 10,
-            'transmision_efficiency': 0.8,
+            'transmission_efficiency': 0.8,
         }
 
         for attribute in default_vehicle_attributes.keys():
             if attribute not in vehicle_parameters:
                 vehicle_parameters[attribute] = default_vehicle_attributes[attribute]
 
-        # Unpack vehicle attributes
-        self.m = vehicle_parameters['Mass']     # Total vehicle mass (kg)
-        self.Crr = vehicle_parameters['Crr']    # Coefficient of rolling resistance
-        self.Cd = vehicle_parameters['Cd']      # Coefficient of drag
-        self.A = vehicle_parameters['A']        # Frontal area (m^2)
-        self.PoweredWheelRadius = vehicle_parameters['PoweredWheelRadius']       # Radius of tyre for powered wheel
-        self.longitudinal_CoG = vehicle_parameters['LongitudinalCoG']
+        super(IntegratedModel, self).__init__(vehicle_parameters=vehicle_parameters, verbose=verbose)
 
         # Motor properties
         self.motor_torque_constant = vehicle_parameters['motor_torque_constant']
@@ -59,122 +53,116 @@ class SEMVehicle(Model.Model):
 
         # Transmission properties
         self.transmission_ratio = vehicle_parameters['transmission_ratio']
-        self.transmision_efficiency = vehicle_parameters['transmision_efficiency']
+        self.transmission_efficiency = vehicle_parameters['transmission_efficiency']
+    #
+    #
+    # def post_step(self, t_np1, y_np1, information_dictionary):
+    #
+    #     y_n = self.y[-1]
+    #     t_n = self.t[-1]
+    #     segment_index = int(np.floor(y_np1[0]))
+    #     lambda_param = y_np1[0] - segment_index
+    #
+    #     # Handle changing segment
+    #     if segment_index != self.current_segment:
+    #
+    #         # Interpolate to find time of segment change
+    #         y_0_intermediate = max(np.floor(y_np1[0]), np.floor(y_n[0]))
+    #         interpolant_ratio = ((y_0_intermediate - y_n[0]) / (y_np1[0] - y_n[0]))
+    #         t_intermediate = t_n + interpolant_ratio * (t_np1[0] - t_n)
+    #         y_1_intermediate = y_n[1] + interpolant_ratio * (y_np1[1] - y_n[1])
+    #         y_2_intermediate = y_n[2] + interpolant_ratio * (y_np1[2] -  y_n[2])
+    #
+    #         # Continuity
+    #         if segment_index > len(self.track.segments) - 1:
+    #             segment_index = 0
+    #             y_0_intermediate = 0
+    #
+    #         elif segment_index < 0:
+    #             segment_index = len(self.track.segments) - 1
+    #             y_0_intermediate = segment_index + 0.99999
+    #
+    #         # Write solution
+    #         self.current_segment = segment_index
+    #         self.t.append(t_intermediate)
+    #         self.y.append([y_0_intermediate, y_1_intermediate, y_2_intermediate])
+    #
+    #         # Update y_np1 and t_np1
+    #         t_np1[0] = t_intermediate
+    #         y_np1[0] = y_0_intermediate
+    #         y_np1[1] = y_1_intermediate
+    #         y_np1[2] = y_2_intermediate
+    #
+    #     else:
+    #         segment_index = int(np.floor(y_np1[0]))
+    #         lambda_param = y_np1[0] - segment_index
+    #
+    #     self.t.append(t_np1[0])
+    #     self.y.append(y_np1)
+    #
+    #     information_dictionary['segment'] = segment_index
+    #     information_dictionary['lambda_param'] = lambda_param
+    #     information_dictionary['t'] = t_np1[0]
+    #     information_dictionary['y'] = y_np1
 
-    def end_condition(self):
-
-        if self.number_of_laps() != self.lap_limit:
-            return True
-
-        return False
-
-    def post_step(self, t_np1, y_np1, information_dictionary):
-
-        y_n = self.y[-1]
-        t_n = self.t[-1]
-        segment_index = int(np.floor(y_np1[0]))
-        lambda_param = y_np1[0] - segment_index
-
-        # Handle changing segment
-        if segment_index != self.current_segment:
-
-            # Interpolate to find time of segment change
-            y_0_intermediate = max(np.floor(y_np1[0]), np.floor(y_n[0]))
-            interpolant_ratio = ((y_0_intermediate - y_n[0]) / (y_np1[0] - y_n[0]))
-            t_intermediate = t_n + interpolant_ratio * (t_np1[0] - t_n)
-            y_1_intermediate = y_n[1] + interpolant_ratio * (y_np1[1] - y_n[1])
-            y_2_intermediate = y_n[2] + interpolant_ratio * (y_np1[2] -  y_n[2])
-
-            # Continuity
-            if segment_index > len(self.track.segments) - 1:
-                segment_index = 0
-                y_0_intermediate = 0
-
-            elif segment_index < 0:
-                segment_index = len(self.track.segments) - 1
-                y_0_intermediate = segment_index + 0.99999
-
-            # Write solution
-            self.current_segment = segment_index
-            self.t.append(t_intermediate)
-            self.y.append([y_0_intermediate, y_1_intermediate, y_2_intermediate])
-
-            # Update y_np1 and t_np1
-            t_np1[0] = t_intermediate
-            y_np1[0] = y_0_intermediate
-            y_np1[1] = y_1_intermediate
-            y_np1[2] = y_2_intermediate
-
-        else:
-            segment_index = int(np.floor(y_np1[0]))
-            lambda_param = y_np1[0] - segment_index
-
-        self.t.append(t_np1[0])
-        self.y.append(y_np1)
-
-        information_dictionary['segment'] = segment_index
-        information_dictionary['lambda_param'] = lambda_param
-        information_dictionary['t'] = t_np1[0]
-        information_dictionary['y'] = y_np1
-
-    def initialise(self, initial_conditions, information_dictionary, **kwargs):
-
-        # Initialise vehicle on track
-        starting_segment = int(np.floor(initial_conditions[0]))
-        self.current_segment = starting_segment
-        self.laps = 0
-        self.track = kwargs['track']
-        # self._step_y_n = initial_conditions
-        self.y = [initial_conditions]
-        self.t = [0]
-        self.highest_segment = starting_segment
-
-        # Initialise controller
-        self.controller = kwargs['controller']
-        self.controller.initialise(track=self.track)
-        self.control_function = self.controller.demand
-
-        # Optional kwargs
-        optional_kwargs = {'lap_limit': 1}
-        for keyword in optional_kwargs:
-            if keyword not in kwargs:
-                kwargs[keyword] = optional_kwargs[keyword]
-
-        self.lap_limit = kwargs['lap_limit']
-
-        # Update information dictionary
-        information_dictionary['V'] = initial_conditions[1] * self.track.segments[starting_segment].length
-        information_dictionary['segment'] = starting_segment
-        information_dictionary['lambda_param'] = initial_conditions[0]
-
-        # Pre-calculate constants
-        self.aero_force = 0.5 * self.Cd * self.A * self.track.rho
-        self.mg = self.m * self.track.g
-        self.rolling_resistance_force = self.mg * self.Crr
-
-    def number_of_laps(self):
-        """
-        Number of laps car has done
-        :return: Number of laps
-        """
-        return self.laps
-
-    def _update_lap_counter(self, new_segment):
-
-        # If first initial step
-        if len(self.y) < 2:
-            return
-
-        # If segment incremented
-        if (self.y[-1][0] < self.y[-2][0] and self.y[-1][1] > 0) or (np.floor(self.y[-1][0]) > np.floor(self.y[-2][0])):
-
-            if new_segment < self.highest_segment:
-
-                self.laps += 1
-
-            else:
-
-                self.highest_segment = new_segment
+    # def initialise(self, initial_conditions, information_dictionary, **kwargs):
+    #
+    #     # Initialise vehicle on track
+    #     starting_segment = int(np.floor(initial_conditions[0]))
+    #     self.current_segment = starting_segment
+    #     self.laps = 0
+    #     self.track = kwargs['track']
+    #     # self._step_y_n = initial_conditions
+    #     self.y = [initial_conditions]
+    #     self.t = [0]
+    #     self.highest_segment = starting_segment
+    #
+    #     # Initialise controller
+    #     self.controller = kwargs['controller']
+    #     self.controller.initialise(track=self.track)
+    #     self.control_function = self.controller.demand
+    #
+    #     # Optional kwargs
+    #     optional_kwargs = {'lap_limit': 1}
+    #     for keyword in optional_kwargs:
+    #         if keyword not in kwargs:
+    #             kwargs[keyword] = optional_kwargs[keyword]
+    #
+    #     self.lap_limit = kwargs['lap_limit']
+    #
+    #     # Update information dictionary
+    #     information_dictionary['V'] = initial_conditions[1] * self.track.segments[starting_segment].length
+    #     information_dictionary['segment'] = starting_segment
+    #     information_dictionary['lambda_param'] = initial_conditions[0]
+    #
+    #     # Pre-calculate constants
+    #     self.aero_force = 0.5 * self.Cd * self.A * self.track.rho
+    #     self.mg = self.m * self.track.g
+    #     self.rolling_resistance_force = self.mg * self.Crr
+    #
+    # def number_of_laps(self):
+    #     """
+    #     Number of laps car has done
+    #     :return: Number of laps
+    #     """
+    #     return self.laps
+    #
+    # def _update_lap_counter(self, new_segment):
+    #
+    #     # If first initial step
+    #     if len(self.y) < 2:
+    #         return
+    #
+    #     # If segment incremented
+    #     if (self.y[-1][0] < self.y[-2][0] and self.y[-1][1] > 0) or (np.floor(self.y[-1][0]) > np.floor(self.y[-2][0])):
+    #
+    #         if new_segment < self.highest_segment:
+    #
+    #             self.laps += 1
+    #
+    #         else:
+    #
+    #             self.highest_segment = new_segment
 
     def equation_of_motion(self, t, y, information_dictionary, **kwargs):
         """
@@ -222,8 +210,8 @@ class SEMVehicle(Model.Model):
         # Propulsive force
         throttle_demand = self.control_function(V=V, theta=theta, segment=theta, lambda_param=y[0])
         motor_torque = self.motor_torque_constant * y[2]
-        propulsive_force = (1 / self.PoweredWheelRadius) * self.transmision_efficiency * \
-                            self.transmission_ratio * motor_torque
+        propulsive_force = (1 / self.PoweredWheelRadius) * self.transmission_efficiency * \
+                           self.transmission_ratio * motor_torque
 
         # Resistive forces
         Fw, Fa, Fc, Frr = self.resistive_forces(theta, V, segment_index, lambda_param)
@@ -274,85 +262,85 @@ class SEMVehicle(Model.Model):
 
         return f
 
-    def resistive_forces(self, theta, V, segment_index, lambda_param):
-        """
-
-        :param theta:
-        :param V:
-        :param segment_index:
-        :param lambda_param:
-        :return:
-        """
-
-        direction_mod = direction_modifier(V)
-
-        Fw = self._weight(theta)
-        Fa = direction_mod * self._aerodynamic_drag(V)
-        Fc = direction_mod * self._cornering_drag(V, segment_index, lambda_param)
-        Frr = direction_mod * self._rolling_resistance(V)
-
-        return Fw, Fa, Fc, Frr
-
-    def _weight(self, theta):
-        """
-
-        :param theta:
-        :return:
-        """
-
-        return self.mg * np.sin(theta)
-
-    def _aerodynamic_drag(self, V):
-        """
-
-        :param segment_index:
-        :param lambda_param:
-        :param V:
-        :return:
-        """
-
-        return self.aero_force * V * V
-
-    def _rolling_resistance(self, V):
-        """
-
-        :param V:
-        :param theta:
-        :return:
-        """
-
-        return self.rolling_resistance_force
-
-    def _cornering_drag(self, V, segment_index, lambda_param, alpha_deg=1):
-        """
-
-        :return:
-        """
-
-        # Assume max alpha = 3 deg
-        alpha = alpha_deg * (np.pi / 180)
-
-        # Track radius of curvature
-        segment = self.track.segments[segment_index]
-        R = segment.horizontal_radius_of_curvature(lambda_param)    # Longest resistive force calculation
-
-        # Centripetal force
-        Fy = (self.m * V * V) / (R)
-
-        return Fy * np.tan(alpha)
-
-
-def direction_modifier(V):
-    """
-
-    :param V:
-    :return:
-    """
-    if V > 0:
-        return 1
-
-    elif V < 0:
-        return -1
-
-    else:
-        return 0
+#     def resistive_forces(self, theta, V, segment_index, lambda_param):
+#         """
+#
+#         :param theta:
+#         :param V:
+#         :param segment_index:
+#         :param lambda_param:
+#         :return:
+#         """
+#
+#         direction_mod = direction_modifier(V)
+#
+#         Fw = self._weight(theta)
+#         Fa = direction_mod * self._aerodynamic_drag(V)
+#         Fc = direction_mod * self._cornering_drag(V, segment_index, lambda_param)
+#         Frr = direction_mod * self._rolling_resistance(V)
+#
+#         return Fw, Fa, Fc, Frr
+#
+#     def _weight(self, theta):
+#         """
+#
+#         :param theta:
+#         :return:
+#         """
+#
+#         return self.mg * np.sin(theta)
+#
+#     def _aerodynamic_drag(self, V):
+#         """
+#
+#         :param segment_index:
+#         :param lambda_param:
+#         :param V:
+#         :return:
+#         """
+#
+#         return self.aero_force * V * V
+#
+#     def _rolling_resistance(self, V):
+#         """
+#
+#         :param V:
+#         :param theta:
+#         :return:
+#         """
+#
+#         return self.rolling_resistance_force
+#
+#     def _cornering_drag(self, V, segment_index, lambda_param, alpha_deg=1):
+#         """
+#
+#         :return:
+#         """
+#
+#         # Assume max alpha = 3 deg
+#         alpha = alpha_deg * (np.pi / 180)
+#
+#         # Track radius of curvature
+#         segment = self.track.segments[segment_index]
+#         R = segment.horizontal_radius_of_curvature(lambda_param)    # Longest resistive force calculation
+#
+#         # Centripetal force
+#         Fy = (self.m * V * V) / (R)
+#
+#         return Fy * np.tan(alpha)
+#
+#
+# def direction_modifier(V):
+#     """
+#
+#     :param V:
+#     :return:
+#     """
+#     if V > 0:
+#         return 1
+#
+#     elif V < 0:
+#         return -1
+#
+#     else:
+#         return 0

@@ -71,14 +71,14 @@ tr = 12
 motor = BrushedDCMotor.MaxonRE65(dt=1e-3, verbose=False)
 # powertrain = PowertrainModel.FreeWheel(motor, tr, transmission_efficiency=0.8, verbose=False)
 powertrain = PowertrainModel.DirectTransmission(motor, tr, transmission_efficiency=0.8, verbose=False)
-car = VehicleModel.Vehicle(powertrain, verbose=True)
-# car = IntegratedModel.SEMVehicle()
+# car = VehicleModel.Vehicle(powertrain, verbose=True)
+car = IntegratedModel.IntegratedModel()
 
 model_kwargs = {'track': track, 'controller': controller}
 s = RK4.RK4()
 
 t_s = time.time()
-vehicle_results = s.solve(car, car.equation_of_motion, model_kwargs, [1e-4, 1e-4], dt=0.05, t_end=100, verbose=True)
+vehicle_results = s.solve(car, car.equation_of_motion, model_kwargs, [1e-4, 1e-4, 1e-4], dt=0.001, t_end=30, verbose=True)
 print('Elapsed time: ' + str(time.time() - t_s))
 
 Results.process_results(track, vehicle_results)
