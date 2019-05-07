@@ -70,15 +70,52 @@ class SEMVehicle(Model.Model):
 
     def post_step(self, t_np1, y_np1, information_dictionary):
 
+        y_n = self.y[-1]
+        t_n = self.t[-1]
         segment_index = int(np.floor(y_np1[0]))
         lambda_param = y_np1[0] - segment_index
 
+        # Handle changing segment
+        if segment_index != self.current_segment:
+
+            # Interpolate to find time of segment change
+            y_0_intermediate = max(np.floor(y_np1[0]), np.floor(y_n[0]))
+            interpolant_ratio = ((y_0_intermediate - y_n[0]) / (y_np1[0] - y_n[0]))
+            t_intermediate = t_n + interpolant_ratio * (t_np1[0] - t_n)
+            y_1_intermediate = y_n[1] + interpolant_ratio * (y_np1[1] - y_n[1])
+            y_2_intermediate = y_n[2] + interpolant_ratio * (y_np1[2] -  y_n[2])
+
+            # Continuity
+            if segment_index > len(self.track.segments) - 1:
+                segment_index = 0
+                y_0_intermediate = 0
+
+            elif segment_index < 0:
+                segment_index = len(self.track.segments) - 1
+                y_0_intermediate = segment_index + 0.99999
+
+            # Write solution
+            self.current_segment = segment_index
+            self.t.append(t_intermediate)
+            self.y.append([y_0_intermediate, y_1_intermediate, y_2_intermediate])
+
+            # Update y_np1 and t_np1
+            t_np1[0] = t_intermediate
+            y_np1[0] = y_0_intermediate
+            y_np1[1] = y_1_intermediate
+            y_np1[2] = y_2_intermediate
+
+        else:
+            segment_index = int(np.floor(y_np1[0]))
+            lambda_param = y_np1[0] - segment_index
+
+        self.t.append(t_np1[0])
+        self.y.append(y_np1)
+
         information_dictionary['segment'] = segment_index
         information_dictionary['lambda_param'] = lambda_param
-        information_dictionary['t'] = t_np1
+        information_dictionary['t'] = t_np1[0]
         information_dictionary['y'] = y_np1
-
-        self._update_lap_counter(segment_index)
 
     def initialise(self, initial_conditions, information_dictionary, **kwargs):
 
@@ -87,8 +124,9 @@ class SEMVehicle(Model.Model):
         self.current_segment = starting_segment
         self.laps = 0
         self.track = kwargs['track']
-        self._step_y_n = initial_conditions
+        # self._step_y_n = initial_conditions
         self.y = [initial_conditions]
+        self.t = [0]
         self.highest_segment = starting_segment
 
         # Initialise controller
@@ -152,34 +190,34 @@ class SEMVehicle(Model.Model):
         segment_index = int(np.floor(y[0]))
         lambda_param = y[0] - segment_index
 
-        # Increment
-        if segment_index != self.current_segment:
-
-            # Get velocity for previous segment
-            old_seg_length = self.track.segments[self.current_segment].length
-            old_seg_velocity = y[1] * old_seg_length
-
-            # Continuity
-            if segment_index > len(self.track.segments) - 1:
-                segment_index = 0
-                y[0] = 0
-
-            elif segment_index < 0:
-                segment_index = len(self.track.segments) - 1
-                y[0] = segment_index + 0.99999
-
-            self.current_segment = segment_index
-            segment = self.track.segments[segment_index]
-            y[1] = old_seg_velocity / segment.length
-            # self._step_y_n[1] = y[1]
+        # # Increment
+        # if segment_index != self.current_segment:
+        #
+        #     # Get velocity for previous segment
+        #     old_seg_length = self.track.segments[self.current_segment].length
+        #     old_seg_velocity = y[1] * old_seg_length
+        #
+        #     # Continuity
+        #     if segment_index > len(self.track.segments) - 1:
+        #         segment_index = 0
+        #         y[0] = 0
+        #
+        #     elif segment_index < 0:
+        #         segment_index = len(self.track.segments) - 1
+        #         y[0] = segment_index + 0.99999
+        #
+        #     self.current_segment = segment_index
+        #     segment = self.track.segments[segment_index]
+        #     y[1] = old_seg_velocity / segment.length
+        #     # self._step_y_n[1] = y[1]
 
         # Current track segment
         segment = self.track.segments[segment_index]
 
         # Unpack y
         theta = segment.gradient(lambda_param)  # Road angle (rad)
-        segment_length = segment.length  # Length of current track segment (m)
-        V = y[1] * segment_length  # Model speed
+        segment_scale = self.track.dx_dlambda(segment_index, lambda_param)
+        V = y[1] * segment_scale  # Model speed
 
         # Propulsive force
         throttle_demand = self.control_function(V=V, theta=theta, segment=theta, lambda_param=y[0])
@@ -215,7 +253,7 @@ class SEMVehicle(Model.Model):
         # Build state vector
         f = [
             y[1],
-            (1 / self.m * segment_length) * (propulsive_force - resistive_force),
+            (1 / (self.m * segment_scale)) * (propulsive_force - resistive_force),
             (1 / self.L) * (motor_voltage - y[2] * self.R - self.motor_speed_constant * omega_motor)
         ]
 

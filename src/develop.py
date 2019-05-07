@@ -1,11 +1,12 @@
 import time
-from src.Track import ImportTrack
+from src.Track import ImportTrack, Track, Line
 from src.Integration import RKF45, RK4, DP45, Butcher, Euler
 from src.Strategy import Controller
 from src.Model import VehicleModel, PowertrainModel, BrushedDCMotor, IntegratedModel
 from src.Results import Results
 
-
+l = Line.Line([[0, 0, 0], [1000, 0, 0]])
+track = Track.Track([l])
 
 
 # # 2018, 3 burns
@@ -64,17 +65,19 @@ from src.Results import Results
 
 controller = Controller.ConstantPower()
 tr = 12
-track = ImportTrack.import_year('2019')
+# track = ImportTrack.import_year('2019')
 
 motor = BrushedDCMotor.MaxonRE65(solver=RK4.RK4, dt=1e-3, verbose=False)
-powertrain = PowertrainModel.FreeWheel(motor, tr, transmission_efficiency=0.8, verbose=False)
+# powertrain = PowertrainModel.FreeWheel(motor, tr, transmission_efficiency=0.8, verbose=False)
+powertrain = PowertrainModel.DirectTransmission(motor, tr, transmission_efficiency=0.8, verbose=False)
 car = VehicleModel.Vehicle(powertrain, verbose=True)
+# car = IntegratedModel.SEMVehicle()
 
 model_kwargs = {'track': track, 'controller': controller}
 s = RK4.RK4()
 
 t_s = time.time()
-vehicle_results = s.solve(car, car.equation_of_motion, model_kwargs, [1e-4, 1e-4], dt=0.05, t_end=90, verbose=True)
+vehicle_results = s.solve(car, car.equation_of_motion, model_kwargs, [1e-4, 1e-4], dt=0.001, t_end=90, verbose=True)
 print('Elapsed time: ' + str(time.time() - t_s))
 
 Results.process_results(track, vehicle_results)

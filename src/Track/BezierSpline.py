@@ -157,6 +157,23 @@ class CubicBezier(Segment):
 
         return list(np.add(np.add(P0_contribution, P1_contribution), np.add(P2_contribution, P3_contribution)))
 
+    def d_dx_dlambda_dt(self, lambda_param):
+
+        # Unpack knot vectors
+        P0 = self.knots[0]
+        P1 = self.control_points[0]
+        P2 = self.control_points[1]
+        P3 = self.knots[1]
+
+        # Get contributions
+        P0_contribution = np.multiply(6 * lambda_param, P0)
+        P1_contribution = np.multiply(-12 + 18 * lambda_param, P1)
+        P2_contribution = np.multiply(6 - 18 * lambda_param, P2)
+        P3_contribution = np.multiply(6 * lambda_param, P3)
+
+        return list(np.add(np.add(P0_contribution, P1_contribution), np.add(P2_contribution, P3_contribution)))
+
+
 
 def fit_cubic_bezier(points):
     """

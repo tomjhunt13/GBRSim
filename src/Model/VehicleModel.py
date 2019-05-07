@@ -45,11 +45,6 @@ class Vehicle(Model.Model):
 
         return False
 
-    def pre_step(self, t_n, y_n):
-
-        for i in range(2):
-            y_n[i] = self._step_y_n[i]
-
     def post_step(self, t_np1, y_np1, information_dictionary):
 
         y_n = self.y[-1]
@@ -65,15 +60,6 @@ class Vehicle(Model.Model):
             interpolant_ratio = ((y_0_intermediate - y_n[0]) / (y_np1[0] - y_n[0]))
             t_intermediate = t_n + interpolant_ratio * (t_np1[0] - t_n)
             y_1_intermediate = y_n[1] + interpolant_ratio * (y_np1[1] - y_n[1])
-
-            # # Get previous velocity
-            # if y_np1[1] > 0:
-            #     previous_scale = self.track.scale(self.current_segment, 1)
-            #     new_scale = self.track.scale(segment_index, 0)
-            #
-            # else:
-            #     previous_scale = self.track.scale(self.current_segment, 0)
-            #     new_scale = self.track.scale(segment_index, 1)
 
             # Continuity
             if segment_index > len(self.track.segments) - 1:
@@ -94,32 +80,17 @@ class Vehicle(Model.Model):
             y_np1[0] = y_0_intermediate
             y_np1[1] = y_1_intermediate
 
-            self.t.append(t_np1[0])
-            self.y.append(y_np1)
-
-            # # Velocity continuity
-            # self.current_segment = segment_index
-            # self.t.append(t_intermediate)
-            # self.y.append(y_np1)
-            # # new_lambda_param = y_0_intermediate - self.current_segment
-            # #
-            # # self._step_y_n[1] = y[1]
-
         else:
-            self.t.append(t_np1[0])
-            self.y.append(y_np1)
+            segment_index = int(np.floor(y_np1[0]))
+            lambda_param = y_np1[0] - segment_index
 
-        segment_index = int(np.floor(y_np1[0]))
-        lambda_param = y_np1[0] - segment_index
+        self.t.append(t_np1[0])
+        self.y.append(y_np1)
 
         information_dictionary['segment'] = segment_index
         information_dictionary['lambda_param'] = lambda_param
         information_dictionary['t'] = t_np1[0]
         information_dictionary['y'] = y_np1
-
-        self._step_y_n = y_np1
-        self.y.append(y_np1)
-        self._update_lap_counter(segment_index)
 
     def initialise(self, initial_conditions, information_dictionary, **kwargs):
 
@@ -128,7 +99,6 @@ class Vehicle(Model.Model):
         self.current_segment = starting_segment
         self.laps = 0
         self.track = kwargs['track']
-        self._step_y_n = initial_conditions
         self.y = [initial_conditions]
         self.t = [0]
         self.highest_segment = starting_segment
@@ -198,33 +168,12 @@ class Vehicle(Model.Model):
         segment_index = int(np.floor(y[0]))
         lambda_param = y[0] - segment_index
 
-        # # Increment
-        # if segment_index != self.current_segment:
-        #
-        #     # Get velocity for previous segment
-        #     old_seg_length = self.track.segments[self.current_segment].length
-        #     old_seg_velocity = y[1] * old_seg_length
-        #
-        #     # Continuity
-        #     if segment_index > len(self.track.segments) - 1:
-        #         segment_index = 0
-        #         y[0] = 0
-        #
-        #     elif segment_index < 0:
-        #         segment_index = len(self.track.segments) - 1
-        #         y[0] = segment_index + 0.99999
-        #
-        #     self.current_segment = segment_index
-        #     segment = self.track.segments[segment_index]
-        #     y[1] = old_seg_velocity / segment.length
-        #     self._step_y_n[1] = y[1]
-
         # Current track segment
         segment = self.track.segments[segment_index]
 
         # Unpack y
         theta = segment.gradient(lambda_param)  # Road angle (rad)
-        segment_scale = self.track.scale(segment_index, lambda_param)
+        segment_scale = self.track.dx_dlambda(segment_index, lambda_param)
         V = y[1] * segment_scale  # Model speed
 
         # Propulsive force
@@ -242,7 +191,8 @@ class Vehicle(Model.Model):
         # Build state vector
         f = [
             y[1],
-            (1 / segment_scale) * acceleration
+            # (1 / segment_scale) * (acceleration)
+            (1 / segment_scale) * (acceleration - y[1] * self.track.d_dx_dlambda_dt(segment_index, lambda_param))
         ]
 
         information_dictionary['Gradient'] = 100 * (theta / (np.pi / 4))

@@ -75,8 +75,14 @@ class Track:
 
         return length
 
-    def scale(self, segment_index, t):
+    def dx_dlambda(self, segment_index, t):
 
         dx_dt = self.segments[segment_index].dx_dt(t)
 
         return np.linalg.norm(dx_dt)
+
+    def d_dx_dlambda_dt(self, segment_index, lambda_param):
+
+        d_dx_dlambda_dt = self.segments[segment_index].d_dx_dlambda_dt(lambda_param)
+
+        return np.linalg.norm(d_dx_dlambda_dt)
