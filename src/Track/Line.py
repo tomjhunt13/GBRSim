@@ -38,7 +38,7 @@ class Line(Segment):
     def radius_of_curvature(self, t):
         return 1e8
 
-    def dx_dt(self, t):
+    def dx_dlambda(self, t):
         return self._AB()
 
     def d_dx_dlambda_dt(self, state):

@@ -54,7 +54,7 @@ class Segment:
     def position(self, t):
         pass
 
-    def dx_dt(self, t):
+    def dx_dlambda(self, t):
         pass
 
     def d_dx_dlambda_dt(self, state):

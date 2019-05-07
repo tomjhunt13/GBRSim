@@ -34,7 +34,7 @@ class TestBezierSpline(unittest.TestCase):
 
         b = CubicBezier(knots, control_points)
 
-        computed_derivative = b.dx_dt(0.5)
+        computed_derivative = b.dx_dlambda(0.5)
         expected_derivative = [3, 0, 0]
 
 
@@ -47,7 +47,7 @@ class TestBezierSpline(unittest.TestCase):
 
         b = CubicBezier(knots, control_points)
 
-        computed_derivative = b.dx_dt(0.5)
+        computed_derivative = b.dx_dlambda(0.5)
         expected_derivative = [3, 0, 3]
 
         for i in range(3):
@@ -59,7 +59,7 @@ class TestBezierSpline(unittest.TestCase):
 
         b = CubicBezier(knots, control_points)
 
-        computed_derivative = b.dx_dt(0.5)
+        computed_derivative = b.dx_dlambda(0.5)
         expected_derivative = [3, 3, 3]
 
         for i in range(3):
