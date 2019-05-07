@@ -81,8 +81,8 @@ class Track:
 
         return np.linalg.norm(dx_dt)
 
-    def d_dx_dlambda_dt(self, segment_index, lambda_param):
+    def d_dx_dlambda_dt(self, segment_index, state):
 
-        d_dx_dlambda_dt = self.segments[segment_index].d_dx_dlambda_dt(lambda_param)
+        d_dx_dlambda_dt = self.segments[segment_index].d_dx_dlambda_dt(state)
 
         return np.linalg.norm(d_dx_dlambda_dt)

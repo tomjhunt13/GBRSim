@@ -41,7 +41,7 @@ class Line(Segment):
     def dx_dt(self, t):
         return self._AB()
 
-    def d_dx_dlambda_dt(self, lambda_param):
+    def d_dx_dlambda_dt(self, state):
         return 0
 
     def _length(self):

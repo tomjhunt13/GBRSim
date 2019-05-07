@@ -192,7 +192,7 @@ class Vehicle(Model.Model):
         f = [
             y[1],
             # (1 / segment_scale) * (acceleration)
-            (1 / segment_scale) * (acceleration - y[1] * self.track.d_dx_dlambda_dt(segment_index, lambda_param))
+            (1 / segment_scale) * (acceleration - y[1] * self.track.d_dx_dlambda_dt(segment_index, [lambda_param, y[1]]))
         ]
 
         information_dictionary['Gradient'] = 100 * (theta / (np.pi / 4))

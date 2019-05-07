@@ -57,7 +57,7 @@ class Segment:
     def dx_dt(self, t):
         pass
 
-    def d_dx_dlambda_dt(self, lambda_param):
+    def d_dx_dlambda_dt(self, state):
         pass
 
     def horizontal_radius_of_curvature(self, t):
