@@ -61,7 +61,7 @@ def process_results(track, vehicle_results):
     construct_coordinates(track, vehicle_results)
 
     for i in range(len(vehicle_results)):
-        vehicle_results[i]['V_mph'] = vehicle_results[i]['V'] * 2.237
+        vehicle_results[i]['Velocity (mph)'] = vehicle_results[i]['Velocity (m/s)'] * 2.237
 
         del vehicle_results[i]['y']
 
@@ -72,7 +72,7 @@ def process_results(track, vehicle_results):
 
     t = [d['t'] for d in vehicle_results]
     fuel_power = [d['Fuel Power'] for d in vehicle_results]
-    V = [d['V'] for d in vehicle_results]
+    V = [d['Velocity (m/s)'] for d in vehicle_results]
     P = [d['P'] for d in vehicle_results]
     Frr = [d['Frr'] for d in vehicle_results]
     Fw = [d['Fw'] for d in vehicle_results]

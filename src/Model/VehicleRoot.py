@@ -1,5 +1,4 @@
 import numpy as np
-import time
 
 from src.Model import Model
 
@@ -116,7 +115,7 @@ class VehicleRoot(Model.Model):
         self.lap_limit = kwargs['lap_limit']
 
         # Update information dictionary
-        information_dictionary['V'] = initial_conditions[1] * self.track.segments[starting_segment].length
+        information_dictionary['Velocity (m/s)'] = initial_conditions[1] * self.track.segments[starting_segment].length
         information_dictionary['segment'] = starting_segment
         information_dictionary['lambda_param'] = initial_conditions[0]
 
@@ -154,6 +153,66 @@ class VehicleRoot(Model.Model):
         elif (self.y[-1][0] > self.y[-2][0] and self.y[-1][1] < 0) or (np.floor(self.y[-1][0]) < np.floor(self.y[-2][0])):
 
             self.highest_segment = new_segment
+
+    def equation_of_motion(self, t, y, information_dictionary, **kwargs):
+
+        if self.verbose:
+            print('State: ' + str(y))
+
+        # Get world variables from position
+        segment_index = int(np.floor(y[0]))
+        lambda_param = y[0] - segment_index
+        segment = self.track.segments[segment_index]
+        theta = segment.gradient(lambda_param)
+        segment_scale = self.track.dx_dlambda(segment_index, lambda_param)
+        velocity = y[1] * segment_scale
+
+
+        # Get propulsive force
+        throttle_demand = self.control_function(velocity=velocity, theta=theta, segment=theta, lambda_param=y[0])
+        propulsive_force = self._propulsive_force(t, y, velocity, throttle_demand, information_dictionary)
+
+        # Resistive forces
+        Fw, Fa, Fc, Frr = self.resistive_forces(theta, velocity, segment_index, lambda_param)
+        resistive_force = Fw + Fa + Fc + Frr
+
+        # Net force
+        net_force = (propulsive_force - resistive_force)
+        acceleration = net_force / self.m
+
+        # Calculate d^2lambda_dt^2 correction factor
+        correction_factor = y[1] * self.track.d_dx_dlambda_dt(segment_index, [lambda_param, y[1]])
+
+        # Build state vector
+        dy_dt = [
+            y[1],
+            (1 / segment_scale) * (
+                        acceleration - correction_factor)
+        ]
+
+        information_dictionary['Gradient'] = 100 * (theta / (np.pi / 4))
+        information_dictionary['P'] = propulsive_force
+        information_dictionary['Frr'] = Frr
+        information_dictionary['Fw'] = Fw
+        information_dictionary['Fa'] = Fa
+        information_dictionary['Fc'] = Fc
+        information_dictionary['Velocity (m/s)'] = velocity
+        information_dictionary['Throttle Demand'] = throttle_demand
+        information_dictionary['Segment Scale'] = segment_scale
+        information_dictionary['Net Force'] = net_force
+        information_dictionary['Acceleration'] = acceleration
+        information_dictionary['Correction Factor'] = correction_factor
+
+        self._further_calculations(y, dy_dt, velocity, throttle_demand, information_dictionary)
+
+        return dy_dt
+
+    def _further_calculations(self, y, dy_dt, velocity, throttle_demand, information_dictionary):
+        pass
+
+    def _propulsive_force(self, t_np1, y_n, velocity, demand, information_dictionary):
+
+        return 0
 
     def resistive_forces(self, theta, V, segment_index, lambda_param):
         """
@@ -216,7 +275,6 @@ class VehicleRoot(Model.Model):
         Fy = (self.m * V * V) / (R)
 
         return Fy * np.tan(alpha)
-
 
 def direction_modifier(V):
     """

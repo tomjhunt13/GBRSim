@@ -18,7 +18,7 @@ class CutoffSpeed(Controller):
     def demand(self, **kwargs):
 
         # Unpack args
-        V = kwargs['V'] * 2.237
+        V = kwargs['velocity'] * 2.237
         theta = kwargs['theta']
 
         if V > self.cutoff_speed[0] or theta < 0:
@@ -39,7 +39,7 @@ class BurnAndCoast_Velocity(Controller):
     def demand(self, **kwargs):
 
         # Unpack args
-        V = kwargs['V'] * 2.237
+        V = kwargs['velocity'] * 2.237
 
         previous_throttle = int(self.previous_throttle)
 
