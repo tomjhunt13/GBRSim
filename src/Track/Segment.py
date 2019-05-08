@@ -96,7 +96,7 @@ class Segment:
 
         return arc_length
 
-    def calculate_s_lambda_map(self, number_of_sections=20):
+    def calculate_arc_length_map(self, number_of_sections=20):
         """
         Populates map relating arc length to lambda
         :param number_of_sections: Resolution of map
@@ -108,13 +108,14 @@ class Segment:
 
         # Calculate arc lengths
         arc_length_map = [None] * number_of_nodes
-        arc_length_map[-1] = 1
 
         total_arc_length = 0
         for index in range(number_of_nodes - 1):
 
             arc_length_map[index] = total_arc_length
             total_arc_length += self.arc_length_integral(nodes[index], nodes[index + 1])
+
+        arc_length_map[-1] = total_arc_length
 
         self.arc_length_map = arc_length_map
 

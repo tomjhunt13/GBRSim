@@ -4,7 +4,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from src.Track import BezierSpline, Line
 
 line = Line.Line([[0, 0, 0], [10, 0, 0]])
-line.calculate_s_lambda_map()
+line.calculate_arc_length_map()
 
 
 
