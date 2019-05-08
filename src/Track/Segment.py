@@ -1,10 +1,14 @@
 import numpy as np
 
+from scipy.integrate import solve_ivp
 
 class Segment:
 
     def __init__(self):
         self.length = 0
+
+
+        self.arc_length_integral_step = 0.01
 
     def draw_coordinates(self, num_segments=20):
         """
@@ -49,7 +53,11 @@ class Segment:
         return (np.pi / 2) - angle_to_vertical
 
     def direction(self, lambda_parameter):
-        pass
+
+        df_dlambda = self.df_dlambda(lambda_parameter)
+        df_dlambda_mag = np.linalg.norm(df_dlambda)
+
+        return np.divide(df_dlambda, df_dlambda_mag)
 
     def position(self, lambda_parameter):
         pass
@@ -57,8 +65,9 @@ class Segment:
     def df_dlambda(self, lambda_parameter):
         pass
 
-    def d_dx_dlambda_dt(self, state):
-        pass
+    def df_dlambda_integrand(self, lambda_parameter, y):
+
+        return np.linalg.norm(self.df_dlambda(lambda_parameter))
 
     def horizontal_radius_of_curvature(self, lambda_parameter):
         return self.radius_of_curvature(lambda_parameter)
@@ -66,8 +75,24 @@ class Segment:
     def radius_of_curvature(self, lambda_parameter):
         return 0
 
+    def arc_length_integral(self, alpha_1, alpha_2):
+        """
+        Finds the arc length along segment between coordinates: alpha_1 and alpha_2
+        :param alpha_1: Start coordinate
+        :param alpha_2: End coordinate
+        :return:  Arc length
+        """
+
+        integration_interval = (alpha_1, alpha_2)
+
+        integration_result = solve_ivp(self.df_dlambda_integrand, integration_interval, [0])
+
+        arc_length = integration_result['y'][0][-1]
+
+        return arc_length
+
     def _length(self):
-        return length_of_parametric_curve(self.position)
+        return self.arc_length_integral(0, 1)
 
 
 def length_of_parametric_curve(position_function, tolerance=1e-5):
