@@ -1,9 +1,14 @@
 import unittest
-import numpy  as np
+import numpy as np
 
-from src.Track import Line, Circle
+from src.Track import Line, Circle, BezierSpline
 
 class TestArcLengthIntegration(unittest.TestCase):
+    """
+    Testing the arc length integration function in segment.
+
+    Problem: s = integral of |df/dlambda| wrt lambda between alpha_1 and alpha_2
+    """
 
     def setUp(self):
         # Line setup
@@ -12,6 +17,12 @@ class TestArcLengthIntegration(unittest.TestCase):
         # Circle set up
         self.circle_radius = 2
         self.circle = Circle.Circle(self.circle_radius)
+
+        # Bezier setup
+        knots = [[0, 0, 0], [12, 0, 0]]
+        control_points = [[4, 0, 0], [8, 0, 0]]
+
+        self.bezier = BezierSpline.CubicBezier(knots, control_points)
 
     def test_Line_0_1(self):
 
@@ -54,7 +65,20 @@ class TestArcLengthIntegration(unittest.TestCase):
 
         self.assertAlmostEqual(arc_length, np.pi * self.circle_radius)
 
+    def test_Bezier_0_1(self):
 
+        arc_length = self.bezier.arc_length_integral(0, 1)
+
+        self.assertAlmostEqual(arc_length, 12)
+
+    def test_skewed_Bezier_0_1(self):
+
+        # Move control point
+        self.bezier.control_points[0][0] = 2
+
+        arc_length = self.bezier.arc_length_integral(0, 1)
+
+        self.assertAlmostEqual(arc_length, 12)
 
 if __name__ == '__main__':
     unittest.main()
