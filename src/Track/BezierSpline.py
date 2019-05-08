@@ -9,8 +9,6 @@ class CubicBezier(Segment):
         
         super(CubicBezier, self).__init__()
 
-        self.length = self._length()
-
     def position(self, t):
         """
         For a value of parameter t, get the position
