@@ -1,8 +1,15 @@
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-from src.Track import BezierSpline
+from src.Track import BezierSpline, Line
 
+line = Line.Line([[0, 0, 0], [10, 0, 0]])
+line.calculate_s_lambda_map()
+
+
+
+
+# ------------ Bezier example ------------------- #
 knots = [[0, 0, 0], [12, 0, 0]]
 control_points = [[4, 0, 0], [8, 0, 0]]
 

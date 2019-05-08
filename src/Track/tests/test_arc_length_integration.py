@@ -80,5 +80,6 @@ class TestArcLengthIntegration(unittest.TestCase):
 
         self.assertAlmostEqual(arc_length, 12)
 
+
 if __name__ == '__main__':
     unittest.main()

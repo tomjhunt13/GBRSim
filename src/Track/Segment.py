@@ -53,6 +53,11 @@ class Segment:
         return (np.pi / 2) - angle_to_vertical
 
     def direction(self, lambda_parameter):
+        """
+        For a given point on the segment, get the direction of travel as a unit vector
+        :param lambda_parameter: float between 0 and 1 - value of lambda to get direction of
+        :return: 3 element list - Direction vector of track
+        """
 
         df_dlambda = self.df_dlambda(lambda_parameter)
         df_dlambda_mag = np.linalg.norm(df_dlambda)
@@ -90,6 +95,30 @@ class Segment:
         arc_length = integration_result['y'][0][-1]
 
         return arc_length
+
+    def calculate_s_lambda_map(self, number_of_sections=20):
+        """
+        Populates map relating arc length to lambda
+        :param number_of_sections: Resolution of map
+        """
+
+        # Calculate node positions
+        number_of_nodes = number_of_sections + 1
+        nodes = np.linspace(0, 1, number_of_nodes)
+
+        # Calculate arc lengths
+        arc_length_map = [None] * number_of_nodes
+        arc_length_map[-1] = 1
+
+        total_arc_length = 0
+        for index in range(number_of_nodes - 1):
+
+            arc_length_map[index] = total_arc_length
+            total_arc_length += self.arc_length_integral(nodes[index], nodes[index + 1])
+
+        self.arc_length_map = arc_length_map
+
+        return arc_length_map
 
     def _length(self):
         return self.arc_length_integral(0, 1)

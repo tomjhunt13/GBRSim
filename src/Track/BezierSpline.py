@@ -11,18 +11,6 @@ class CubicBezier(Segment):
 
         self.length = self._length()
 
-    def direction(self, t):
-        """
-        For a given point on the track, get the direction of travel a unit vector
-        :param t: float between 0 and 1 - value of t to get direction of
-        :return: 3 element list - Direction vector of track
-        """
-
-        # Get first derivative
-        d = self.df_dlambda(t)
-
-        return np.multiply((1 / np.linalg.norm(d)), d)
-
     def position(self, t):
         """
         For a value of parameter t, get the position
