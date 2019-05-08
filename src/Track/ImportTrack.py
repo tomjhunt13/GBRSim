@@ -37,12 +37,12 @@ def read_coordinate_file(file_path, start_row=1, end_row=None):
     return [[x[i], y[i], z[i]] for i in range(len(x))]
 
 
-def import_track(file_path, start_row=1, end_row=None):
+def import_track(file_path, start_row=1, end_row=None, **segment_options):
     """
     Create a Track instance from a coordinate CSV file
     :return: Track instance
     """
-    return Track(fit_cubic_bezier(read_coordinate_file(file_path, start_row=start_row, end_row=end_row)))
+    return Track(fit_cubic_bezier(read_coordinate_file(file_path, start_row=start_row, end_row=end_row), **segment_options))
 
 
 def import_year(year):
@@ -53,7 +53,7 @@ def import_year(year):
     """
 
     if year == '2018':
-        return import_track(src_location + 'Track/CoordinateCSVs/Track_2018.csv')
+        return import_track(src_location + 'Track/CoordinateCSVs/Track_2018.csv', arc_length_integral_step=1e-1, arc_length_map_resolution=6)
 
     elif year == '2019':
         return import_track(src_location + 'Track/CoordinateCSVs/Track_2019.csv')

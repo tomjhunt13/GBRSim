@@ -99,7 +99,5 @@ class TestArcLengthIntegration(unittest.TestCase):
         self.assertAlmostEqual(lower_lambda_parameter, 0)
 
 
-
-
 if __name__ == '__main__':
     unittest.main()

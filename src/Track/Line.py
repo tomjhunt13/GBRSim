@@ -2,10 +2,10 @@ from src.Track.Segment import *
 
 
 class Line(Segment):
-    def __init__(self, coordinates):
+    def __init__(self, coordinates, **segment_options):
         self.coordinates = coordinates
 
-        super(Line, self).__init__()
+        super(Line, self).__init__(**segment_options)
 
         self.length = self._length()
 

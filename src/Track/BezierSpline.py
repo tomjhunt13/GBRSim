@@ -2,12 +2,12 @@ import numpy as np
 from src.Track.Segment import *
 
 class CubicBezier(Segment):
-    def __init__(self, knots, control_points):
+    def __init__(self, knots, control_points, **segment_options):
 
         self.knots = knots
         self.control_points = control_points
         
-        super(CubicBezier, self).__init__()
+        super(CubicBezier, self).__init__(**segment_options)
 
     def position(self, t):
         """
@@ -161,7 +161,7 @@ class CubicBezier(Segment):
 
 
 
-def fit_cubic_bezier(points):
+def fit_cubic_bezier(points, **segment_options):
     """
     Fit n - 1 cubic bezier curves through n coordinates with C0, C1 and C2 continuity. (No explicit continuity at ends)
     :param points: List of coordinates to fit curve through
@@ -234,6 +234,6 @@ def fit_cubic_bezier(points):
         P1_j = P1_control_points[spline_index]
         P2_j = P2_control_points[spline_index]
 
-        splines[spline_index] = CubicBezier(knots, [P1_j, P2_j])
+        splines[spline_index] = CubicBezier(knots, [P1_j, P2_j], **segment_options)
 
     return splines

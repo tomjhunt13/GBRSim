@@ -4,12 +4,22 @@ from scipy.integrate import solve_ivp
 
 class Segment:
 
-    def __init__(self, arc_length_integral_step=1e-4, arc_length_map_resolution=20):
+    def __init__(self, **segment_options):
+
+        # Default segment options
+        default_segment_options = {
+            'arc_length_integral_step': 1e-4,
+            'arc_length_map_resolution': 20
+        }
+
+        for option in default_segment_options.keys():
+            if option not in segment_options:
+                segment_options[option] = default_segment_options[option]
 
         # Pre-calculate values
         self.length = self._length()
-        self.arc_length_integral_step = arc_length_integral_step
-        self.calculate_arc_length_map(number_of_sections=arc_length_map_resolution)
+        self.arc_length_integral_step = segment_options['arc_length_integral_step']
+        self.calculate_arc_length_map(number_of_sections=segment_options['arc_length_map_resolution'])
 
     def draw_coordinates(self, num_segments=20):
         """

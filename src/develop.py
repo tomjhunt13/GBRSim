@@ -5,11 +5,13 @@ from src.Strategy import Controller
 from src.Model import VehicleModel, PowertrainModel, BrushedDCMotor, IntegratedModel
 from src.Results import Results
 
-l = Line.Line([[0, 0, 0], [1000, 0, 0]])
+# l = Line.Line([[0, 0, 0], [1000, 0, 0]])
 # l = Circle.Circle(50)
-track = Track.Track([l])
-# track = ImportTrack.import_year('2019')
+# track = Track.Track([l])
 
+t_s = time.time()
+track = ImportTrack.import_year('2019')
+print('Track import time: ' + str(time.time() - t_s))
 
 controller = Controller.ConstantPower()
 transmission_ratio = 12

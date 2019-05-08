@@ -4,10 +4,10 @@ from src.Track.Segment import *
 
 
 class Circle(Segment):
-    def __init__(self, radius):
+    def __init__(self, radius, **segment_options):
         self.radius = radius
 
-        super(Circle, self).__init__()
+        super(Circle, self).__init__(**segment_options)
 
         self.length = 2 * np.pi * radius
 
