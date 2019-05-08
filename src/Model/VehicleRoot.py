@@ -164,9 +164,8 @@ class VehicleRoot(Model.Model):
         lambda_param = y[0] - segment_index
         segment = self.track.segments[segment_index]
         theta = segment.gradient(lambda_param)
-        segment_scale = self.track.dx_dlambda(segment_index, lambda_param)
+        segment_scale = self.track.df_dlambda(segment_index, lambda_param)
         velocity = y[1] * segment_scale
-
 
         # Get propulsive force
         throttle_demand = self.control_function(velocity=velocity, theta=theta, segment=theta, lambda_param=y[0])
@@ -186,8 +185,7 @@ class VehicleRoot(Model.Model):
         # Build state vector
         dy_dt = [
             y[1],
-            (1 / segment_scale) * (
-                        acceleration - correction_factor)
+            (1 / segment_scale) * (acceleration - correction_factor)
         ]
 
         information_dictionary['Gradient'] = 100 * (theta / (np.pi / 4))
@@ -202,6 +200,9 @@ class VehicleRoot(Model.Model):
         information_dictionary['Net Force'] = net_force
         information_dictionary['Acceleration'] = acceleration
         information_dictionary['Correction Factor'] = correction_factor
+        information_dictionary['lambda'] = y[0]
+        information_dictionary['dlambda / dt'] = y[1]
+        information_dictionary['d^2lambda / dt^2'] = dy_dt[1]
 
         self._further_calculations(y, dy_dt, velocity, throttle_demand, information_dictionary)
 
@@ -229,6 +230,9 @@ class VehicleRoot(Model.Model):
         Fa = direction_mod * self._aerodynamic_drag(V)
         Fc = direction_mod * self._cornering_drag(V, segment_index, lambda_param)
         Frr = direction_mod * self._rolling_resistance()
+
+        Fw = 0
+        Fc = 0
 
         return Fw, Fa, Fc, Frr
 

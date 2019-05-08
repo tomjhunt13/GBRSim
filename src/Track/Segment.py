@@ -28,7 +28,7 @@ class Segment:
 
         return x, y, z
 
-    def gradient(self, t):
+    def gradient(self, lambda_parameter):
         """
         For a given point on the segment, get the gradient in radians
         :param t: float between 0 and 1 - value of parameter t to get gradient of
@@ -36,7 +36,7 @@ class Segment:
         """
 
         # Get directional vector
-        direction = self.direction(t)
+        direction = self.direction(lambda_parameter)
 
         # If flat
         if np.isclose(direction[2], 0):
@@ -48,22 +48,22 @@ class Segment:
 
         return (np.pi / 2) - angle_to_vertical
 
-    def direction(self, t):
+    def direction(self, lambda_parameter):
         pass
 
-    def position(self, t):
+    def position(self, lambda_parameter):
         pass
 
-    def dx_dlambda(self, t):
+    def df_dlambda(self, lambda_parameter):
         pass
 
     def d_dx_dlambda_dt(self, state):
         pass
 
-    def horizontal_radius_of_curvature(self, t):
-        return self.radius_of_curvature(t)
+    def horizontal_radius_of_curvature(self, lambda_parameter):
+        return self.radius_of_curvature(lambda_parameter)
 
-    def radius_of_curvature(self, t):
+    def radius_of_curvature(self, lambda_parameter):
         return 0
 
     def _length(self):

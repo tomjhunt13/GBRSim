@@ -1,6 +1,3 @@
-import numpy as np
-import time
-
 from src.Model import VehicleRoot
 
 class Vehicle(VehicleRoot.VehicleRoot):

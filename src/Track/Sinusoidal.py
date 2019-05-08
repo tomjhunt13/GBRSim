@@ -1,22 +1,16 @@
+import numpy as np
+
 from src.Track.Segment import *
 
+class Sinusoidal(Segment):
+    def __init__(self, x_scale, frequency, amplitude):
+        self.x_scale = x_scale
+        self.frequency = frequency
+        self.amplitude = amplitude
 
-class Line(Segment):
-    def __init__(self, coordinates):
-        self.coordinates = coordinates
-
-        super(Line, self).__init__()
+        super(Sinusoidal, self).__init__()
 
         self.length = self._length()
-
-    def draw_coordinates(self, **kwargs):
-        """
-        Calculate 3D coordinates to draw segment
-        :return: tuple: x_coordinates, y_coordinates, z_coordinates
-        """
-
-        coords = [[self.coordinates[0][i], self.coordinates[1][i]] for i in range(3)]
-        return coords[0], coords[1], coords[2]
 
     def direction(self, t):
         """
@@ -38,8 +32,11 @@ class Line(Segment):
     def radius_of_curvature(self, t):
         return 1e8
 
-    def df_dlambda(self, t):
-        return self._AB()
+    def df_dlambda(self, lambda_parameter):
+
+        df_dlambda = [self.x_scale, self.frequency * self.amplitude * np.cos(self.frequency * lambda_parameter)]
+
+        return df_dlambda
 
     def d_dx_dlambda_dt(self, state):
         return 0

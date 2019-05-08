@@ -19,7 +19,7 @@ class Circle(Segment):
         """
 
         # Get first derivative
-        d = self.dx_dlambda(lambda_parameter)
+        d = self.df_dlambda(lambda_parameter)
 
         return np.multiply((1 / np.linalg.norm(d)), d)
 
@@ -42,7 +42,7 @@ class Circle(Segment):
     def radius_of_curvature(self, lambda_parameter):
         return self.radius
 
-    def dx_dlambda(self, lambda_parameter):
+    def df_dlambda(self, lambda_parameter):
 
         dx_dlambda = [-2 * np.pi * self.radius * np.sin(lambda_parameter * 2 * np.pi),
                       2 * np.pi * self.radius * np.cos(lambda_parameter * 2 * np.pi),
