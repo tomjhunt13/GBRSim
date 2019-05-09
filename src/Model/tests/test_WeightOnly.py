@@ -45,11 +45,17 @@ class TestArcLengthIntegration(unittest.TestCase):
 
         solver = RK4.RK4()
 
-        model_results = solver.solve(particle, particle.equation_of_motion, {'track': self.vertical_track}, [0, 0], dt=0.01, t_end=1,
+        model_results = solver.solve(particle, particle.equation_of_motion, {'track': self.vertical_track}, [0, 0], dt=0.0001, t_end=1,
                                   verbose=True)
 
-        print(a)
 
+        t = [y['t'] for y in model_results[1:]]
+        arc_length = [y['y'][0] for y in model_results[1:]]
+
+
+        arc_length_final = np.interp(1, t, arc_length)
+
+        self.assertAlmostEqual(arc_length_final, 1, places=4)
 
 if __name__ == '__main__':
     unittest.main()
