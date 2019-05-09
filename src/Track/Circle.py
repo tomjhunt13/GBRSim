@@ -82,10 +82,6 @@ class VerticalCircle(Segment):
 
         return np.multiply((1 / np.linalg.norm(d)), d)
 
-    # def gradient(self, lambda_parameter):
-    #
-    #     return np.cos(lambda_parameter * 2 * np.pi)
-
     def position(self, lambda_parameter):
         """
 

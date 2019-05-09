@@ -20,7 +20,7 @@ car = VehicleModel.Vehicle(powertrain, verbose=True)
 
 
 t_s = time.time()
-vehicle_results = car.simulate([1e-4, 1e-4], dt=0.1, t_end=200, verbose=True, track=track, controller=controller)
+vehicle_results = car.simulate([1e-4, 1e-4], dt=0.25, t_end=200, verbose=True, track=track, controller=controller)
 print('Elapsed time: ' + str(time.time() - t_s))
 
 Results.process_results(track, vehicle_results)

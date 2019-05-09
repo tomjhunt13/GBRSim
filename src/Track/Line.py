@@ -41,9 +41,6 @@ class Line(Segment):
     def df_dlambda(self, t):
         return self._AB()
 
-    def d_dx_dlambda_dt(self, state):
-        return 0
-
     def _length(self):
         return np.linalg.norm(self._AB())
 
