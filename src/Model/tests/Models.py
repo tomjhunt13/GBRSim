@@ -64,14 +64,14 @@ class ConstantForce(ConstrainedParticle.ConstrainedParticle):
 
 class FreefallWithFriction(ConstrainedParticle.ConstrainedParticle):
 
-    def __init__(self, g=10, mass=1):
+    def __init__(self, g=10, mass=1, friction_coefficient=1):
 
         super(FreefallWithFriction, self).__init__()
 
         self.mass = mass
         self.g = g
         self.mg = mass * g
-        self.friction_coefficient = 1
+        self.friction_coefficient = friction_coefficient
 
     def update_equation(self, t, state, information_dictionary, **kwargs):
 
@@ -81,7 +81,12 @@ class FreefallWithFriction(ConstrainedParticle.ConstrainedParticle):
         # Get net force
         theta = segment.gradient(lambda_parameter)
         weight_force = self.weight_force(theta)
-        friction_force = -1 * np.sign(state[1]) * self.friction_coefficient
+
+        if state[1] != 0:
+            friction_force = -1 * np.sign(state[1]) * self.friction_coefficient
+        else:
+            friction_force = 0
+
         net_force = friction_force + weight_force
 
         # Fill in update equation
