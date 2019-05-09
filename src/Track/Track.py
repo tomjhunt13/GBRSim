@@ -88,15 +88,3 @@ class Track:
         lambda_parameter = segment.lambda_from_arc_length(segment_arc_length)
 
         return segment, lambda_parameter
-
-    # def dx_dlambda(self, segment_index, t):
-    #
-    #     dx_dt = self.segments[segment_index].df_dlambda(t)
-    #
-    #     return np.linalg.norm(dx_dt)
-    #
-    # def d_dx_dlambda_dt(self, segment_index, state):
-    #
-    #     d_dx_dlambda_dt = self.segments[segment_index].d_dx_dlambda_dt(state)
-    #
-    #     return np.linalg.norm(d_dx_dlambda_dt)

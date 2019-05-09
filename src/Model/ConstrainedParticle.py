@@ -8,7 +8,6 @@ class ConstrainedParticle(Model.Model):
 
         super(ConstrainedParticle, self).__init__()
 
-
     def initialise(self, initial_conditions, information_dictionary, **kwargs):
 
         # Initialise particle on track
@@ -37,7 +36,7 @@ class ConstrainedParticle(Model.Model):
 
         self.post_initialisation(**kwargs)
 
-    def post_initialisation(self):
+    def post_initialisation(self, **kwargs):
         pass
 
     def end_condition(self):
