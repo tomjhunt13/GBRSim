@@ -50,6 +50,16 @@ class ConstrainedParticle(Model.Model):
         # Unpack new state
         starting_segment, segment_index, lambda_param = self.track.segment_lambda_from_arc_length(y_np1[0])
 
+        # Update net distance
+        if y_np1[1] > 0:
+            self.net_distance += y_np1[0] - self.arc_length_n
+
+        elif y_np1[1] < 0:
+            self.net_distance += y_np1[0] - self.arc_length_n
+
+        if self.net_distance > self.total_distance:
+            self.lap_limit_reached = True
+
         # Continuity
         if y_np1[0] > self.track.length:
             segment_index = 0
@@ -58,17 +68,6 @@ class ConstrainedParticle(Model.Model):
         elif y_np1[0] < 0:
             segment_index = len(self.track.segments) - 1
             y_np1[0] = self.track.length
-
-        else:
-            # Update net distance
-            if y_np1[1] > 0:
-                self.net_distance += y_np1[0] - self.arc_length_n
-
-            elif y_np1[1] < 0:
-                self.net_distance += y_np1[0] - self.arc_length_n
-
-            if self.net_distance > self.total_distance:
-                self.lap_limit_reached = True
 
         self.arc_length_n = y_np1[0]
         information_dictionary['Velocity (m/s)'] = y_np1[1]
