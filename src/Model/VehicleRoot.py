@@ -72,9 +72,6 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
         net_force = (propulsive_force - resistive_force)
         acceleration = net_force / self.m
 
-        # Calculate d^2lambda_dt^2 correction factor
-        # correction_factor = y[1] * self.track.d_dx_dlambda_dt(segment_index, [lambda_param, y[1]])
-
         # Build state vector
         dy_dt = [
             state[1],
@@ -112,9 +109,9 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
         :return:
         """
 
-        direction_mod = direction_modifier(V)
+        direction_mod = ConstrainedParticle.direction_modifier(V)
 
-        Fw = self.weight_force(theta)
+        Fw = -1 * self.weight_force(theta)
         Fa = direction_mod * self.aerodynamic_drag_force(V)
         Fc = direction_mod * self._cornering_drag(V, segment_index, lambda_param)
         Frr = direction_mod * self._rolling_resistance()
@@ -147,16 +144,3 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
 
         return Fy * np.tan(alpha)
 
-def direction_modifier(V):
-    """
-    :param V:
-    :return:
-    """
-    if V > 0:
-        return 1
-
-    elif V < 0:
-        return -1
-
-    else:
-        return 0
