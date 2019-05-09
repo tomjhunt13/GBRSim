@@ -3,7 +3,6 @@ import numpy as np
 from src.Model import Model
 from src.Integration import RK4
 
-import time
 
 class BrushedMotor(Model.Model):
     def __init__(self, motor_parameters={}, dt=1e-3, solver=RK4.RK4, verbose=False):
@@ -74,7 +73,7 @@ class BrushedMotor(Model.Model):
         i_n = self.i_n
 
         # solver = self.solver()
-        y_np1 = self.simulate([i_n], V=V, omega=omega, dt=self.dt, t_start=t_n, t_end=t_np1, verbose=self.verbose)
+        y_np1 = self.simulate([i_n], V=V, omega=omega, dt=self.dt, t_start=t_n, t_end=t_np1, verbose=self.verbose, solver=self.solver)
         i_np1 = y_np1[-1]['y'][0]
 
         # Torque
@@ -117,7 +116,7 @@ class BrushedMotor(Model.Model):
         information_dictionary['t'] = t_np1
         information_dictionary['y'] = y_np1
 
-    def update_equation(self, t, y, info_dict, **kwargs):
+    def update_equation(self, t, state, info_dict, **kwargs):
         """
         Returns di / dt
         :param i:
@@ -126,7 +125,7 @@ class BrushedMotor(Model.Model):
         :return:
         """
 
-        di_dt = (1 / self.L) * (self.V - y[0] * self.R - self._back_emf(self.omega))
+        di_dt = (1 / self.L) * (self.V - state[0] * self.R - self._back_emf(self.omega))
         info_dict['di_dt'] = di_dt
 
         return di_dt

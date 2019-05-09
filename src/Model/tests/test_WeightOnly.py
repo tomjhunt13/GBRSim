@@ -38,21 +38,17 @@ class TestArcLengthIntegration(unittest.TestCase):
             v = sqrt(2 * a  * s)
         """
 
-
+        # Simulation parameters
         g = 10
         mass = 1
         particle = Models.FreefallingMass(g=g, mass=mass)
 
-        solver = RK4.RK4()
+        # Run simulation
+        model_results = particle.simulate([0, 0], track=self.vertical_track, dt=0.001, t_end=1, verbose=False)
 
-        model_results = solver.solve(particle, particle.equation_of_motion, {'track': self.vertical_track}, [0, 0], dt=0.0001, t_end=1,
-                                  verbose=True)
-
-
+        # Unpack result
         t = [y['t'] for y in model_results[1:]]
         arc_length = [y['y'][0] for y in model_results[1:]]
-
-
         arc_length_final = np.interp(1, t, arc_length)
 
         self.assertAlmostEqual(arc_length_final, 1, places=4)

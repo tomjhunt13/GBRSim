@@ -123,3 +123,21 @@ class ConstrainedParticle(Model.Model):
                 np.floor(self.y[-1][0]) < np.floor(self.y[-2][0])):
 
             self.highest_segment = new_segment
+
+    def _weight(self, theta):
+        """
+        :param theta:
+        :return:
+        """
+
+        return self.mg * np.sin(theta)
+
+    def _aerodynamic_drag(self, V):
+        """
+        :param segment_index:
+        :param lambda_param:
+        :param V:
+        :return:
+        """
+
+        return self.aero_force * V * V

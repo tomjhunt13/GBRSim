@@ -1,6 +1,5 @@
 import time
 from src.Track import ImportTrack, Track, Line, Circle
-from src.Integration import RKF45, RK4, DP45, Butcher, Euler
 from src.Strategy import Controller
 from src.Model import VehicleModel, PowertrainModel, BrushedDCMotor, IntegratedModel
 from src.Results import Results

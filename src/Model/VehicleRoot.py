@@ -49,22 +49,22 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
         self.mg = self.m * self.g
         self.rolling_resistance_force = self.mg * self.Crr
 
-    def update_equation(self, t, y, information_dictionary, **kwargs):
+    def update_equation(self, t, state, information_dictionary, **kwargs):
 
         if self.verbose:
-            print('State: ' + str(y))
+            print('State: ' + str(state))
 
         # Get world variables from position
-        segment_index = int(np.floor(y[0]))
-        lambda_param = y[0] - segment_index
+        segment_index = int(np.floor(state[0]))
+        lambda_param = state[0] - segment_index
         segment = self.track.segments[segment_index]
         theta = segment.gradient(lambda_param)
         # segment_scale = self.track.df_dlambda(segment_index, lambda_param)
-        velocity = y[1]
+        velocity = state[1]
 
         # Get propulsive force
-        throttle_demand = self.control_function(velocity=velocity, theta=theta, segment=theta, lambda_param=y[0])
-        propulsive_force = self._propulsive_force(t, y, velocity, throttle_demand, information_dictionary)
+        throttle_demand = self.control_function(velocity=velocity, theta=theta, segment=theta, lambda_param=state[0])
+        propulsive_force = self._propulsive_force(t, state, velocity, throttle_demand, information_dictionary)
 
         # Resistive forces
         Fw, Fa, Fc, Frr = self.resistive_forces(theta, velocity, segment_index, lambda_param)
@@ -79,7 +79,7 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
 
         # Build state vector
         dy_dt = [
-            y[1],
+            state[1],
             (acceleration)
         ]
 
@@ -95,11 +95,11 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
         information_dictionary['Net Force'] = net_force
         information_dictionary['Acceleration'] = acceleration
         # information_dictionary['Correction Factor'] = correction_factor
-        information_dictionary['lambda'] = y[0]
-        information_dictionary['dlambda / dt'] = y[1]
+        information_dictionary['lambda'] = state[0]
+        information_dictionary['dlambda / dt'] = state[1]
         information_dictionary['d^2lambda / dt^2'] = dy_dt[1]
 
-        self._further_calculations(y, dy_dt, velocity, throttle_demand, information_dictionary)
+        self._further_calculations(state, dy_dt, velocity, throttle_demand, information_dictionary)
 
         return dy_dt
 
