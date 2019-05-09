@@ -1,13 +1,20 @@
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-from src.Track import BezierSpline, Line
-
-line = Line.Line([[0, 0, 0], [10, 0, 0]])
-line.calculate_arc_length_map()
+from src.Track import BezierSpline, Line, Circle
 
 
+# ------- Vertical Circle ------- #
+vertical_circle = Circle.VerticalCircle(10)
 
+x, y, z = vertical_circle.draw_coordinates()
+
+
+fig3D = plt.figure()
+track_ax = fig3D.add_subplot(111, projection='3d')
+track_plot = track_ax.plot(x, y, z)
+
+plt.show()
 
 # ------------ Bezier example ------------------- #
 knots = [[0, 0, 0], [12, 0, 0]]

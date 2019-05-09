@@ -4,9 +4,6 @@ from src.Strategy import Controller
 from src.Model import VehicleModel, PowertrainModel, BrushedDCMotor, IntegratedModel
 from src.Results import Results
 
-l = Line.Line([[0, 0, 0], [1000, 0, 0]])
-# l = Circle.Circle(50)
-# track = Track.Track([l])
 
 t_s = time.time()
 track = ImportTrack.import_year('2019')
@@ -19,10 +16,11 @@ motor = BrushedDCMotor.MaxonRE65(dt=1e-3, verbose=False)
 powertrain = PowertrainModel.DirectTransmission(motor, transmission_ratio, transmission_efficiency=0.8, verbose=False)
 car = VehicleModel.Vehicle(powertrain, verbose=True)
 
+# car  = IntegratedModel.IntegratedModel({'transmission_ratio': transmission_ratio})
 
 
 t_s = time.time()
-vehicle_results = car.simulate([1e-4, 1e-4], dt=0.25, t_end=200, verbose=True, track=track, controller=controller)
+vehicle_results = car.simulate([1e-4, 1e-4], dt=0.1, t_end=200, verbose=True, track=track, controller=controller)
 print('Elapsed time: ' + str(time.time() - t_s))
 
 Results.process_results(track, vehicle_results)

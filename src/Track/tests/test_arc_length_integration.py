@@ -16,7 +16,7 @@ class TestArcLengthIntegration(unittest.TestCase):
 
         # Circle set up
         self.circle_radius = 2
-        self.circle = Circle.Circle(self.circle_radius)
+        self.circle = Circle.HorizontalCircle(self.circle_radius)
 
         # Bezier setup
         knots = [[0, 0, 0], [12, 0, 0]]
