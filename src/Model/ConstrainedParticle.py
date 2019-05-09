@@ -61,28 +61,38 @@ class ConstrainedParticle(Model.Model):
         # Unpack new state
         starting_segment, segment_index, lambda_param = self.track.segment_lambda_from_arc_length(y_np1[0])
 
-        # Handle changing segment
-        if segment_index != self.current_segment_index:
+        # Continuity
+        if y_np1[0] > self.track.length:
+            segment_index = 0
+            y_np1[0] = 0
 
-            # # Interpolate to find time of segment change
-            # if y_np1[1] > 0:
-            #     y_0_intermediate = self.track.segments[segment_index].length
-            #
-            # y_0_intermediate = max(np.floor(y_np1[0]), np.floor(y_n[0]))
-            # interpolant_ratio = ((y_0_intermediate - y_n[0]) / (y_np1[0] - y_n[0]))
-            # t_intermediate = t_n + interpolant_ratio * (t_np1[0] - t_n)
-            # y_1_intermediate = y_n[1] + interpolant_ratio * (y_np1[1] - y_n[1])
+        elif y_np1[0] < 0:
+            segment_index = len(self.track.segments) - 1
+            y_np1[0] = self.track.length
 
-            # Continuity
-            if segment_index > len(self.track.segments) - 1:
-                segment_index = 0
-                # lambda_param = 0
-                y_np1[0] = 0
-
-            elif segment_index < 0:
-                segment_index = len(self.track.segments) - 1
-                y_np1[0] = self.track.length
-
+        #
+        # # Handle changing segment
+        # if segment_index != self.current_segment_index:
+        #
+        #     # # Interpolate to find time of segment change
+        #     # if y_np1[1] > 0:
+        #     #     y_0_intermediate = self.track.segments[segment_index].length
+        #     #
+        #     # y_0_intermediate = max(np.floor(y_np1[0]), np.floor(y_n[0]))
+        #     # interpolant_ratio = ((y_0_intermediate - y_n[0]) / (y_np1[0] - y_n[0]))
+        #     # t_intermediate = t_n + interpolant_ratio * (t_np1[0] - t_n)
+        #     # y_1_intermediate = y_n[1] + interpolant_ratio * (y_np1[1] - y_n[1])
+        #
+        #     # Continuity
+        #     if segment_index > len(self.track.segments) - 1:
+        #         segment_index = 0
+        #         # lambda_param = 0
+        #         y_np1[0] = 0
+        #
+        #     elif segment_index < 0:
+        #         segment_index = len(self.track.segments) - 1
+        #         y_np1[0] = self.track.length
+        #
 
 
 
@@ -104,10 +114,11 @@ class ConstrainedParticle(Model.Model):
         self.t.append(t_np1[0])
         self.y.append(y_np1)
 
-        # information_dictionary['Velocity (m/s)'] = initial_conditions[1]
+
         # information_dictionary['segment'] = starting_segment
         # information_dictionary['lambda_param'] = lambda_param
 
+        information_dictionary['Velocity (m/s)'] = y_np1[1]
         information_dictionary['segment'] = segment_index
         information_dictionary['lambda_param'] = lambda_param
         information_dictionary['t'] = t_np1[0]

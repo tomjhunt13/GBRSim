@@ -13,7 +13,7 @@ class FreefallingMass(ConstrainedParticle.ConstrainedParticle):
     def update_equation(self, t, state, information_dictionary, **kwargs):
 
         # Get position on track
-        segment, lambda_parameter = self.track.segment_lambda_from_arc_length(state[0])
+        segment, segment_index, lambda_parameter = self.track.segment_lambda_from_arc_length(state[0])
 
         # Get weight force
         theta = segment.gradient(lambda_parameter)
