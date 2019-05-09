@@ -7,12 +7,7 @@ class Track:
         :param segment_list: List with elements of Segment type
         """
 
-        # Environment attributes
-        self.rho = 1.225    # Air density (g / cm^3)
-        self.g = 9.81
-
         # Segments
-        # self.current_segment = 0
         self.segments = segment_list
 
 
@@ -74,6 +69,26 @@ class Track:
             length += segment.length
 
         return length
+
+    def segment_lambda_from_arc_length(self, arc_length):
+        """
+        Find segment and lambda from the arc length
+        :param arc_length:
+        :return:
+        """
+
+        remaining_arc_length = arc_length
+        for segment_index, segment in enumerate(self.segments):
+
+            remaining_arc_length -= segment.length
+            if remaining_arc_length <= 0:
+                break
+
+
+        segment_arc_length = remaining_arc_length + segment.length
+        lambda_parameter = segment.lambda_from_arc_length(segment_arc_length)
+
+        return segment, lambda_parameter
 
     def dx_dlambda(self, segment_index, t):
 

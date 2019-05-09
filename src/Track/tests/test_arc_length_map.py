@@ -3,11 +3,9 @@ import numpy as np
 
 from src.Track import Line, Circle, BezierSpline
 
-class TestArcLengthIntegration(unittest.TestCase):
+class TestArcLengthMap(unittest.TestCase):
     """
-    Testing the arc length integration function in segment.
 
-    Problem: s = integral of |df/dlambda| wrt lambda between alpha_1 and alpha_2
     """
 
     def setUp(self):

@@ -16,10 +16,16 @@ class Segment:
             if option not in segment_options:
                 segment_options[option] = default_segment_options[option]
 
+        self.arc_length_integral_step = segment_options['arc_length_integral_step']
+        self.arc_length_map_resolution = segment_options['arc_length_map_resolution']
+
+        self.update()
+
+    def update(self):
+
         # Pre-calculate values
         self.length = self._length()
-        self.arc_length_integral_step = segment_options['arc_length_integral_step']
-        self.calculate_arc_length_map(number_of_sections=segment_options['arc_length_map_resolution'])
+        self.calculate_arc_length_map(number_of_sections=self.arc_length_map_resolution)
 
     def draw_coordinates(self, num_segments=20):
         """

@@ -56,8 +56,8 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
         lambda_param = y[0] - segment_index
         segment = self.track.segments[segment_index]
         theta = segment.gradient(lambda_param)
-        segment_scale = self.track.df_dlambda(segment_index, lambda_param)
-        velocity = y[1] * segment_scale
+        # segment_scale = self.track.df_dlambda(segment_index, lambda_param)
+        velocity = y[1]
 
         # Get propulsive force
         throttle_demand = self.control_function(velocity=velocity, theta=theta, segment=theta, lambda_param=y[0])
@@ -72,12 +72,12 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
         acceleration = net_force / self.m
 
         # Calculate d^2lambda_dt^2 correction factor
-        correction_factor = y[1] * self.track.d_dx_dlambda_dt(segment_index, [lambda_param, y[1]])
+        # correction_factor = y[1] * self.track.d_dx_dlambda_dt(segment_index, [lambda_param, y[1]])
 
         # Build state vector
         dy_dt = [
             y[1],
-            (1 / segment_scale) * (acceleration - correction_factor)
+            (acceleration)
         ]
 
         information_dictionary['Gradient'] = 100 * (theta / (np.pi / 4))
@@ -88,10 +88,10 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
         information_dictionary['Fc'] = Fc
         information_dictionary['Velocity (m/s)'] = velocity
         information_dictionary['Throttle Demand'] = throttle_demand
-        information_dictionary['Segment Scale'] = segment_scale
+        # information_dictionary['Segment Scale'] = segment_scale
         information_dictionary['Net Force'] = net_force
         information_dictionary['Acceleration'] = acceleration
-        information_dictionary['Correction Factor'] = correction_factor
+        # information_dictionary['Correction Factor'] = correction_factor
         information_dictionary['lambda'] = y[0]
         information_dictionary['dlambda / dt'] = y[1]
         information_dictionary['d^2lambda / dt^2'] = dy_dt[1]
