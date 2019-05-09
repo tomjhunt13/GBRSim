@@ -91,7 +91,6 @@ class BurnAndCoast(Controller):
 
         # Initialise evenly
         self.track = kwargs['track']
-        self.track_length = float(len(self.track.segments))
 
         # Scale
         self.scale_factor = 0
@@ -100,24 +99,16 @@ class BurnAndCoast(Controller):
 
     def demand(self, **kwargs):
 
-        # if kwargs['V'] < self.min_speed:
-        #     return 0.1
-
         # Get distance around track
-        lambda_param = kwargs['lambda_param']
-        distance = (lambda_param / self.track_length) * self.scale_factor
+        arc_length = kwargs['arc_length']
+
+        distance = (arc_length / self.track.length)
 
         if self.verbose:
             print('Distance: ' + str(distance))
 
         total_spacing = 0
-        # demand = 0
-
         for index, spacing in enumerate(self.location_spacings):
-
-
-            # demand = 1 - demand
-
             total_spacing += spacing[0]
 
             if distance < total_spacing:

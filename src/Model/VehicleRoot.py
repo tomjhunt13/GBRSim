@@ -57,11 +57,10 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
         # Get position on track
         segment, segment_index, lambda_parameter = self.track.segment_lambda_from_arc_length(state[0])
         theta = segment.gradient(lambda_parameter)
-
         velocity = state[1]
 
         # Get propulsive force
-        throttle_demand = self.control_function(velocity=velocity, theta=theta, segment=theta, lambda_param=state[0])
+        throttle_demand = self.control_function(velocity=velocity, theta=theta, arc_length=state[0])
         propulsive_force = self._propulsive_force(t, state, velocity, throttle_demand, information_dictionary)
 
         # Resistive forces

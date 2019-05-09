@@ -9,11 +9,11 @@ t_s = time.time()
 track = ImportTrack.import_year('2019')
 print('Track import time: ' + str(time.time() - t_s))
 
-controller = Controller.ConstantPower()
+controller = Controller.BurnAndCoast()
 transmission_ratio = 12
 
 motor = BrushedDCMotor.MaxonRE65(dt=1e-3, verbose=False)
-powertrain = PowertrainModel.DirectTransmission(motor, transmission_ratio, transmission_efficiency=0.8, verbose=False)
+powertrain = PowertrainModel.FreeWheel(motor, transmission_ratio, transmission_efficiency=0.8, verbose=False)
 car = VehicleModel.Vehicle(powertrain, verbose=True)
 
 # car  = IntegratedModel.IntegratedModel({'transmission_ratio': transmission_ratio})
