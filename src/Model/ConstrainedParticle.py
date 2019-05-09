@@ -110,15 +110,17 @@ class ConstrainedParticle(Model.Model):
     #
     #         self.highest_segment = new_segment
 
-    def _weight(self, theta):
+    def weight_force(self, theta):
         """
-        :param theta:
-        :return:
+        :param theta: Angle between direction of travel and horizontal. +ve is uphill
+
+        :return: The force contribution due to the weight of the particle.
+                 Value is signed, ie a -ve value is a force acting in the opposite direction to the velocity
         """
 
-        return self.mg * np.sin(theta)
+        return -1 * self.mg * np.sin(theta)
 
-    def _aerodynamic_drag(self, V):
+    def aerodynamic_drag_force(self, V):
         """
         :param segment_index:
         :param lambda_param:
@@ -127,3 +129,17 @@ class ConstrainedParticle(Model.Model):
         """
 
         return self.aero_force * V * V
+
+def direction_modifier(V):
+    """
+    :param V:
+    :return:
+    """
+    if V > 0:
+        return 1
+
+    elif V < 0:
+        return -1
+
+    else:
+        return 0

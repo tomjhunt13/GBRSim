@@ -52,7 +52,7 @@ class Segment:
     def gradient(self, lambda_parameter):
         """
         For a given point on the segment, get the gradient in radians
-        :param t: float between 0 and 1 - value of parameter t to get gradient of
+        :param lambda_parameter: float between 0 and 1 - value of parameter lambda_parameter to get gradient of
         :return: float - Gradient of track in radians
         """
 
@@ -67,7 +67,9 @@ class Segment:
         dot = np.dot(direction, [0, 0, 1])
         angle_to_vertical = np.arccos(dot)
 
-        return (np.pi / 2) - angle_to_vertical
+        theta = (np.pi / 2) - angle_to_vertical
+
+        return theta
 
     def direction(self, lambda_parameter):
         """
