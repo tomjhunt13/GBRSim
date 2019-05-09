@@ -54,12 +54,10 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
         if self.verbose:
             print('State: ' + str(state))
 
-        # Get world variables from position
-        segment_index = int(np.floor(state[0]))
-        lambda_param = state[0] - segment_index
-        segment = self.track.segments[segment_index]
-        theta = segment.gradient(lambda_param)
-        # segment_scale = self.track.df_dlambda(segment_index, lambda_param)
+        # Get position on track
+        segment, segment_index, lambda_parameter = self.track.segment_lambda_from_arc_length(state[0])
+        theta = segment.gradient(lambda_parameter)
+
         velocity = state[1]
 
         # Get propulsive force
@@ -67,7 +65,7 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
         propulsive_force = self._propulsive_force(t, state, velocity, throttle_demand, information_dictionary)
 
         # Resistive forces
-        Fw, Fa, Fc, Frr = self.resistive_forces(theta, velocity, segment_index, lambda_param)
+        Fw, Fa, Fc, Frr = self.resistive_forces(theta, velocity, segment_index, lambda_parameter)
         resistive_force = Fw + Fa + Fc + Frr
 
         # Net force
@@ -80,7 +78,7 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
         # Build state vector
         dy_dt = [
             state[1],
-            (acceleration)
+            acceleration
         ]
 
         information_dictionary['Gradient'] = 100 * (theta / (np.pi / 4))
@@ -91,13 +89,8 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
         information_dictionary['Fc'] = Fc
         information_dictionary['Velocity (m/s)'] = velocity
         information_dictionary['Throttle Demand'] = throttle_demand
-        # information_dictionary['Segment Scale'] = segment_scale
-        information_dictionary['Net Force'] = net_force
-        information_dictionary['Acceleration'] = acceleration
-        # information_dictionary['Correction Factor'] = correction_factor
-        information_dictionary['lambda'] = state[0]
-        information_dictionary['dlambda / dt'] = state[1]
-        information_dictionary['d^2lambda / dt^2'] = dy_dt[1]
+        information_dictionary['Net Force (N)'] = net_force
+        information_dictionary['Acceleration (m/s^2)'] = acceleration
 
         self._further_calculations(state, dy_dt, velocity, throttle_demand, information_dictionary)
 
@@ -126,28 +119,7 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
         Fc = direction_mod * self._cornering_drag(V, segment_index, lambda_param)
         Frr = direction_mod * self._rolling_resistance()
 
-        Fw = 0
-        Fc = 0
-
         return Fw, Fa, Fc, Frr
-
-    def _weight(self, theta):
-        """
-        :param theta:
-        :return:
-        """
-
-        return self.mg * np.sin(theta)
-
-    def _aerodynamic_drag(self, V):
-        """
-        :param segment_index:
-        :param lambda_param:
-        :param V:
-        :return:
-        """
-
-        return self.aero_force * V * V
 
     def _rolling_resistance(self):
         """

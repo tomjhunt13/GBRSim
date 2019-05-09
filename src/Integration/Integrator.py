@@ -36,6 +36,8 @@ class Integrator:
 
             # Step
             y_np1, dictionary_t_np1 = self.update(t_n, y_n)
+            dictionary_t_np1['y'] = y_np1
+            dictionary_t_np1['t'] = t_np1[0]
 
             # Post-step processing
             self.model.post_step(t_np1, y_np1, dictionary_t_np1)
