@@ -3,7 +3,7 @@ class Integrator:
     def __init__(self):
         pass
 
-    def solve(self, model, model_update_function, model_kwargs, initial_conditions, dt=0.01, t_start=0, t_end=500, verbose=False):
+    def solve(self, model, model_update_function, initial_conditions, model_kwargs, dt=0.01, t_start=0, t_end=500, verbose=False):
 
         # Admin properties
         self.verbose = verbose

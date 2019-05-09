@@ -73,8 +73,8 @@ class BrushedMotor(Model.Model):
         t_n = self.t_n
         i_n = self.i_n
 
-        solver = self.solver()
-        y_np1 = solver.solve(self, self._state_equation, {'V': V, 'omega': omega}, [i_n], dt=self.dt, t_start=t_n, t_end=t_np1, verbose=self.verbose)
+        # solver = self.solver()
+        y_np1 = self.simulate([i_n], V=V, omega=omega, dt=self.dt, t_start=t_n, t_end=t_np1, verbose=self.verbose)
         i_np1 = y_np1[-1]['y'][0]
 
         # Torque
@@ -117,7 +117,7 @@ class BrushedMotor(Model.Model):
         information_dictionary['t'] = t_np1
         information_dictionary['y'] = y_np1
 
-    def _state_equation(self, t, y, info_dict, **kwargs):
+    def update_equation(self, t, y, info_dict, **kwargs):
         """
         Returns di / dt
         :param i:

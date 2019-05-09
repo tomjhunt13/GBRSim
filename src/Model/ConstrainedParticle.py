@@ -123,6 +123,3 @@ class ConstrainedParticle(Model.Model):
                 np.floor(self.y[-1][0]) < np.floor(self.y[-2][0])):
 
             self.highest_segment = new_segment
-
-    def equation_of_motion(self, t, y, information_dictionary, **kwargs):
-        pass

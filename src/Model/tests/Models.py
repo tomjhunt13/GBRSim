@@ -10,7 +10,7 @@ class FreefallingMass(ConstrainedParticle.ConstrainedParticle):
         self.g = g
         self.weight = mass * g
 
-    def equation_of_motion(self, t, y, information_dictionary, **kwargs):
+    def update_equation(self, t, y, information_dictionary, **kwargs):
 
         dx_dt = [
             y[1],

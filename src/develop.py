@@ -5,7 +5,7 @@ from src.Strategy import Controller
 from src.Model import VehicleModel, PowertrainModel, BrushedDCMotor, IntegratedModel
 from src.Results import Results
 
-# l = Line.Line([[0, 0, 0], [1000, 0, 0]])
+l = Line.Line([[0, 0, 0], [1000, 0, 0]])
 # l = Circle.Circle(50)
 # track = Track.Track([l])
 
@@ -22,13 +22,8 @@ car = VehicleModel.Vehicle(powertrain, verbose=True)
 
 
 
-# car = IntegratedModel.IntegratedModel({'transmission_ratio': transmission_ratio})
-
-model_kwargs = {'track': track, 'controller': controller}
-s = RK4.RK4()
-
 t_s = time.time()
-vehicle_results = s.solve(car, car.equation_of_motion, model_kwargs, [1e-4, 1e-4], dt=0.25, t_end=10, verbose=True)
+vehicle_results = car.simulate([1e-4, 1e-4], dt=0.25, t_end=10, verbose=True, track=track, controller=controller)
 print('Elapsed time: ' + str(time.time() - t_s))
 
 Results.process_results(track, vehicle_results)

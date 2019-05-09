@@ -28,6 +28,9 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
         self.A = vehicle_parameters['A']        # Frontal area (m^2)
         self.PoweredWheelRadius = vehicle_parameters['PoweredWheelRadius']       # Radius of tyre for powered wheel
         self.longitudinal_CoG = vehicle_parameters['LongitudinalCoG']
+        self.g = 9.81
+        self.rho = 1.225
+
 
         # Admin properties
         self.verbose = verbose
@@ -42,11 +45,11 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
         self.control_function = self.controller.demand
 
         # Pre-calculate constants
-        self.aero_force = 0.5 * self.Cd * self.A * self.track.rho
-        self.mg = self.m * self.track.g
+        self.aero_force = 0.5 * self.Cd * self.A * self.rho
+        self.mg = self.m * self.g
         self.rolling_resistance_force = self.mg * self.Crr
 
-    def equation_of_motion(self, t, y, information_dictionary, **kwargs):
+    def update_equation(self, t, y, information_dictionary, **kwargs):
 
         if self.verbose:
             print('State: ' + str(y))
