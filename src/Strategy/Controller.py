@@ -102,7 +102,7 @@ class BurnAndCoast(Controller):
         # Get distance around track
         arc_length = kwargs['arc_length']
 
-        distance = (arc_length / self.track.length)
+        distance = (arc_length / self.track.length) * self.scale_factor
 
         if self.verbose:
             print('Distance: ' + str(distance))

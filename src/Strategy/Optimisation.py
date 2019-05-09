@@ -18,7 +18,7 @@ from src.Results import Results
 
 # Create model
 track = ImportTrack.import_year('2019')
-controller = Controller.BurnAndCoast(number_of_burns=5)
+controller = Controller.BurnAndCoast(number_of_burns=2)
 # controller = Controller.ConstantPower()
 
 motor = BrushedDCMotor.MaxonRE65(dt=1e-3, verbose=False)
@@ -27,11 +27,11 @@ car = VehicleModel.Vehicle(powertrain, verbose=False)
 
 
 
-total_time = 45 * 60
-# total_time = 39 * 60
-# laps = 11
-laps = 15
-desired_time = total_time / laps
+# total_time = 45 * 60
+total_time = 39 * 60
+laps = 11
+# laps = 15
+desired_time = (total_time / laps) - 5
 
 sim = SimulationWrapper.SimulationWrapper(car, track, controller, desired_time)
 
@@ -44,7 +44,7 @@ OptimisationWrapper.OptimiseBurnLocations(optimiser, controller)
 
 optimum = optimiser.Optimise(sim.cost, max_iterations=1)
 optimiser._update_parameters(optimum)
-vehicle_results = sim.run()
+vehicle_results = sim.simulate()
 Results.process_results(track, vehicle_results)
 
 
