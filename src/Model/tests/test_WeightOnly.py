@@ -23,7 +23,7 @@ class TestArcLengthIntegration(unittest.TestCase):
         self.vertical_track = Track.Track([line_1, line_2, line_3, line_4])
 
         # ------- Circular ------- #
-        self.radius = 5
+        self.radius = 1
 
         # Set up track
         vertical_circle = Circle.VerticalCircle(self.radius)
@@ -129,14 +129,13 @@ class TestArcLengthIntegration(unittest.TestCase):
         self.assertAlmostEqual(arc_length[-1], self.vertical_track_height, places=2)
         self.assertAlmostEqual(min(arc_length), 0, places=4)
 
-    def test_circular_force_mass_a_1(self):
+    def test_circular_mass_a_1(self):
         """
-        F, a, m = 1
+        Starting on vertical:
 
-        In equilibrium mg sin(theta) = F
+        1/2 m v^2  = mgh
 
-        => theta = 90 degrees (lambda = 0)
-
+        => v_max = sqrt(2 * g * h)
         """
 
         # Simulation parameters
@@ -145,15 +144,13 @@ class TestArcLengthIntegration(unittest.TestCase):
         particle = Models.FreefallingMass(g=g, mass=mass)
 
         # Run simulation
-        model_results = particle.simulate([0, 0], track=self.circular_track, dt=0.05, t_end=100, verbose=False)
+        model_results = particle.simulate([0, 0],
+                                          track=self.circular_track, dt=0.001, t_end=4, verbose=False)
 
         # Unpack result
-        t = [y['t'] for y in model_results[1:]]
-        y = [y['y'] for y in model_results[1:]]
-        arc_length = [y['y'][0] for y in model_results[1:]]
-        arc_length_final = np.interp(1, t, arc_length)
+        speed = [np.abs(y['Velocity (m/s)']) for y in model_results[1:]]
 
-        self.assertAlmostEqual(arc_length_final, 5, places=4)
+        self.assertAlmostEqual(max(speed), np.sqrt(2 * g * self.radius), places=4)
 
 
 
