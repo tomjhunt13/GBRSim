@@ -87,7 +87,7 @@ class Segment:
     def df_dlambda(self, lambda_parameter):
         pass
 
-    def df_dlambda_integrand(self, lambda_parameter, y):
+    def df_dlambda_integrand(self, lambda_parameter, unused):
 
         return np.linalg.norm(self.df_dlambda(lambda_parameter))
 

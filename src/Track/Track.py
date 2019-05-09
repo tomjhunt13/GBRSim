@@ -1,4 +1,4 @@
-import numpy as np
+# import numpy as np
 
 class Track:
     def __init__(self, segment_list):
@@ -9,6 +9,7 @@ class Track:
 
         # Segments
         self.segments = segment_list
+        self.length = self.total_length()
 
 
     def draw_coordinates(self, num_segments=5):
@@ -87,4 +88,4 @@ class Track:
         segment_arc_length = remaining_arc_length + segment.length
         lambda_parameter = segment.lambda_from_arc_length(segment_arc_length)
 
-        return segment, lambda_parameter
+        return segment, segment_index, lambda_parameter

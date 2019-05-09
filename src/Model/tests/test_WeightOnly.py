@@ -2,7 +2,6 @@ import unittest
 import numpy as np
 
 from src.Model.tests import Models
-from src.Integration import RK4
 from src.Track import Track, Line
 
 class TestArcLengthIntegration(unittest.TestCase):
@@ -52,6 +51,39 @@ class TestArcLengthIntegration(unittest.TestCase):
         arc_length_final = np.interp(1, t, arc_length)
 
         self.assertAlmostEqual(arc_length_final, 1, places=4)
+
+    def test_vertical_popping_up_from_end(self):
+        """
+        Using SUVAT:
+
+            v = u + at
+
+            v = -u (parabolic)
+
+            =>  t = -2u / a
+
+            u = -1 (starting from end coming backwards)
+            a = 1
+
+            => t = 2
+        """
+
+        # Simulation parameters
+        g = 1
+        mass = 1
+        particle = Models.FreefallingMass(g=g, mass=mass)
+
+        # Run simulation
+        model_results = particle.simulate([self.vertical_track_height - 0.0001, -1], track=self.vertical_track, dt=0.001, t_end=2, verbose=False)
+
+        # Unpack result
+        t = [y['t'] for y in model_results[1:]]
+        arc_length = [y['y'][0] for y in model_results[1:]]
+        arc_length_final = np.interp(1, t, arc_length)
+
+        self.assertAlmostEqual(arc_length_final, self.vertical_track_height - 0.0001, places=4)
+
+
 
 if __name__ == '__main__':
     unittest.main()
