@@ -17,7 +17,7 @@ from src.Results import Results
 
 
 # Create model
-track = ImportTrack.import_year('2018')
+track = ImportTrack.import_year('2019')
 controller = Controller.BurnAndCoast(number_of_burns=5)
 # controller = Controller.ConstantPower()
 
