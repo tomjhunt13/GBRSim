@@ -13,7 +13,7 @@ class Powertrain:
 
     def update(self, t_np1, information_dictionary, omega_wheel, demand):
         pass
-    
+
 
 class DirectTransmission(Powertrain):
 
@@ -71,7 +71,6 @@ class FreeWheel(Powertrain):
 
         wheel_torque = T_m * self.ratio[0] * self.efficiency[0]
 
-        information_dictionary['Motor  Speed'] = self.motor_omega_n
         information_dictionary['Wheel Torque'] = wheel_torque
         information_dictionary['Free Wheel Engaged'] = engaged
 

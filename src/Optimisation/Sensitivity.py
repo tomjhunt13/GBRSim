@@ -8,9 +8,12 @@ class Sensitivity(VariableManager.VariableManager):
 
         self.dx = dx
 
-    def add_variable(self, name, variable_ref):
+    def add_variable(self, name, variable_ref, dx=None):
 
-        self.variables.append({'name': name, 'var': variable_ref})
+        if not dx:
+            dx = self.dx
+
+        self.variables.append({'name': name, 'var': variable_ref, 'dx': [dx]})
 
     def sensitivity(self, cost_function, **kwargs):
 
@@ -21,8 +24,9 @@ class Sensitivity(VariableManager.VariableManager):
                 kwargs[key] = self.default_parameters[key]
 
         input_vector = self._assemble_input_vector()
+        dx_vector = self._assemble_input_vector(key='dx')
 
-        gradient = approx_fprime(input_vector, self.evaluate_cost, self.dx)
+        gradient = approx_fprime(input_vector, self.evaluate_cost, dx_vector)
 
         sensitivity = self._unpack_vector(gradient)
 
@@ -30,4 +34,5 @@ class Sensitivity(VariableManager.VariableManager):
             print('Gradient: ' + str(sensitivity))
 
         return sensitivity
+
 

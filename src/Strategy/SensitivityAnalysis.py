@@ -45,16 +45,16 @@ desired_time = (total_time / laps) - 5
 # ------- Make Model ------- #
 
 # Model parameters
-transmission_efficiency = [0.8]
-mass = [100]
-Cd = [0.3]
-battery_efficiency = [0.9]
+transmission_efficiency = 0.8
+mass = 100
+Cd = 0.3
+battery_efficiency = 0.9
 
 controller = Controller.ConstantPower()
 
-motor = BrushedDCMotor.MaxonRE65(dt=1e-3, verbose=False, battery_efficiency=battery_efficiency[0])
-powertrain = PowertrainModel.FreeWheel(motor, 10, transmission_efficiency=transmission_efficiency[0], verbose=False)
-car = VehicleModel.Vehicle(powertrain, vehicle_parameters={'VehicleMass': mass[0], 'Cd': Cd[0]}, verbose=False)
+motor = BrushedDCMotor.MaxonRE65(dt=1e-3, verbose=False, battery_efficiency=battery_efficiency)
+powertrain = PowertrainModel.FreeWheel(motor, 10, transmission_efficiency=transmission_efficiency, verbose=False)
+car = VehicleModel.Vehicle(powertrain, vehicle_parameters={'VehicleMass': mass, 'Cd': Cd}, verbose=False)
 sim = SimulationWrapper.SimulationWrapper(car, track, controller, desired_time)
 
 
@@ -62,7 +62,8 @@ sim = SimulationWrapper.SimulationWrapper(car, track, controller, desired_time)
 sim.sensitivity_cost = MethodType(sensitivity_cost, sim)
 
 sensitivity = Sensitivity.Sensitivity(dx=0.01)
-sensitivity.add_variable('Transmission Efficiency', transmission_efficiency)
+sensitivity.add_variable('Transmission Efficiency', powertrain.efficiency)
+sensitivity.add_variable('Mass', car.vehicle_mass)
 
 sensitivity.sensitivity(sim.sensitivity_cost)
 

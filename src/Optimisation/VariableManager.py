@@ -42,13 +42,13 @@ class VariableManager:
                 print(variable['name'] + ': ' + str(input_vector[index]))
             variable['var'][0] = input_vector[index]
 
-    def _assemble_input_vector(self):
+    def _assemble_input_vector(self, key='var'):
 
-        sensitivity_input = [None] * len(self.variables)
+        function_input = [None] * len(self.variables)
 
         for index, variable in enumerate(self.variables):
-            sensitivity_input[index] = variable['var'][0]
+            function_input[index] = variable[key][0]
 
-        return sensitivity_input
+        return function_input
 
 
