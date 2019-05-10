@@ -5,11 +5,9 @@ class Optimiser(VariableManager.VariableManager):
 
         super(Optimiser, self).__init__(verbose=verbose)
 
-    def AddVariable(self, name, variable_ref, min, max):
+        self.optimum = None
 
-        self.variables.append({'name': name, 'var': variable_ref, 'min': min, 'max': max})
-
-    def Optimise(self, cost_function, **kwargs):
+    def optimise(self, cost_function, **kwargs):
 
         self.cost_function = cost_function
 
@@ -25,6 +23,8 @@ class Optimiser(VariableManager.VariableManager):
 
         if self.verbose:
             print('Optimised Values: ' + str(result))
+
+        self.optimum = result
 
         return result
 

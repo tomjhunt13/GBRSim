@@ -12,7 +12,7 @@ class VariableManager:
         self.default_parameters = {}
         self.verbose = verbose
 
-    def AddVariable(self, name, variable_ref, min, max):
+    def add_variable(self, name, variable_ref, min, max):
 
         self.variables.append({'name': name, 'var': variable_ref, 'min': min, 'max': max})
 
@@ -33,5 +33,14 @@ class VariableManager:
             if self.verbose:
                 print(variable['name'] + ': ' + str(input_vector[index]))
             variable['var'][0] = input_vector[index]
+
+    def _assemble_input_vector(self):
+
+        sensitivity_input = [None] * len(self.variables)
+
+        for index, variable in enumerate(self.variables):
+            sensitivity_input[index] = variable['var'][0]
+
+        return sensitivity_input
 
 

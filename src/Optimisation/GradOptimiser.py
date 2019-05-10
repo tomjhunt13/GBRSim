@@ -17,16 +17,16 @@ class GradOptimiser(Optimiser.Optimiser):
 
         return optimisation_result['x']
 
-    def _assemble_input_vector(self):
-
-        """
-        for each variable:
-
-        """
-
-        minimisation_input = [None] * len(self.variables)
-
-        for index, variable in enumerate(self.variables):
-            minimisation_input[index] = variable['min'] + np.random.rand(1)[0] * (variable['max'] - variable['min'])
-
-        return minimisation_input
+    # def _assemble_input_vector(self):
+    #
+    #     """
+    #     for each variable:
+    #
+    #     """
+    #
+    #     minimisation_input = [None] * len(self.variables)
+    #
+    #     for index, variable in enumerate(self.variables):
+    #         minimisation_input[index] = variable['min'] + np.random.rand(1)[0] * (variable['max'] - variable['min'])
+    #
+    #     return minimisation_input

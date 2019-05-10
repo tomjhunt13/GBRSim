@@ -42,7 +42,7 @@ OptimisationWrapper.OptimiseBurnLocations(optimiser, controller)
 # OptimisationWrapper.OptimiseBurnDemands(optimiser, controller)
 
 
-optimum = optimiser.Optimise(sim.cost, max_iterations=1)
+optimum = optimiser.optimise(sim.cost, max_iterations=1)
 optimiser._update_parameters(optimum)
 vehicle_results = sim.simulate()
 Results.process_results(track, vehicle_results)
