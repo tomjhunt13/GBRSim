@@ -77,13 +77,17 @@ wltc = WLTC(t, v, m, Cd, A, Crr)
 # Optimisation
 opt = GradOptimiser.GradOptimiser()
 opt.add_variable('Mass', wltc.m, 100, 150)
+opt.add_variable('Cd', wltc.m, 0.1, 1.5)
 opt_res = opt.optimise(wltc.evaluate_cost)
 
 # Make sensitivity
 sensitivity = Sensitivity.Sensitivity()
 sensitivity.add_variable('Mass', wltc.m)
+sensitivity.add_variable('Cd', wltc.Cd)
 
 grad = sensitivity.sensitivity(wltc.evaluate_cost)
+
+a = 6
 
 
 #

@@ -16,9 +16,7 @@ class Polynomial:
         return y
 
 class XY:
-    def __init__(self, coefficients=[0, 0, 1]):
-        self.coefficients = coefficients
-
+    def __init__(self):
         self.x = [0]
         self.y = [0]
 

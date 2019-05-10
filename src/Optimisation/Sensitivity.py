@@ -2,9 +2,11 @@ from scipy.optimize import approx_fprime
 from src.Optimisation import VariableManager
 
 class Sensitivity(VariableManager.VariableManager):
-    def __init__(self, verbose=True):
+    def __init__(self, verbose=True, dx=1e-6):
 
         super(Sensitivity, self).__init__(verbose=verbose)
+
+        self.dx = dx
 
     def add_variable(self, name, variable_ref):
 
@@ -20,7 +22,12 @@ class Sensitivity(VariableManager.VariableManager):
 
         input_vector = self._assemble_input_vector()
 
-        gradient = approx_fprime(input_vector, self.evaluate_cost, 0.001)
+        gradient = approx_fprime(input_vector, self.evaluate_cost, self.dx)
 
-        a = 6
+        sensitivity = self._unpack_vector(gradient)
+
+        if self.verbose:
+            print('Gradient: ' + str(sensitivity))
+
+        return sensitivity
 
