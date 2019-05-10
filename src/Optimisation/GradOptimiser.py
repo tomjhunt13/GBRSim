@@ -13,7 +13,7 @@ class GradOptimiser(Optimiser.Optimiser):
     def _optimise(self, **kwargs):
 
         minimisation_input = self._assemble_input_vector()
-        optimisation_result = minimize(self._cost, minimisation_input, method='Nelder-Mead', tol=kwargs['tolerance'])
+        optimisation_result = minimize(self.evaluate_cost, minimisation_input, method='Nelder-Mead', tol=kwargs['tolerance'])
 
         return optimisation_result['x']
 
