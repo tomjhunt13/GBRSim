@@ -17,9 +17,7 @@ class Optimiser(VariableManager.VariableManager):
 
         optimisation_result = self._optimise(**kwargs)
 
-        result = {}
-        for index, value in enumerate(optimisation_result):
-            result[self.variables[index]['name']] = value
+        result = self._unpack_vector(optimisation_result)
 
         if self.verbose:
             print('Optimised Values: ' + str(result))

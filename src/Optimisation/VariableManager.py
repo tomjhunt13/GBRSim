@@ -12,15 +12,23 @@ class VariableManager:
         self.default_parameters = {}
         self.verbose = verbose
 
-    def add_variable(self, name, variable_ref, min, max):
+    def add_variable(self, name, variable_ref, min_value, max_value):
 
-        self.variables.append({'name': name, 'var': variable_ref, 'min': min, 'max': max})
+        self.variables.append({'name': name, 'var': variable_ref, 'min': min_value, 'max': max_value})
 
     def evaluate_cost(self, input_vector):
 
         self._update_parameters(input_vector)
 
         return self.cost_function()
+
+    def _unpack_vector(self, vector_to_unpack):
+
+        unpacked_dictionary = {}
+        for index, value in enumerate(vector_to_unpack):
+            unpacked_dictionary[self.variables[index]['name']] = value
+
+        return unpacked_dictionary
 
     def _update_parameters(self, input_vector):
         """

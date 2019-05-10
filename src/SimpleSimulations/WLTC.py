@@ -74,13 +74,14 @@ A = 1.26
 Crr = 0.02
 wltc = WLTC(t, v, m, Cd, A, Crr)
 
+# Optimisation
+opt = GradOptimiser.GradOptimiser()
+opt.add_variable('Mass', wltc.m, 100, 150)
+opt_res = opt.optimise(wltc.evaluate_cost)
 
 # Make sensitivity
-sensitivity = GradOptimiser.GradOptimiser()
-# sensitivity = Sensitivity.Sensitivity()
-sensitivity.add_variable('Mass', wltc.m, 100, 150)
-
-res = sensitivity.optimise(wltc.evaluate_cost)
+sensitivity = Sensitivity.Sensitivity()
+sensitivity.add_variable('Mass', wltc.m)
 
 grad = sensitivity.sensitivity(wltc.evaluate_cost)
 

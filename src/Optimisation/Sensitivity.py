@@ -6,6 +6,10 @@ class Sensitivity(VariableManager.VariableManager):
 
         super(Sensitivity, self).__init__(verbose=verbose)
 
+    def add_variable(self, name, variable_ref):
+
+        self.variables.append({'name': name, 'var': variable_ref})
+
     def sensitivity(self, cost_function, **kwargs):
 
         self.cost_function = cost_function
