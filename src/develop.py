@@ -38,13 +38,13 @@ powertrain = PowertrainModel.DirectTransmission(motor, transmission_ratio, trans
 
 vehicle_parameters = {'Cd': 0.3, 'VehicleMass': 100}
 
-# car = VehicleModel.Vehicle(powertrain, verbose=True, vehicle_parameters=vehicle_parameters)
+car = VehicleModel.Vehicle(powertrain, verbose=True, vehicle_parameters=vehicle_parameters)
 
-car = IntegratedModel.IntegratedModel({'transmission_ratio': transmission_ratio}, verbose=True)
+# car = IntegratedModel.IntegratedModel({'transmission_ratio': transmission_ratio}, verbose=True)
 
 
 t_s = time.time()
-vehicle_results = car.simulate([1e-4, 1e-4, 1e-4], dt=0.001, t_end=300, verbose=True, track=track, controller=controller)
+vehicle_results = car.simulate([1e-4, 1e-4], dt=0.25, t_end=300, verbose=True, track=track, controller=controller)
 print('Elapsed time: ' + str(time.time() - t_s))
 
 Results.process_results(track, vehicle_results)

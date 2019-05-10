@@ -25,6 +25,8 @@ def sensitivity_cost(self):
     energy = np.trapz(fuel_power, t)
     time = t[-1]
 
+    print('Time: ' + str(time))
+
     return time
 
 
@@ -62,8 +64,10 @@ sim = SimulationWrapper.SimulationWrapper(car, track, controller, desired_time)
 sim.sensitivity_cost = MethodType(sensitivity_cost, sim)
 
 sensitivity = Sensitivity.Sensitivity(dx=0.01)
-sensitivity.add_variable('Transmission Efficiency', powertrain.efficiency)
-sensitivity.add_variable('Mass', car.vehicle_mass)
+sensitivity.add_variable('Transmission Efficiency', powertrain.efficiency, dx=0.01)
+sensitivity.add_variable('Mass', car.vehicle_mass, dx=1)
+sensitivity.add_variable('Cd', car.Cd, dx=0.01)
+sensitivity.add_variable('Battery Efficiency', motor.battery_efficiency, dx=0.01)
 
 sensitivity.sensitivity(sim.sensitivity_cost)
 

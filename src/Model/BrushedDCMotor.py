@@ -37,7 +37,7 @@ class BrushedMotor(Model.Model):
 
         # Battery properties
         self.V_max = motor_parameters['V_max']
-        self.battery_efficiency = motor_parameters['Battery_Efficiency']
+        self.battery_efficiency = [motor_parameters['Battery_Efficiency']]
 
         # State
         self.reset()
@@ -80,7 +80,7 @@ class BrushedMotor(Model.Model):
         torque = self.torque_constant * i_np1
 
         # Power
-        electrical_power = (V * i_np1) / self.battery_efficiency
+        electrical_power = (V * i_np1) / self.battery_efficiency[0]
 
         if np.isclose(electrical_power, 0):
             motor_efficiency = 0
@@ -93,8 +93,6 @@ class BrushedMotor(Model.Model):
             print('i: ' + str(i_np1))
             print('Motor Torque: ' + str(torque))
             print('Efficiency: ' + str(motor_efficiency))
-            # print('Actual di/dt: ' + str(di_dt))
-
 
         # Update state
         self.i_n = i_np1
@@ -111,10 +109,6 @@ class BrushedMotor(Model.Model):
     def initialise(self, initial_conditions, information_dictionary, **kwargs):
         self.V = kwargs['V']
         self.omega = kwargs['omega']
-
-    def post_step(self, t_np1, y_np1, information_dictionary):
-        information_dictionary['t'] = t_np1
-        information_dictionary['y'] = y_np1
 
     def update_equation(self, t, state, info_dict, **kwargs):
         """
