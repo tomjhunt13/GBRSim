@@ -49,16 +49,16 @@ class IntegratedModel(VehicleRoot.VehicleRoot):
 
         # Battery properties
         self.V_max = vehicle_parameters['V_max']
-        self.battery_efficiency = vehicle_parameters['Battery_Efficiency']
+        self.battery_efficiency = [vehicle_parameters['Battery_Efficiency']]
 
         # Transmission properties
-        self.transmission_ratio = vehicle_parameters['transmission_ratio']
-        self.transmission_efficiency = vehicle_parameters['transmission_efficiency']
+        self.transmission_ratio = [vehicle_parameters['transmission_ratio']]
+        self.transmission_efficiency = [vehicle_parameters['transmission_efficiency']]
 
-    def _further_calculations(self, y, dy_dt, velocity, throttle_demand, information_dictionary):
+    def _further_calculations(self, state, dy_dt, throttle_demand, information_dictionary):
 
         # Update current
-        omega_motor = (self.transmission_ratio / self.PoweredWheelRadius) * velocity
+        omega_motor = self._velocity_to_omega_wheel(state[1])
         back_emf = self.motor_speed_constant * omega_motor
         V_max = max(np.roots([1, -1 * (back_emf), -1 * self.Power * self.R]))
 
@@ -66,21 +66,23 @@ class IntegratedModel(VehicleRoot.VehicleRoot):
             V_max = self.V_max
 
         motor_voltage = V_max * throttle_demand
-        electrical_power = (motor_voltage * y[2]) / self.battery_efficiency
+        electrical_power = (motor_voltage * state[2]) / self.battery_efficiency[0]
 
         if self.verbose:
             print('Back EMF: ' + str(back_emf))
 
         # Append to state vector
-        dy_dt.append((1 / self.L) * (motor_voltage - y[2] * self.R - self.motor_speed_constant * omega_motor))
+        dy_dt.append((1 / self.L) * (motor_voltage - state[2] * self.R - self.motor_speed_constant * omega_motor))
 
-        information_dictionary['Motor Current'] = y[2]
+        information_dictionary['Motor Current'] = state[2]
         information_dictionary['Fuel Power'] = max(0, electrical_power)
 
-    def _propulsive_force(self, t_np1, y_n, velocity, demand, information_dictionary):
+    def _propulsive_force(self, t_np1, y_n, demand, information_dictionary):
 
         motor_torque = self.motor_torque_constant * y_n[2]
-        propulsive_force = (1 / self.PoweredWheelRadius) * self.transmission_efficiency * \
-                           self.transmission_ratio * motor_torque
+
+        wheel_torque = motor_torque * self.transmission_efficiency[0] * self.transmission_ratio[0]
+
+        propulsive_force = self._wheel_torque_to_linear(wheel_torque)
 
         return propulsive_force

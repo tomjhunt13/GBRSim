@@ -23,15 +23,16 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
                 vehicle_parameters[attribute] = default_vehicle_attributes[attribute]
 
         # Unpack vehicle attributes
-        self.m = vehicle_parameters['VehicleMass'] + vehicle_parameters['DriverMass']    # Total vehicle mass (kg)
-        self.Crr = vehicle_parameters['Crr']    # Coefficient of rolling resistance
-        self.Cd = vehicle_parameters['Cd']      # Coefficient of drag
-        self.A = vehicle_parameters['A']        # Frontal area (m^2)
-        self.PoweredWheelRadius = vehicle_parameters['PoweredWheelRadius']       # Radius of tyre for powered wheel
-        self.longitudinal_CoG = vehicle_parameters['LongitudinalCoG']
+        self.vehicle_mass = [vehicle_parameters['VehicleMass']]
+        self.driver_mass = [vehicle_parameters['DriverMass']]
+        self.m = self.vehicle_mass[0] + self.driver_mass[0]
+        self.Crr = [vehicle_parameters['Crr']]
+        self.Cd = [vehicle_parameters['Cd']]
+        self.A = [vehicle_parameters['A']]
+        self.PoweredWheelRadius = [vehicle_parameters['PoweredWheelRadius']]
+        self.longitudinal_CoG = [vehicle_parameters['LongitudinalCoG']]
         self.g = 9.81
         self.rho = 1.225
-
 
         # Admin properties
         self.verbose = verbose
@@ -46,9 +47,10 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
         self.control_function = self.controller.demand
 
         # Pre-calculate constants
-        self.aero_force = 0.5 * self.Cd * self.A * self.rho
+        self.m = self.vehicle_mass[0] + self.driver_mass[0]
+        self.aero_force = 0.5 * self.Cd[0] * self.A[0] * self.rho
         self.mg = self.m * self.g
-        self.rolling_resistance_force = self.mg * self.Crr
+        self.rolling_resistance_force = self.mg * self.Crr[0]
 
     def update_equation(self, t, state, information_dictionary, **kwargs):
 
@@ -62,7 +64,7 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
 
         # Get propulsive force
         throttle_demand = self.control_function(velocity=velocity, theta=theta, arc_length=state[0])
-        propulsive_force = self._propulsive_force(t, state, velocity, throttle_demand, information_dictionary)
+        propulsive_force = self._propulsive_force(t, state, throttle_demand, information_dictionary)
 
         # Resistive forces
         Fw, Fa, Fc, Frr = self.resistive_forces(theta, velocity, segment_index, lambda_parameter)
@@ -89,14 +91,14 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
         information_dictionary['Net Force (N)'] = net_force
         information_dictionary['Acceleration (m/s^2)'] = acceleration
 
-        self._further_calculations(state, dy_dt, velocity, throttle_demand, information_dictionary)
+        self._further_calculations(state, dy_dt, throttle_demand, information_dictionary)
 
         return dy_dt
 
     def _further_calculations(self, y, dy_dt, velocity, throttle_demand, information_dictionary):
         pass
 
-    def _propulsive_force(self, t_np1, y_n, velocity, demand, information_dictionary):
+    def _propulsive_force(self, t_np1, y_n, demand, information_dictionary):
 
         return 0
 
@@ -143,4 +145,12 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
         Fy = (self.m * V * V) / (R)
 
         return Fy * np.tan(alpha)
+
+    def _velocity_to_omega_wheel(self, velocity):
+
+        return (1 / self.PoweredWheelRadius[0]) * velocity
+
+    def _wheel_torque_to_linear(self, wheel_torque):
+
+        return wheel_torque / self.PoweredWheelRadius[0]
 

@@ -7,7 +7,7 @@ class Vehicle(VehicleRoot.VehicleRoot):
         super(Vehicle, self).__init__(vehicle_parameters=vehicle_parameters, verbose=verbose)
         self.powertrain = powertrain
 
-    def _propulsive_force(self, t_np1, y_n, velocity, demand, information_dictionary):
+    def _propulsive_force(self, t_np1, y_n, demand, information_dictionary):
         """
         :param velocity: Linear vehicle velocity
         :param demand:
@@ -15,12 +15,12 @@ class Vehicle(VehicleRoot.VehicleRoot):
         """
 
         # Convert linear velocity to wheel rotational speed
-        omega_wheel = (1 / self.PoweredWheelRadius) * velocity
+        omega_wheel = self._velocity_to_omega_wheel(y_n[1])
 
         # Get wheel torque
         wheel_torque = self.powertrain.update(t_np1, information_dictionary, omega_wheel, demand)
 
         # Linear force
-        linear_force = wheel_torque / self.PoweredWheelRadius
+        linear_force = self._wheel_torque_to_linear(wheel_torque)
 
         return linear_force

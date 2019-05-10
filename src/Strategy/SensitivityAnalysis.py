@@ -11,7 +11,6 @@ from src.Model import BrushedDCMotor
 # Strategy
 from src.Strategy import SimulationWrapper
 from src.Strategy import Controller
-from src.Strategy import OptimisationWrapper
 
 # Optimiser
 from src.Optimisation import Sensitivity
