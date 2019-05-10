@@ -2,7 +2,7 @@ from scipy.optimize import approx_fprime
 from src.Optimisation import VariableManager
 
 class Sensitivity(VariableManager.VariableManager):
-    def __init__(self, verbose=True, dx=1e-6):
+    def __init__(self, verbose=True, dx=1e-3):
 
         super(Sensitivity, self).__init__(verbose=verbose)
 

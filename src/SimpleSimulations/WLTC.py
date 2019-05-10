@@ -87,8 +87,6 @@ sensitivity.add_variable('Cd', wltc.Cd)
 
 grad = sensitivity.sensitivity(wltc.evaluate_cost)
 
-a = 6
-
 
 #
 # def WLTCSensitivity(input_vec, *args):
