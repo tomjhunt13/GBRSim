@@ -9,7 +9,8 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
         # Default attributes
         default_vehicle_attributes = {
             # Model properties
-            'Mass': 170,
+            'VehicleMass': 100,
+            'DriverMass': 70,
             'Crr': 1.5 * 0.001,     # http://www.eshopsem.com/boutique/product.php?id_product=75
             'Cd': 0.3,
             'A': 1.26,
@@ -22,7 +23,7 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
                 vehicle_parameters[attribute] = default_vehicle_attributes[attribute]
 
         # Unpack vehicle attributes
-        self.m = vehicle_parameters['Mass']     # Total vehicle mass (kg)
+        self.m = vehicle_parameters['VehicleMass'] + vehicle_parameters['DriverMass']    # Total vehicle mass (kg)
         self.Crr = vehicle_parameters['Crr']    # Coefficient of rolling resistance
         self.Cd = vehicle_parameters['Cd']      # Coefficient of drag
         self.A = vehicle_parameters['A']        # Frontal area (m^2)
