@@ -58,7 +58,7 @@ class IntegratedModel(VehicleRoot.VehicleRoot):
     def _further_calculations(self, state, dy_dt, throttle_demand, information_dictionary):
 
         # Update current
-        omega_motor = self._velocity_to_omega_wheel(state[1])
+        omega_motor = self._velocity_to_omega_wheel(state[1]) * self.transmission_ratio[0]
         back_emf = self.motor_speed_constant * omega_motor
         V_max = max(np.roots([1, -1 * (back_emf), -1 * self.Power * self.R]))
 
@@ -76,6 +76,7 @@ class IntegratedModel(VehicleRoot.VehicleRoot):
 
         information_dictionary['Motor Current'] = state[2]
         information_dictionary['Fuel Power'] = max(0, electrical_power)
+        information_dictionary['Motor Voltage (V)'] = motor_voltage
 
     def _propulsive_force(self, t_np1, y_n, demand, information_dictionary):
 

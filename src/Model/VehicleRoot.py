@@ -95,7 +95,7 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
 
         return dy_dt
 
-    def _further_calculations(self, y, dy_dt, velocity, throttle_demand, information_dictionary):
+    def _further_calculations(self, y, dy_dt, throttle_demand, information_dictionary):
         pass
 
     def _propulsive_force(self, t_np1, y_n, demand, information_dictionary):
@@ -148,7 +148,7 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
 
     def _velocity_to_omega_wheel(self, velocity):
 
-        return (1 / self.PoweredWheelRadius[0]) * velocity
+        return velocity / self.PoweredWheelRadius[0]
 
     def _wheel_torque_to_linear(self, wheel_torque):
 
