@@ -1,27 +1,28 @@
 class Powertrain:
-    def __init__(self, verbose=False):
+    def __init__(self, motor, transmission_ratio, transmission_efficiency=1, verbose=False):
+
+        self.ratio = [transmission_ratio]
+        self.efficiency = [transmission_efficiency]
+        self.motor = motor
         self.verbose = verbose
 
+        self.reset()
+
+    def reset(self):
+        self.motor.reset()
+
     def update(self, t_np1, information_dictionary, omega_wheel, demand):
-
-        torque_wheel = 0
-        fuel_power = 0
-
-        return torque_wheel, fuel_power
-
+        pass
+    
 
 class DirectTransmission(Powertrain):
 
     def __init__(self, motor, transmission_ratio, transmission_efficiency=1, verbose=False):
 
-        self.ratio = [transmission_ratio]
-        self.efficiency = transmission_efficiency
-        self.motor = motor
-
-        super(DirectTransmission, self).__init__(verbose=verbose)
-
-    def reset(self):
-        self.motor.reset()
+        super(DirectTransmission, self).__init__(motor=motor,
+                                                 transmission_ratio=transmission_ratio,
+                                                 transmission_efficiency=transmission_efficiency,
+                                                 verbose=verbose)
 
     def update(self, t_np1, information_dictionary, omega_wheel, demand):
 
@@ -32,11 +33,10 @@ class DirectTransmission(Powertrain):
         T_m, fuel_power = self.motor.update(t_np1, omega_motor, demand, information_dictionary)
 
         # Convert to wheel torque
-        T_wheel = T_m * self.ratio[0] * self.efficiency
+        T_wheel = T_m * self.ratio[0] * self.efficiency[0]
 
         # Update information_dictionary
         information_dictionary['Wheel Torque'] = T_wheel
-        # information_dictionary['Fuel Power'] = fuel_power
 
         if self.verbose:
             print('Powertrain')
@@ -49,19 +49,10 @@ class FreeWheel(Powertrain):
 
     def __init__(self, motor, transmission_ratio, transmission_efficiency=1, verbose=False):
 
-        self.ratio = [transmission_ratio]
-        self.efficiency = transmission_efficiency
-        self.motor = motor
-
-        super(FreeWheel, self).__init__(verbose=verbose)
-
-        # Set up state
-        self.reset()
-
-    def reset(self):
-        self.motor_omega_n = 0
-        self.t_n = 0
-        self.motor.reset()
+        super(FreeWheel, self).__init__(motor=motor,
+                                        transmission_ratio=transmission_ratio,
+                                        transmission_efficiency=transmission_efficiency,
+                                        verbose=verbose)
 
     def update(self, t_np1, information_dictionary, omega_wheel, demand):
 
@@ -78,8 +69,7 @@ class FreeWheel(Powertrain):
             self.motor.update(t_np1, 0, demand, information_dictionary)
             T_m = 0
 
-        wheel_torque = T_m * self.ratio[0] * self.efficiency
-        self.t_n = t_np1
+        wheel_torque = T_m * self.ratio[0] * self.efficiency[0]
 
         information_dictionary['Motor  Speed'] = self.motor_omega_n
         information_dictionary['Wheel Torque'] = wheel_torque
