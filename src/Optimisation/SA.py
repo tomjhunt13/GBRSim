@@ -15,11 +15,3 @@ class SA(Optimiser.Optimiser):
         optimisation_result = dual_annealing(self.evaluate_cost, bounds, maxiter=kwargs['max_iterations'], initial_temp=kwargs['initial_temperature'])
 
         return optimisation_result['x']
-
-    def _assemble_bounds_vector(self):
-
-        bounds = [None] * len(self.variables)
-        for index, var in enumerate(self.variables):
-            bounds[index] = (var['min'], var['max'])
-
-        return bounds

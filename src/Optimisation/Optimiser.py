@@ -31,3 +31,11 @@ class Optimiser(VariableManager.VariableManager):
     def _optimise(self, **kwargs):
 
         pass
+
+    def _assemble_bounds_vector(self):
+
+        bounds = [None] * len(self.variables)
+        for index, var in enumerate(self.variables):
+            bounds[index] = (var['min'], var['max'])
+
+        return bounds
