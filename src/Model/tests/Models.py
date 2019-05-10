@@ -97,3 +97,36 @@ class FreefallWithFriction(ConstrainedParticle.ConstrainedParticle):
 
         return dx_dt
 
+class FreefallWithAeroResistance(ConstrainedParticle.ConstrainedParticle):
+
+    def __init__(self, g=10, mass=1, aero_force=1):
+
+        super(FreefallWithAeroResistance, self).__init__()
+
+        self.mass = mass
+        self.g = g
+        self.mg = mass * g
+        self.aero_force = aero_force
+
+    def update_equation(self, t, state, information_dictionary, **kwargs):
+
+        # Get position on track
+        segment, segment_index, lambda_parameter = self.track.segment_lambda_from_arc_length(state[0])
+
+        # Get net force
+        theta = segment.gradient(lambda_parameter)
+        weight_force = self.weight_force(theta)
+        direction_mod = ConstrainedParticle.direction_modifier(state[1])
+        aero_drag = -1 * direction_mod * self.aerodynamic_drag_force(state[1])
+
+
+        net_force = weight_force + aero_drag
+
+        # Fill in update equation
+        dx_dt = [
+            state[1],
+            net_force / self.mass
+        ]
+
+        return dx_dt
+

@@ -16,23 +16,27 @@ To do:
 
 
 t_s = time.time()
-track = ImportTrack.import_year('2019')
+track = ImportTrack.import_year('2018')
 print('Track import time: ' + str(time.time() - t_s))
 
-controller = Controller.BurnAndCoast(number_of_burns=2, verbose=True)
-transmission_ratio = 8
-controller.location_spacings = [[0.3988230623101998], [0.01580746431742152], [0.2007107484300042], [0.18355568719861992]]
+# controller = Controller.BurnAndCoast(number_of_burns=2, verbose=True)
+controller = Controller.ConstantPower()
+transmission_ratio = 12
+# controller.location_spacings = [[0.3988230623101998], [0.01580746431742152], [0.2007107484300042], [0.18355568719861992]]
 # transmission_ratio = 12
 
 motor = BrushedDCMotor.MaxonRE65(dt=1e-3, verbose=False)
-powertrain = PowertrainModel.FreeWheel(motor, transmission_ratio, transmission_efficiency=0.8, verbose=False)
-car = VehicleModel.Vehicle(powertrain, verbose=True)
+powertrain = PowertrainModel.DirectTransmission(motor, transmission_ratio, transmission_efficiency=0.8, verbose=False)
 
-# car  = IntegratedModel.IntegratedModel({'transmission_ratio': transmission_ratio})
+vehicle_parameters = {'Cd': 0.2}
+
+# car = VehicleModel.Vehicle(powertrain, verbose=True)
+
+car  = IntegratedModel.IntegratedModel({'transmission_ratio': transmission_ratio}, verbose=True)
 
 
 t_s = time.time()
-vehicle_results = car.simulate([1e-4, 1e-4], dt=0.25, t_end=300, verbose=True, track=track, controller=controller)
+vehicle_results = car.simulate([1e-4, 1e-4, 1e-4], dt=0.001, t_end=300, verbose=True, track=track, controller=controller)
 print('Elapsed time: ' + str(time.time() - t_s))
 
 Results.process_results(track, vehicle_results)
