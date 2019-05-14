@@ -27,7 +27,7 @@ def sensitivity_cost(self):
 
     print('Time: ' + str(time))
 
-    return time
+    return energy
 
 
 # ------- Import Track ------- #
@@ -51,19 +51,20 @@ transmission_efficiency = 0.8
 mass = 100
 Cd = 0.3
 battery_efficiency = 0.9
+driver_mass = 70
 
 controller = Controller.ConstantPower()
 
 motor = BrushedDCMotor.MaxonRE65(dt=1e-3, verbose=False, battery_efficiency=battery_efficiency)
 powertrain = PowertrainModel.FreeWheel(motor, 10, transmission_efficiency=transmission_efficiency, verbose=False)
-car = VehicleModel.Vehicle(powertrain, vehicle_parameters={'VehicleMass': mass, 'Cd': Cd}, verbose=False)
+car = VehicleModel.Vehicle(powertrain, vehicle_parameters={'VehicleMass': mass, 'Cd': Cd, 'DriverMass': driver_mass}, verbose=False)
 sim = SimulationWrapper.SimulationWrapper(car, track, controller, desired_time)
 
 
 # ------- Sensitivity ------- #
 sim.sensitivity_cost = MethodType(sensitivity_cost, sim)
 
-sensitivity = Sensitivity.Sensitivity(dx=0.01)
+sensitivity = Sensitivity.Sensitivity()
 sensitivity.add_variable('Transmission Efficiency', powertrain.efficiency, dx=0.01)
 sensitivity.add_variable('Mass', car.vehicle_mass, dx=1)
 sensitivity.add_variable('Cd', car.Cd, dx=0.01)

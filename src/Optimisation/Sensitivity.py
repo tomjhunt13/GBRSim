@@ -28,11 +28,18 @@ class Sensitivity(VariableManager.VariableManager):
 
         gradient = approx_fprime(input_vector, self.evaluate_cost, dx_vector)
 
-        sensitivity = self._unpack_vector(gradient)
+        absolute_sensitivity = self._unpack_vector(gradient)
+        scaled_sensitivity = {}
+
+        for index, variable in enumerate(self.variables):
+            key = variable['name']
+            dx = variable['dx'][0]
+            scaled_sensitivity[key] = {'Change': dx * absolute_sensitivity[key], 'dx': variable['dx'][0]}
 
         if self.verbose:
-            print('Gradient: ' + str(sensitivity))
+            print('Absolute Sensitivity: ' + str(absolute_sensitivity))
+            print('Scaled Sensitivity: ' + str(scaled_sensitivity))
 
-        return sensitivity
+        return absolute_sensitivity, scaled_sensitivity
 
 

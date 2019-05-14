@@ -35,6 +35,7 @@ class WLTC:
 
         energy = [None] * (len(self.t) - 1)
         s = [None] * (len(self.t) - 1)
+        power = [None] * (len(self.t) - 1)
 
         # Calculate Forces
         for i in range(len(self.t) - 1):
@@ -56,11 +57,17 @@ class WLTC:
             # Distance travelled
             s[i] = v_avg * dt
 
+            # Power
+            force_i = dp_dt + F_a + F_rr
+
+            power[i] = force_i * v_avg
+
             # Energy
-            energy[i] = s[i] * (dp_dt + F_a + F_rr)
+            energy[i] = s[i] * (force_i)
 
         s_total = sum(s)
         energy_total = sum(energy)
+        peak_power = max(power)
 
         km_kwh = s_total / (energy_total / 3600)
 
@@ -68,11 +75,12 @@ class WLTC:
 
 
 # Vehicle
-m = 150
-Cd = 0.2
+m = 220
+Cd = 0.3
 A = 1.26
 Crr = 0.02
 wltc = WLTC(t, v, m, Cd, A, Crr)
+wltc.evaluate_cost()
 
 # Optimisation
 opt = GradOptimiser.GradOptimiser()
