@@ -4,7 +4,7 @@ from src.Model import Model
 from src.Integration import RK4
 
 
-class BrushedMotor(Model.Model):
+class BrushedDCMotor(Model.Model):
     def __init__(self, motor_parameters={}, dt=1e-3, solver=RK4.RK4, verbose=False):
         """
         Approximate brushed motor model without resistance
@@ -50,7 +50,7 @@ class BrushedMotor(Model.Model):
         self.solver = solver
         self.dt = dt
 
-        super(BrushedMotor, self).__init__()
+        super(BrushedDCMotor, self).__init__()
 
     def reset(self):
         self.t_n = 0
@@ -169,7 +169,7 @@ def MaxonRE65(dt=1e-3, solver=RK4.RK4, verbose=False, power=250, V_max=48, batte
     motor_parameters = {'torque_constant': Kt, 'speed_constant': Kw, 'R': R, 'L': L, 'Power': power,
                         'V_max': V_max, 'battery_efficiency': battery_efficiency}
 
-    return BrushedMotor(motor_parameters, dt=dt, solver=solver, verbose=verbose)
+    return BrushedDCMotor(motor_parameters, dt=dt, solver=solver, verbose=verbose)
 
 def Moog_C42_L90_30(dt=1e-3, solver=RK4.RK4, verbose=False, power=359, V_max=90, battery_efficiency=0.9):
     """
@@ -188,7 +188,7 @@ def Moog_C42_L90_30(dt=1e-3, solver=RK4.RK4, verbose=False, power=359, V_max=90,
     motor_parameters = {'torque_constant': Kt, 'speed_constant': Kw, 'R': R, 'L': L, 'Power': power,
                         'V_max': V_max, 'battery_efficiency': battery_efficiency}
 
-    return BrushedMotor(motor_parameters, dt=dt, solver=solver, verbose=verbose)
+    return BrushedDCMotor(motor_parameters, dt=dt, solver=solver, verbose=verbose)
 
 def Moog_C42_L90_10(dt=1e-3, solver=RK4.RK4, verbose=False, power=317, V_max=48, battery_efficiency=0.9):
     """
@@ -207,4 +207,4 @@ def Moog_C42_L90_10(dt=1e-3, solver=RK4.RK4, verbose=False, power=317, V_max=48,
     motor_parameters = {'torque_constant': Kt, 'speed_constant': Kw, 'R': R, 'L': L, 'Power': power,
                         'V_max': V_max, 'battery_efficiency': battery_efficiency}
 
-    return BrushedMotor(motor_parameters, dt=dt, solver=solver, verbose=verbose)
+    return BrushedDCMotor(motor_parameters, dt=dt, solver=solver, verbose=verbose)

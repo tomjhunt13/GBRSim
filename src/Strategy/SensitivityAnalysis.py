@@ -4,7 +4,7 @@ from types import MethodType
 
 # Model
 from src.Track import ImportTrack
-from src.Model import VehicleModel
+from src.Model import SeparatedVehicleModel
 from src.Model import PowertrainModel
 from src.Model import BrushedDCMotor
 
@@ -57,7 +57,7 @@ controller = Controller.ConstantPower()
 
 motor = BrushedDCMotor.MaxonRE65(dt=1e-3, verbose=False, battery_efficiency=battery_efficiency)
 powertrain = PowertrainModel.FreeWheel(motor, 10, transmission_efficiency=transmission_efficiency, verbose=False)
-car = VehicleModel.Vehicle(powertrain, vehicle_parameters={'VehicleMass': mass, 'Cd': Cd, 'DriverMass': driver_mass}, verbose=False)
+car = SeparatedVehicleModel.SeparatedVehicleModel(powertrain, vehicle_parameters={'VehicleMass': mass, 'Cd': Cd, 'DriverMass': driver_mass}, verbose=False)
 sim = SimulationWrapper.SimulationWrapper(car, track, controller, desired_time)
 
 

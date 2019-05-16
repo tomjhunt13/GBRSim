@@ -9,10 +9,10 @@ class CubicBezier(Segment):
         
         super(CubicBezier, self).__init__(**segment_options)
 
-    def position(self, t):
+    def position(self, lambda_parameter):
         """
-        For a value of parameter t, get the position
-        :param t: float between 0 and 1 - value of t to get position of
+        For a value of parameter lambda, get the position
+        :param lambda_parameter: float between 0 and 1 - value of lambda to get position of
         :return: 3 element list - Position vector
         """
 
@@ -24,59 +24,59 @@ class CubicBezier(Segment):
 
 
         # Calculate t parameters
-        t_squared = t * t
-        t_cubed = t_squared * t
-        one_minus_t = (1 - t)
+        t_squared = lambda_parameter * lambda_parameter
+        t_cubed = t_squared * lambda_parameter
+        one_minus_t = (1 - lambda_parameter)
         one_minus_t_squared = one_minus_t * one_minus_t
         one_minus_t_cubed = one_minus_t_squared * one_minus_t
 
 
         # Get contributions
         P0_contribution = np.multiply(one_minus_t_cubed, P0)
-        P1_contribution = np.multiply(3 * one_minus_t_squared * t, P1)
+        P1_contribution = np.multiply(3 * one_minus_t_squared * lambda_parameter, P1)
         P2_contribution = np.multiply(3 * one_minus_t * t_squared, P2)
         P3_contribution = np.multiply(t_cubed, P3)
 
         return list(np.add(np.add(P0_contribution, P1_contribution), np.add(P2_contribution, P3_contribution)))
 
-    def horizontal_radius_of_curvature(self, t):
+    def horizontal_radius_of_curvature(self, lambda_parameter):
         """
 
-        :param t:
+        :param lambda_parameter:
         :return:
         """
 
-        curvature = self._curvature(t, horizontal=True)
+        curvature = self._curvature(lambda_parameter, horizontal=True)
         if np.isclose(curvature, 0, atol=1e-8):
             return 1e8
 
         return 1 / curvature
 
-    def radius_of_curvature(self, t):
+    def radius_of_curvature(self, lambda_parameter):
         """
-        Compute the radius of curvature at t
-        :param t: Scaled distance along curve
+        Compute the radius of curvature at lambda
+        :param lambda_parameter: Scaled distance along curve
         :return: Radius of curvature
         """
 
-        curvature = self._curvature(t)
+        curvature = self._curvature(lambda_parameter)
         if np.isclose(curvature, 0, atol=1e-8):
             return 1e8
 
         return 1 / curvature
 
-    def _curvature(self, t, horizontal=False):
+    def _curvature(self, lambda_parameter, horizontal=False):
         """
         Compute the magnitude of curvature
-        :param t: Scaled distance along curve
+        :param lambda_parameter: Scaled distance along curve
         :return: Curvature
 
         https://www.khanacademy.org/math/multivariable-calculus/multivariable-derivatives/curvature/v/curvature-formula-part-5
         """
 
         # Derivatives
-        dS_dt = self.df_dlambda(t)
-        d2S_dt2 = self.d2x_dt2(t)
+        dS_dt = self.df_dlambda(lambda_parameter)
+        d2S_dt2 = self.d2x_dt2(lambda_parameter)
         dS_dt_mag = np.linalg.norm(dS_dt)
 
         # Curvature calculation
@@ -96,10 +96,10 @@ class CubicBezier(Segment):
         return curvature
 
 
-    def df_dlambda(self, t):
+    def df_dlambda(self, lambda_parameter):
         """
-        For a value of parameter t, compute the first derivative wrt t
-        :param t: float between 0 and 1 - value of t to get first derivative at
+        For a value of parameter lambda, compute the first derivative wrt lambda
+        :param lambda_parameter: float between 0 and 1 - value of lambda to get first derivative at
         :return: 3 element list - Derivative vector
         """
 
@@ -110,22 +110,22 @@ class CubicBezier(Segment):
         P3 = self.knots[1]
 
         # Calculate t parameters
-        t_squared = t * t
-        one_minus_t = (1 - t)
+        t_squared = lambda_parameter * lambda_parameter
+        one_minus_t = (1 - lambda_parameter)
         one_minus_t_squared = one_minus_t * one_minus_t
 
         # Get contributions
         P0_contribution = np.multiply(-3 * one_minus_t_squared, P0)
-        P1_contribution = np.multiply(3 * (1 - 4 * t + 3 * t_squared), P1)
-        P2_contribution = np.multiply(3 * (2 * t - 3 * t_squared), P2)
+        P1_contribution = np.multiply(3 * (1 - 4 * lambda_parameter + 3 * t_squared), P1)
+        P2_contribution = np.multiply(3 * (2 * lambda_parameter - 3 * t_squared), P2)
         P3_contribution = np.multiply(3 * t_squared, P3)
 
         return list(np.add(np.add(P0_contribution, P1_contribution), np.add(P2_contribution, P3_contribution)))
 
-    def d2x_dt2(self, t):
+    def d2x_dt2(self, lambda_parameter):
         """
-        For a value of parameter t, compute the second derivative wrt t
-        :param t: float between 0 and 1 - value of t to get second derivative at
+        For a value of parameter lambda, compute the second derivative wrt lambda
+        :param lambda_parameter: float between 0 and 1 - value of lambda to get second derivative at
         :return: 3 element list - Derivative vector
         """
 
@@ -136,10 +136,10 @@ class CubicBezier(Segment):
         P3 = self.knots[1]
 
         # Get contributions
-        P0_contribution = np.multiply(6 * (1 - t), P0)
-        P1_contribution = np.multiply(3 * (- 4 + 6 * t), P1)
-        P2_contribution = np.multiply(6 * (1 - 3 * t), P2)
-        P3_contribution = np.multiply(6 * t, P3)
+        P0_contribution = np.multiply(6 * (1 - lambda_parameter), P0)
+        P1_contribution = np.multiply(3 * (- 4 + 6 * lambda_parameter), P1)
+        P2_contribution = np.multiply(6 * (1 - 3 * lambda_parameter), P2)
+        P3_contribution = np.multiply(6 * lambda_parameter, P3)
 
         return list(np.add(np.add(P0_contribution, P1_contribution), np.add(P2_contribution, P3_contribution)))
 

@@ -1,10 +1,10 @@
 from src.Model import VehicleRoot
 
-class Vehicle(VehicleRoot.VehicleRoot):
+class SeparatedVehicleModel(VehicleRoot.VehicleRoot):
 
     def __init__(self, powertrain, vehicle_parameters={}, verbose=False):
 
-        super(Vehicle, self).__init__(vehicle_parameters=vehicle_parameters, verbose=verbose)
+        super(SeparatedVehicleModel, self).__init__(vehicle_parameters=vehicle_parameters, verbose=verbose)
         self.powertrain = powertrain
 
     def _propulsive_force(self, t_np1, y_n, demand, information_dictionary):

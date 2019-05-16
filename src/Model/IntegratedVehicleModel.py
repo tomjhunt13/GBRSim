@@ -2,9 +2,7 @@ import numpy as np
 
 from src.Model import VehicleRoot
 
-import time
-
-class IntegratedModel(VehicleRoot.VehicleRoot):
+class IntegratedVehicleModel(VehicleRoot.VehicleRoot):
 
     def __init__(self, vehicle_parameters={}, verbose=False):
 
@@ -38,7 +36,7 @@ class IntegratedModel(VehicleRoot.VehicleRoot):
             if attribute not in vehicle_parameters:
                 vehicle_parameters[attribute] = default_vehicle_attributes[attribute]
 
-        super(IntegratedModel, self).__init__(vehicle_parameters=vehicle_parameters, verbose=verbose)
+        super(IntegratedVehicleModel, self).__init__(vehicle_parameters=vehicle_parameters, verbose=verbose)
 
         # Motor properties
         self.motor_torque_constant = vehicle_parameters['motor_torque_constant']

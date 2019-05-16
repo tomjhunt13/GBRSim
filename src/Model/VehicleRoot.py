@@ -116,18 +116,18 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
         Fw = -1 * self.weight_force(theta)
         Fa = direction_mod * self.aerodynamic_drag_force(V)
         Fc = direction_mod * self._cornering_drag(V, segment_index, lambda_param)
-        Frr = direction_mod * self._rolling_resistance()
+        Frr = direction_mod * self._rolling_resistance(theta)
 
         return Fw, Fa, Fc, Frr
 
-    def _rolling_resistance(self):
+    def _rolling_resistance(self, theta):
         """
         :param V:
         :param theta:
         :return:
         """
 
-        return self.rolling_resistance_force
+        return self.rolling_resistance_force * np.cos(theta)
 
     def _cornering_drag(self, V, segment_index, lambda_param, alpha_deg=1):
         """

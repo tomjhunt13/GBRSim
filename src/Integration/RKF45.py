@@ -4,7 +4,7 @@ from src.Integration.Integrator import Integrator
 
 class RKF45(Integrator):
 
-    def __init__(self, dt_min=1e-3, dt_max=1, error_tolerance=1e-5):
+    def __init__(self, dt_min=1e-3, dt_max=1, error_tolerance=0.1):
 
         self.dt_min = dt_min
         self.dt_max = dt_max
