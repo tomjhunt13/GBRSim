@@ -1,9 +1,8 @@
-from src.Integration import RKF45, RK4, DP45, Butcher, Euler
+from src.Integration import RK4
 
 class Model:
 
     def __init__(self):
-
         pass
 
     def simulate(self, initial_conditions, dt=0.25, t_start=0, t_end=1, solver=RK4.RK4, verbose=True, **model_arguments):

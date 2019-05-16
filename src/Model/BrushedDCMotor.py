@@ -44,7 +44,6 @@ class BrushedDCMotor(Model.Model):
 
         # Admin properties
         self.verbose = verbose
-        # self.inner_steps = inner_steps
 
         # Numerical properties
         self.solver = solver
@@ -66,13 +65,13 @@ class BrushedDCMotor(Model.Model):
         """
 
         # Get voltage from controller
-        V = self._controller(omega, demand)
+        V = self.motor_controller(omega, demand)
 
         # Current state
         t_n = self.t_n
         i_n = self.i_n
 
-        # solver = self.solver()
+        # Get next state
         y_np1 = self.simulate([i_n], V=V, omega=omega, dt=self.dt, t_start=t_n, t_end=t_np1, verbose=self.verbose, solver=self.solver)
         i_np1 = y_np1[-1]['y'][0]
 
@@ -94,10 +93,11 @@ class BrushedDCMotor(Model.Model):
             print('Motor Torque: ' + str(torque))
             print('Efficiency: ' + str(motor_efficiency))
 
-        # Update state
+        # Update stored state
         self.i_n = i_np1
         self.t_n = t_np1
 
+        # Update dictionaries
         information_dict['Fuel Power'] = max(0, electrical_power)
         information_dict['Motor Current'] = i_np1
         information_dict['Motor Efficiency'] = motor_efficiency
@@ -112,27 +112,27 @@ class BrushedDCMotor(Model.Model):
 
     def update_equation(self, t, state, info_dict, **kwargs):
         """
-        Returns di / dt
-        :param i:
-        :param omega:
-        :param V:
-        :return:
+        Motor update equation
+        :param  t: Time at previous step
+        :param state: Single element list of previous state. Current, i, = state[0]
+        :param info_dict: Information dictionary to fill
+        :return: di / dt
         """
 
-        di_dt = (1 / self.L) * (self.V - state[0] * self.R - self._back_emf(self.omega))
+        di_dt = (1 / self.L) * (self.V - state[0] * self.R - self.back_emf(self.omega))
         info_dict['di_dt'] = di_dt
 
         return di_dt
 
-    def _controller(self, omega_n, demand):
+    def motor_controller(self, omega_n, demand):
         """
-        Calculates voltage
-        :param omega_n:
-        :param demand:
-        :return:
+        Calculates voltage applied to motor
+        :param omega_n: Motor speed at time t_n
+        :param demand: Throttle position between 0 and 1
+        :return: Motor applied voltage
         """
 
-        back_emf = self._back_emf(omega_n)
+        back_emf = self.back_emf(omega_n)
         V_max = max(np.roots([1, -1 * back_emf, -1 * self.Power * self.R]))
 
         if V_max > self.V_max:
@@ -145,15 +145,19 @@ class BrushedDCMotor(Model.Model):
 
         return V
 
-    def _back_emf(self, omega):
+    def back_emf(self, omega):
+        """
+        Calculate the induced back emf from spinning motor
+        :param omega: Motor speed
+        :return: Back emf value
+        """
         return self.speed_constant * omega
 
 
+# ------- Pre-made motor instances ------- #
+
 def MaxonRE65(dt=1e-3, solver=RK4.RK4, verbose=False, power=250, V_max=48, battery_efficiency=0.9):
     """
-
-    :return:
-
     https://www.maxonmotor.com/maxon/view/category/motor?etcc_cu=onsite&etcc_med_onsite=Product&etcc_cmp_onsite=RE+Program&etcc_plc=Overview-Page-DC-Motors&etcc_var=%5bcom%5d%23en%23_d_&target=filter&filterCategory=re
     """
 

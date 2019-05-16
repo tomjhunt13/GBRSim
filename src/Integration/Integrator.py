@@ -70,9 +70,8 @@ class Integrator:
 def update_dictionary_keys(full_dictionary, destination_dictionary):
     """
     Updates destination dictionary with keys its missing from full dictionary
-    :param full_dictionary:
-    :param destination_dictionary:
-    :return:
+    :param full_dictionary: Dictionary containing all the desired keys
+    :param destination_dictionary: Dictionary to add keys to
     """
 
     for key in full_dictionary.keys():

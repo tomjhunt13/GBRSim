@@ -8,19 +8,14 @@ class SeparatedVehicleModel(VehicleRoot.VehicleRoot):
         self.powertrain = powertrain
 
     def _propulsive_force(self, t_np1, y_n, demand, information_dictionary):
-        """
-        :param velocity: Linear vehicle velocity
-        :param demand:
-        :return:
-        """
 
         # Convert linear velocity to wheel rotational speed
-        omega_wheel = self._velocity_to_omega_wheel(y_n[1])
+        omega_wheel = self.velocity_to_omega_wheel(y_n[1])
 
         # Get wheel torque
         wheel_torque = self.powertrain.update(t_np1, information_dictionary, omega_wheel, demand)
 
         # Linear force
-        linear_force = self._wheel_torque_to_linear(wheel_torque)
+        linear_force = self.wheel_torque_to_linear(wheel_torque)
 
         return linear_force

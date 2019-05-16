@@ -1,22 +1,4 @@
 import numpy as np
-"""
-Problem:
-
-y' = f(y, t)
-
-
-k_1 = h * f(t_n, y_n)
-k_2 = h * f(t_n + h/2, y_n + k_1/2)
-k_3 = h * f(t_n + h/2, y_n + k_2/2)
-k_4 = h * f(t_n + h, y_n + k_3)
-
-y_n+1 = y_n + 1/6 * (k_1 + 2 * k_2 + 2 * k_3 + k_4)
-t_n+1 = t + h
-
-
-"""
-
-import numpy as np
 
 from src.Integration.Integrator import Integrator
 

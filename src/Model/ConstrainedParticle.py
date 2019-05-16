@@ -86,18 +86,17 @@ class ConstrainedParticle(Model.Model):
 
     def aerodynamic_drag_force(self, V):
         """
-        :param segment_index:
-        :param lambda_param:
-        :param V:
-        :return:
+        Calculates the force on the particle due to aerodynamic drag
+        :param V: Particle speed
+        :return: Aerodynamic drag
         """
 
         return self.aero_force * V * V
 
 def direction_modifier(V):
     """
-    :param V:
-    :return:
+    Returns 1 for positive velocity, 0 for no velocity, -1 for negative velocity
+    :param V: Velocity
     """
     if V > 0:
         return 1

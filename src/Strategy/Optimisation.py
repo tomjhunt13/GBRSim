@@ -30,7 +30,7 @@ transmission_efficiency = 0.95
 vehicle_mass = 80
 Cd = 0.25
 
-controller = Controller.BurnAndCoast(number_of_burns=3)
+controller = Controller.BurnAndCoast(number_of_burns=6)
 
 motor = BrushedDCMotor.MaxonRE65(dt=1e-3, verbose=False)
 powertrain = PowertrainModel.FreeWheel(motor, 10, transmission_efficiency=transmission_efficiency, verbose=False)
@@ -39,28 +39,31 @@ car = SeparatedVehicleModel.SeparatedVehicleModel(powertrain, vehicle_parameters
 sim = SimulationWrapper.SimulationWrapper(car, track, controller, desired_time)
 
 
-# # ------- Create Optimisation ------- #
-# optimiser = SA.SA()
-# OptimisationWrapper.OptimiseTransmissionRatio(optimiser, powertrain)
-# OptimisationWrapper.OptimiseBurnLocations(optimiser, controller)
+# ------- Create Optimisation ------- #
+optimiser = SA.SA()
+OptimisationWrapper.OptimiseTransmissionRatio(optimiser, powertrain)
+OptimisationWrapper.OptimiseBurnLocations(optimiser, controller)
+
+optimum = optimiser.optimise(sim.cost, max_iterations=1)
+
 #
-# optimum = optimiser.optimise(sim.cost, max_iterations=1)
-
-
-# ------- Run Optimum Solution ------- #
-optimum = {'Transmission Ratio': 12.761215988102006, 'dt_0': 0.4871151343836191, 'dt_1': 0.2545449394626367, 'dt_2': 0.3727696060224981, 'dt_3': 0.3806168035520914, 'dt_4': 0.287938645987174, 'dt_5': 0.17669039230306138}
-
-powertrain.ratio[0] = optimum['Transmission Ratio']
-controller.location_spacings[0][0] = optimum['dt_0']
-controller.location_spacings[1][0] = optimum['dt_1']
-controller.location_spacings[2][0] = optimum['dt_2']
-controller.location_spacings[3][0] = optimum['dt_3']
-controller.location_spacings[4][0] = optimum['dt_4']
-controller.location_spacings[5][0] = optimum['dt_5']
-
-vehicle_results = sim.simulate()
-Results.process_results(track, vehicle_results)
-# : 11.848357931345003, 'dt_0': 0.03765359806812562, 'dt_1': 0.012218674553587041, 'dt_2': 0.07158429447431057, 'dt_3': 0.04889603508825501}
+# # ------- Run Optimum Solution ------- #
+# optimum = {'Transmission Ratio': 11.920413573272526, 'dt_0': 0.11374758604599532, 'dt_1': 0.1978071313552845, 'dt_2': 0.4874739444596916, 'dt_3': 0.4977957254989296, 'dt_4': 0.47032508069801215, 'dt_5': 0.3013538015229851, 'dt_6': 0.2332330583327169, 'dt_7': 0.1509738869667685, 'dt_8': 0.4422626476936329, 'dt_9': 0.2897778433017719}
+#
+# powertrain.ratio[0] = optimum['Transmission Ratio']
+# controller.location_spacings[0][0] = optimum['dt_0']
+# controller.location_spacings[1][0] = optimum['dt_1']
+# controller.location_spacings[2][0] = optimum['dt_2']
+# controller.location_spacings[3][0] = optimum['dt_3']
+# controller.location_spacings[4][0] = optimum['dt_4']
+# controller.location_spacings[5][0] = optimum['dt_5']
+# controller.location_spacings[6][0] = optimum['dt_6']
+# controller.location_spacings[7][0] = optimum['dt_7']
+# controller.location_spacings[8][0] = optimum['dt_6']
+# controller.location_spacings[9][0] = optimum['dt_7']
+#
+# vehicle_results = sim.simulate()
+# Results.process_results(track, vehicle_results)
 
 
 

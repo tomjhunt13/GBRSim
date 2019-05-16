@@ -22,7 +22,6 @@ class Euler(Integrator):
     def _step(self, t_n, y_n, info_total, **kwargs):
 
         info_1 = {}
-        # Euler Step
         dy = np.multiply(self.dt, self.f(t_n, y_n, info_1, **kwargs))
         y_np1 = np.add(y_n, dy)
 

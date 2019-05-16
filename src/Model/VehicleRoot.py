@@ -115,42 +115,57 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
 
         Fw = -1 * self.weight_force(theta)
         Fa = direction_mod * self.aerodynamic_drag_force(V)
-        Fc = direction_mod * self._cornering_drag(V, segment_index, lambda_param)
-        Frr = direction_mod * self._rolling_resistance(theta)
+        Fc = direction_mod * self.cornering_drag(V, segment_index, lambda_param)
+        Frr = direction_mod * self.rolling_resistance(theta)
 
         return Fw, Fa, Fc, Frr
 
-    def _rolling_resistance(self, theta):
+    def rolling_resistance(self, theta):
         """
-        :param V:
-        :param theta:
-        :return:
+        Calculate resistive force
+        :param theta: The angle between the direction of the vehicle and horizontal in radians
+        :return: Force
         """
 
         return self.rolling_resistance_force * np.cos(theta)
 
-    def _cornering_drag(self, V, segment_index, lambda_param, alpha_deg=1):
+    def cornering_drag(self, V, segment_index, lambda_param, alpha_deg=1):
         """
-        :return:
+        Estimate cornering scrub force
+        :param V: Vehicle speed
+        :param segment_index: Index of current track segment
+        :param lambda_param: Parameter value along current track segment
+        :param alpha_deg: Tyre slip angle in degrees
+        :return: Cornering scrub force
         """
 
-        # Assume max alpha = 3 deg
+        # Get alpha in radians
         alpha = alpha_deg * (np.pi / 180)
 
         # Track radius of curvature
         segment = self.track.segments[segment_index]
-        R = segment.horizontal_radius_of_curvature(lambda_param)    # Longest resistive force calculation
+        R = segment.horizontal_radius_of_curvature(lambda_param)
 
         # Centripetal force
         Fy = (self.m * V * V) / (R)
 
         return Fy * np.tan(alpha)
 
-    def _velocity_to_omega_wheel(self, velocity):
+    def velocity_to_omega_wheel(self, velocity):
+        """
+        Convert between linear vehicle velocity and wheel rotational speed
+        :param velocity: Linear vehicle velocity
+        :return: Wheel rotational speed
+        """
 
         return velocity / self.PoweredWheelRadius[0]
 
-    def _wheel_torque_to_linear(self, wheel_torque):
+    def wheel_torque_to_linear(self, wheel_torque):
+        """
+        Convert between a torque acting on the driven wheel and the linear force excerted on the vehicle
+        :param wheel_torque: Torque acting on wheel
+        :return: Linear force
+        """
 
         return wheel_torque / self.PoweredWheelRadius[0]
 
