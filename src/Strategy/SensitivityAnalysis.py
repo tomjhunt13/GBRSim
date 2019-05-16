@@ -24,10 +24,12 @@ def sensitivity_cost(self):
     t = [d['t'] for d in vehicle_results]
     energy = np.trapz(fuel_power, t)
     time = t[-1]
+    arc_length = [d['Arc Length (m)'] for d in vehicle_results]
+    distance = max(arc_length) / 1000
 
     print('Time: ' + str(time))
 
-    return energy
+    return distance /  (energy / 3.6e6)
 
 
 # ------- Import Track ------- #
@@ -47,17 +49,17 @@ desired_time = (total_time / laps) - 5
 # ------- Make Model ------- #
 
 # Model parameters
-transmission_efficiency = 0.8
-mass = 100
-Cd = 0.3
-battery_efficiency = 0.9
+transmission_efficiency = 0.7
+vehicle_mass = 150
+Cd = 0.4
+battery_efficiency = 0.8
 driver_mass = 70
 
 controller = Controller.ConstantPower()
 
 motor = BrushedDCMotor.MaxonRE65(dt=1e-3, verbose=False, battery_efficiency=battery_efficiency)
 powertrain = PowertrainModel.FreeWheel(motor, 10, transmission_efficiency=transmission_efficiency, verbose=False)
-car = SeparatedVehicleModel.SeparatedVehicleModel(powertrain, vehicle_parameters={'VehicleMass': mass, 'Cd': Cd, 'DriverMass': driver_mass}, verbose=False)
+car = SeparatedVehicleModel.SeparatedVehicleModel(powertrain, vehicle_parameters={'VehicleMass': vehicle_mass, 'Cd': Cd, 'DriverMass': driver_mass}, verbose=False)
 sim = SimulationWrapper.SimulationWrapper(car, track, controller, desired_time)
 
 
@@ -65,10 +67,10 @@ sim = SimulationWrapper.SimulationWrapper(car, track, controller, desired_time)
 sim.sensitivity_cost = MethodType(sensitivity_cost, sim)
 
 sensitivity = Sensitivity.Sensitivity()
-sensitivity.add_variable('Transmission Efficiency', powertrain.efficiency, dx=0.01)
-sensitivity.add_variable('Mass', car.vehicle_mass, dx=1)
-sensitivity.add_variable('Cd', car.Cd, dx=0.01)
-sensitivity.add_variable('Battery Efficiency', motor.battery_efficiency, dx=0.01)
+sensitivity.add_variable('Transmission Efficiency', powertrain.efficiency, dx=transmission_efficiency*0.01)
+sensitivity.add_variable('Mass', car.vehicle_mass, dx=vehicle_mass*0.01)
+sensitivity.add_variable('Cd', car.Cd, dx=Cd*0.01)
+sensitivity.add_variable('Battery Efficiency', motor.battery_efficiency, dx=battery_efficiency*0.01)
 
 sensitivity.sensitivity(sim.sensitivity_cost)
 

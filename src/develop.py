@@ -36,7 +36,7 @@ car = SeparatedVehicleModel.SeparatedVehicleModel(powertrain, verbose=True, vehi
 
 
 t_s = time.time()
-vehicle_results = car.simulate([1e-4, 1e-4], dt=0.25, t_end=300, verbose=True, track=track, controller=controller, solver=RKF45.RKF45)
+vehicle_results = car.simulate([1e-4, 1e-4], dt=1, t_end=300, verbose=True, track=track, controller=controller, solver=DP45.DP45)
 print('Elapsed time: ' + str(time.time() - t_s))
 
 Results.process_results(track, vehicle_results)

@@ -86,6 +86,7 @@ class VehicleRoot(ConstrainedParticle.ConstrainedParticle):
         information_dictionary['Fw'] = Fw
         information_dictionary['Fa'] = Fa
         information_dictionary['Fc'] = Fc
+        information_dictionary['Arc Length (m)'] = state[0]
         information_dictionary['Velocity (m/s)'] = velocity
         information_dictionary['Throttle Demand'] = throttle_demand
         information_dictionary['Net Force (N)'] = net_force
