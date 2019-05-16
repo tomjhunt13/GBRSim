@@ -12,11 +12,6 @@ class HorizontalCircle(Segment):
         self.length = 2 * np.pi * radius
 
     def direction(self, lambda_parameter):
-        """
-
-        :param lambda_parameter:
-        :return:
-        """
 
         # Get first derivative
         d = self.df_dlambda(lambda_parameter)
@@ -27,11 +22,6 @@ class HorizontalCircle(Segment):
         return 0
 
     def position(self, lambda_parameter):
-        """
-
-        :param t:
-        :return:
-        """
 
         P = [self.radius * np.cos(lambda_parameter * 2 * np.pi),
              self.radius * np.sin(lambda_parameter * 2 * np.pi),
@@ -71,11 +61,6 @@ class VerticalCircle(Segment):
         self.length = 2 * np.pi * radius
 
     def direction(self, lambda_parameter):
-        """
-
-        :param lambda_parameter:
-        :return:
-        """
 
         # Get first derivative
         d = self.df_dlambda(lambda_parameter)
@@ -83,11 +68,6 @@ class VerticalCircle(Segment):
         return np.multiply((1 / np.linalg.norm(d)), d)
 
     def position(self, lambda_parameter):
-        """
-
-        :param t:
-        :return:
-        """
 
         P = [self.radius * np.cos(lambda_parameter * 2 * np.pi),
              0,

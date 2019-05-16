@@ -18,27 +18,18 @@ class Line(Segment):
         coords = [[self.coordinates[0][i], self.coordinates[1][i]] for i in range(3)]
         return coords[0], coords[1], coords[2]
 
-    def direction(self, t):
-        """
-
-        :param t:
-        :return:
-        """
+    def direction(self, lambda_parameter):
 
         return list(np.divide(self._AB(), self._length()))
 
-    def position(self, t):
-        """
+    def position(self, lambda_parameter):
 
-        :param t:
-        :return:
-        """
-        return list(np.add(self.coordinates[0], np.multiply(t, self._AB())))
+        return list(np.add(self.coordinates[0], np.multiply(lambda_parameter, self._AB())))
 
-    def radius_of_curvature(self, t):
+    def radius_of_curvature(self, lambda_parameter):
         return 1e8
 
-    def df_dlambda(self, t):
+    def df_dlambda(self, lambda_parameter):
         return self._AB()
 
     def _length(self):

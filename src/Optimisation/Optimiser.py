@@ -8,6 +8,12 @@ class Optimiser(VariableManager.VariableManager):
         self.optimum = None
 
     def optimise(self, cost_function, **kwargs):
+        """
+        Optimise a cost function
+        :param cost_function: Pointer to a cost function
+        :param kwargs: Key word arguments used for child optimiser classes
+        :return: Optimisation result
+        """
 
         self.cost_function = cost_function
 
@@ -27,7 +33,6 @@ class Optimiser(VariableManager.VariableManager):
         return result
 
     def _optimise(self, **kwargs):
-
         pass
 
     def _assemble_bounds_vector(self):

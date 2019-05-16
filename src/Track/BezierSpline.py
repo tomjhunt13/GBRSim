@@ -40,11 +40,6 @@ class CubicBezier(Segment):
         return list(np.add(np.add(P0_contribution, P1_contribution), np.add(P2_contribution, P3_contribution)))
 
     def horizontal_radius_of_curvature(self, lambda_parameter):
-        """
-
-        :param lambda_parameter:
-        :return:
-        """
 
         curvature = self._curvature(lambda_parameter, horizontal=True)
         if np.isclose(curvature, 0, atol=1e-8):
